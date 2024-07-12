@@ -1,4 +1,4 @@
-struct Names {
+pub struct Names {
     names: String,
 }
 
@@ -9,7 +9,7 @@ impl ToString for Names {
 }
 
 impl Names {
-    fn new(names: String) -> Result<Self, String> {
+    pub fn new(names: String) -> Result<Self, String> {
         let names = names.trim();
 
         if names.is_empty() {

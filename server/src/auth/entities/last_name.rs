@@ -1,5 +1,5 @@
 #[derive(Debug)]
-struct LastName {
+pub struct LastName {
     last_name: String,
 }
 
@@ -10,7 +10,7 @@ impl ToString for LastName {
 }
 
 impl LastName {
-    fn new(last_name: String) -> Result<Self, String> {
+    pub fn new(last_name: String) -> Result<Self, String> {
         let last_name = last_name.trim() as &str;
 
         if last_name.is_empty() {

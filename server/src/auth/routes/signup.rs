@@ -1,4 +1,5 @@
-use actix_web::{get, post, web, HttpResponse, Responder};
+use crate::auth::services;
+use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
 use serde::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize)]
@@ -20,5 +21,18 @@ async fn hello() -> String {
 
 #[post("/")]
 async fn signup(professor: web::Form<Professor>) -> impl Responder {
-    HttpResponse::Ok().json(professor)
+    match services::signup::signup_professor(
+        professor.names.clone(),
+        professor.last_name1.clone(),
+        professor.last_name2.clone(),
+        professor.dni.clone(),
+    ) {
+        Ok(professor) => HttpResponse::Ok().body(professor),
+        Err((code, message)) => {
+            HttpResponse::build(StatusCode::from_u16(code).unwrap()).json(message)
+        }
+    };
+
+    // TODO: Delete this.
+    HttpResponse::Ok().finish()
 }
