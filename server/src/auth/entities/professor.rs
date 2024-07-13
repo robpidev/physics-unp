@@ -7,6 +7,7 @@ pub struct Professor {
     last_name2: LastName,
     dni: String,
     password: String,
+    gender: bool,
 }
 
 impl Professor {
@@ -16,6 +17,7 @@ impl Professor {
         last_name2: String,
         dni: String,
         password: String,
+        gender: bool,
     ) -> Result<Self, String> {
         let names = Names::new(names)?;
         let last_name1 = LastName::new(last_name1)?;
@@ -31,6 +33,7 @@ impl Professor {
             last_name2,
             dni,
             password,
+            gender,
         })
     }
 
@@ -41,18 +44,20 @@ impl Professor {
   "last_name1": "{}",
   "last_name2": "{}",
   "dni": "{}",
-  "password": "{}"
+  "password": "{}",
+  "gender": {}
 }}"#,
             self.names.to_string(),
             self.last_name1.to_string(),
             self.last_name2.to_string(),
             self.dni,
-            self.password
+            self.password,
+            self.gender,
         )
     }
 
     pub fn get_dni(&self) -> String {
-        self.dni.to_string()
+        self.dni.clone()
     }
 }
 

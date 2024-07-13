@@ -1,0 +1,57 @@
+use super::{last_name::LastName, names::Names};
+
+pub struct Student {
+    code: String,
+    names: Names,
+    last_name1: LastName,
+    last_name2: LastName,
+    password: String,
+    gender: bool,
+}
+
+impl Student {
+    pub fn new(
+        code: String,
+        names: String,
+        last_name1: String,
+        last_name2: String,
+        password: String,
+        gender: bool,
+    ) -> Result<Self, String> {
+        if password.len() < 8 {
+            return Err("Password must be at least 8 characters long".to_string());
+        }
+
+        Ok(Self {
+            code,
+            names: Names::new(names)?,
+            last_name1: LastName::new(last_name1)?,
+            last_name2: LastName::new(last_name2)?,
+            password,
+            gender,
+        })
+    }
+
+    pub fn to_json(&self) -> String {
+        format!(
+            r#"{{
+  "code": "{}",
+  "names": "{}",
+  "last_name1": "{}",
+  "last_name2": "{}",
+  "password": "{}",
+  "gender": {}
+}}"#,
+            self.code,
+            self.names.to_string(),
+            self.last_name1.to_string(),
+            self.last_name2.to_string(),
+            self.password,
+            self.gender
+        )
+    }
+
+    pub fn get_code(&self) -> String {
+        self.code.clone()
+    }
+}
