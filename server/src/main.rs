@@ -1,4 +1,4 @@
-use actix_web::{get, App, HttpResponse, HttpServer, Responder};
+use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use server::auth;
 
 #[get("/")]
@@ -12,7 +12,7 @@ async fn main() -> std::io::Result<()> {
 
     HttpServer::new(move || {
         App::new()
-            .app_data(db.clone())
+            .app_data(web::Data::new(db.clone()))
             .service(hello)
             .configure(auth::routes::config)
     })
