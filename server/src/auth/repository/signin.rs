@@ -1,5 +1,4 @@
 use std::env;
-use std::fmt::format;
 
 use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
@@ -9,11 +8,11 @@ use serde::de::DeserializeOwned;
 
 #[derive(Serialize)]
 struct Claims<T> {
-    sub: T,
+    user: T,
     exp: usize,
 }
 
-use crate::shared::entitities::{professor::ProfessorDB, student::StudentDB};
+use crate::shared::entities::{professor::ProfessorDB, student::StudentDB};
 use crate::shared::repository::db::DB;
 pub async fn sign_in(
     id: String,
@@ -65,7 +64,7 @@ async fn login<T: ToString + Serialize + DeserializeOwned>(
     };
 
     let user_str = user.to_string();
-    let claims = Claims { sub: user, exp: 30 };
+    let claims = Claims { user, exp: 30 };
 
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {

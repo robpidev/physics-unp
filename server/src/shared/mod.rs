@@ -1,2 +1,3 @@
-pub mod entitities;
+pub mod entities;
+pub mod middlewares;
 pub mod repository;

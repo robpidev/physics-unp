@@ -1,5 +1,5 @@
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use server::auth;
+use server::{auth, faculty};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -15,6 +15,7 @@ async fn main() -> std::io::Result<()> {
             .app_data(web::Data::new(db.clone()))
             .service(hello)
             .configure(auth::routes::config)
+            .configure(faculty::routes::config)
     })
     .bind(("127.0.0.1", 8080))?
     .run()

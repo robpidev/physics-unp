@@ -10,6 +10,12 @@ pub struct ProfessorDB {
     role: String,
 }
 
+impl ProfessorDB {
+    pub fn is_admin(&self) -> bool {
+        self.role == "admin"
+    }
+}
+
 impl ToString for ProfessorDB {
     fn to_string(&self) -> String {
         format!(

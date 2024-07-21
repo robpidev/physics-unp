@@ -2838,6 +2838,7 @@ version = "0.1.0"
 dependencies = [
  "actix-web",
  "dotenv",
+ "futures-util",
  "jsonwebtoken",
  "serde",
  "surrealdb",

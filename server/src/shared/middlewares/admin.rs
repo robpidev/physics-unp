@@ -13,7 +13,7 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
-use super::super::entities::profesor_db::ProfessorDB;
+use super::super::entities::professor::ProfessorDB;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
