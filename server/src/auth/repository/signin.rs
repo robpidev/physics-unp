@@ -1,4 +1,17 @@
+use std::env;
+use std::fmt::format;
+
+use dotenv::dotenv;
+use jsonwebtoken::{encode, EncodingKey, Header};
+use serde::Serialize;
+
 use serde::de::DeserializeOwned;
+
+#[derive(Serialize)]
+struct Claims<T> {
+    sub: T,
+    exp: usize,
+}
 
 use crate::shared::entitities::{professor::ProfessorDB, student::StudentDB};
 use crate::shared::repository::db::DB;
@@ -20,12 +33,14 @@ WHERE crypto::bcrypt::compare(password, '{}'))[0];
 
     if user_type == "professor" {
         login::<ProfessorDB>(query, db).await
-    } else {
+    } else if user_type == "student" {
         login::<StudentDB>(query, db).await
+    } else {
+        Err((400, "Invalid user type".to_string()))
     }
 }
 
-async fn login<T: ToString + DeserializeOwned>(
+async fn login<T: ToString + Serialize + DeserializeOwned>(
     query: String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
@@ -34,7 +49,7 @@ async fn login<T: ToString + DeserializeOwned>(
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
 
-    let professor = match resp.take::<Option<T>>(0) {
+    let user_result = match resp.take::<Option<T>>(0) {
         Ok(professor) => professor,
         Err(e) => {
             return Err((
@@ -44,10 +59,30 @@ async fn login<T: ToString + DeserializeOwned>(
         }
     };
 
-    match professor {
-        Some(professor) => Ok(professor.to_string()),
-        None => Err((500, "User or passwrod invalid".to_string())),
-    }
+    let user = match user_result {
+        Some(u) => u,
+        None => return Err((401, "User or password invalid".to_string())),
+    };
+
+    let user_str = user.to_string();
+    let claims = Claims { sub: user, exp: 30 };
+
+    dotenv().ok();
+    let secret = match env::var("SEED_JWT") {
+        Ok(s) => s,
+        Err(e) => return Err((500, format!("Error getting secret: {}", e.to_string()))),
+    };
+
+    let token = match encode(
+        &Header::default(),
+        &claims,
+        &EncodingKey::from_secret(secret.as_bytes()),
+    ) {
+        Ok(t) => t,
+        Err(e) => return Err((500, format!("Error encoding token: {}", e.to_string()))),
+    };
+
+    Ok(format!(r#"{{"user":{},"token":"{}"}}"#, user_str, token))
 }
 
 fn parse_error(error: String) -> String {

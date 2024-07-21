@@ -12,10 +12,10 @@ pub struct Professor {
 
 impl Professor {
     pub fn new(
+        dni: String,
         names: String,
         last_name1: String,
         last_name2: String,
-        dni: String,
         password: String,
         gender: bool,
     ) -> Result<Self, String> {
@@ -35,9 +35,6 @@ impl Professor {
             password,
             gender,
         })
-    }
-    pub fn get_dni(&self) -> String {
-        self.dni.clone()
     }
 }
 

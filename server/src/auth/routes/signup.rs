@@ -44,13 +44,13 @@ async fn hello() -> String {
 async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> impl Responder {
     //return HttpResponse::Ok().json(professor);
     let data = services::signup::register(
+        professor.dni.clone(),
+        professor.password.clone(),
+        "professor".to_string(),
         professor.names.clone(),
         professor.last_name1.clone(),
         professor.last_name2.clone(),
-        professor.dni.clone(),
-        professor.password.clone(),
-        professor.gender,
-        "professor".to_string(),
+        professor.gender.clone(),
         &db,
     )
     .await;
@@ -62,12 +62,12 @@ async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> im
 async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Responder {
     let resp = services::signup::register(
         student.code.clone(),
+        student.password.clone(),
+        "student".to_string(),
         student.names.clone(),
         student.last_name1.clone(),
         student.last_name2.clone(),
-        student.password.clone(),
         student.gender,
-        "student".to_string(),
         &db,
     )
     .await;

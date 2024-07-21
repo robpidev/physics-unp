@@ -31,10 +31,6 @@ impl Student {
             gender,
         })
     }
-
-    pub fn get_code(&self) -> String {
-        self.code.clone()
-    }
 }
 
 impl ToString for Student {
