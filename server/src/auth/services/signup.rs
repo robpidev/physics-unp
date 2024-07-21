@@ -5,36 +5,27 @@ use crate::auth::{
 
 pub type DB = crate::shared::repository::db::DB;
 
-pub async fn professor(
+pub async fn register(
     names: String,
     last_name1: String,
     last_name2: String,
     dni: String,
     password: String,
     gender: bool,
+    user_type: String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
-    let professor = match Professor::new(names, last_name1, last_name2, dni, password, gender) {
-        Ok(p) => p,
-        Err(e) => return Err((400u16, e)),
+    if user_type == "professor" {
+        match Professor::new(names, last_name1, last_name2, dni.clone(), password, gender) {
+            Ok(p) => return signup::save(p, dni, user_type, &db).await,
+            Err(e) => return Err((400u16, e)),
+        };
+    } else if user_type == "student" {
+        match Student::new(names, last_name1, last_name2, dni.clone(), password, gender) {
+            Ok(p) => return signup::save(p, dni, user_type, &db).await,
+            Err(e) => return Err((400u16, e)),
+        };
+    } else {
+        return Err((400u16, "Invalid user type".to_string()));
     };
-
-    signup::register_professor(professor, db).await
-}
-
-pub async fn student(
-    code: String,
-    names: String,
-    last_name1: String,
-    last_name2: String,
-    password: String,
-    gender: bool,
-    db: &DB,
-) -> Result<String, (u16, String)> {
-    let student = match Student::new(code, names, last_name1, last_name2, password, gender) {
-        Ok(s) => s,
-        Err(e) => return Err((400u16, e)),
-    };
-
-    signup::register_studend(student, db).await
 }

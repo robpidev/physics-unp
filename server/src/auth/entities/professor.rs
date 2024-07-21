@@ -36,26 +36,6 @@ impl Professor {
             gender,
         })
     }
-
-    pub fn to_json(&self) -> String {
-        format!(
-            r#"{{
-  "names": "{}",
-  "last_name1": "{}",
-  "last_name2": "{}",
-  "dni": "{}",
-  "password": "{}",
-  "gender": {}
-}}"#,
-            self.names.to_string(),
-            self.last_name1.to_string(),
-            self.last_name2.to_string(),
-            self.dni,
-            self.password,
-            self.gender,
-        )
-    }
-
     pub fn get_dni(&self) -> String {
         self.dni.clone()
     }
@@ -64,12 +44,20 @@ impl Professor {
 impl ToString for Professor {
     fn to_string(&self) -> String {
         format!(
-            r#"{{"names":"{}","last_name1":"{}","last_name2":"{}","dni":"{}", password:"{}"}}"#,
+            r#"{{
+  "names": "{}",
+  "last_name1": "{}",
+  "last_name2": "{}",
+  "dni": "{}",
+  "password": crypto::bcrypt::generate("{}"),
+  "gender": {}
+}}"#,
             self.names.to_string(),
             self.last_name1.to_string(),
             self.last_name2.to_string(),
             self.dni,
-            self.password
+            self.password,
+            self.gender,
         )
     }
 }

@@ -43,13 +43,14 @@ async fn hello() -> String {
 #[post("/professor")]
 async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> impl Responder {
     //return HttpResponse::Ok().json(professor);
-    let data = services::signup::professor(
+    let data = services::signup::register(
         professor.names.clone(),
         professor.last_name1.clone(),
         professor.last_name2.clone(),
         professor.dni.clone(),
         professor.password.clone(),
         professor.gender,
+        "professor".to_string(),
         &db,
     )
     .await;
@@ -59,13 +60,14 @@ async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> im
 
 #[post("/student")]
 async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Responder {
-    let resp = services::signup::student(
+    let resp = services::signup::register(
         student.code.clone(),
         student.names.clone(),
         student.last_name1.clone(),
         student.last_name2.clone(),
         student.password.clone(),
         student.gender,
+        "student".to_string(),
         &db,
     )
     .await;
@@ -73,7 +75,7 @@ async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Res
     response(resp)
 }
 
-fn response(data: Result<String, (u16, String)>) -> impl Responder {
+pub fn response(data: Result<String, (u16, String)>) -> impl Responder {
     match data {
         Ok(s) => HttpResponse::Ok().content_type(ContentType::json()).body(s),
 

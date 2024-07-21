@@ -32,14 +32,20 @@ impl Student {
         })
     }
 
-    pub fn to_json(&self) -> String {
+    pub fn get_code(&self) -> String {
+        self.code.clone()
+    }
+}
+
+impl ToString for Student {
+    fn to_string(&self) -> String {
         format!(
             r#"{{
   "code": "{}",
   "names": "{}",
   "last_name1": "{}",
   "last_name2": "{}",
-  "password": "{}",
+  "password": crypto::bcrypt::generate("{}"),
   "gender": {}
 }}"#,
             self.code,
@@ -49,9 +55,5 @@ impl Student {
             self.password,
             self.gender
         )
-    }
-
-    pub fn get_code(&self) -> String {
-        self.code.clone()
     }
 }
