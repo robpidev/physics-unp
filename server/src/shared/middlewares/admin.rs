@@ -32,19 +32,19 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = SayHiMiddleware<S>;
+    type Transform = AdminMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(SayHiMiddleware { service }))
+        ready(Ok(AdminMiddleware { service }))
     }
 }
 
-pub struct SayHiMiddleware<S> {
+pub struct AdminMiddleware<S> {
     service: S,
 }
 
-impl<S, B> Service<ServiceRequest> for SayHiMiddleware<S>
+impl<S, B> Service<ServiceRequest> for AdminMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
