@@ -78,8 +78,17 @@ where
         //    let err = error::ErrorUnauthorized("Invalid token").into();
         //    return Box::pin(async { Err(err) });
         //}
-        if let Err(e) = check_token(token) {
-            let err = error::ErrorUnauthorized(e.1).into();
+
+        let is_admin = match check_token(token) {
+            Ok(v) => v,
+            Err(e) => {
+                let err = error::ErrorUnauthorized(e.1).into();
+                return Box::pin(async { Err(err) });
+            }
+        };
+
+        if (req.path().contains("/add") || req.path().contains("/delete")) && !is_admin {
+            let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
 
@@ -94,7 +103,7 @@ struct Claims {
     exp: usize,
 }
 
-fn check_token(token: &str) -> Result<(), (u16, String)> {
+fn check_token(token: &str) -> Result<bool, (u16, String)> {
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
         Ok(v) => v,
@@ -110,9 +119,5 @@ fn check_token(token: &str) -> Result<(), (u16, String)> {
             Err(e) => return Err((500, format!("Error to decode: {}", e.to_string()))),
         };
 
-    if !professor.is_admin() {
-        return Err((401, "Not admin".to_string()));
-    }
-
-    Ok(())
+    Ok(professor.is_admin())
 }

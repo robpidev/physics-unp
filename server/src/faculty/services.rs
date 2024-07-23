@@ -1,0 +1,17 @@
+pub type DB = crate::shared::repository::db::DB;
+
+use serde::Serialize;
+
+use super::repository;
+
+pub async fn create(name: &String, db: &DB) -> Result<String, (u16, String)> {
+    repository::create(name, db).await
+}
+
+pub async fn get(name: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    repository::get(name, db).await
+}
+
+pub async fn delete(name: &String, db: &DB) -> Result<String, (u16, String)> {
+    repository::delete(name, db).await
+}
