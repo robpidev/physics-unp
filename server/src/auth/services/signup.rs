@@ -1,6 +1,6 @@
 use crate::auth::{
     entities::{professor::Professor, student::Student},
-    repository::signup,
+    repository::signup::{self, verify_school},
 };
 
 pub type DB = crate::shared::repository::db::DB;
@@ -13,16 +13,19 @@ pub async fn register(
     last_name1: String,
     last_name2: String,
     gender: bool,
+    school_id: &String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     if user_type == "professor" {
         match Professor::new(id.clone(), names, last_name1, last_name2, password, gender) {
-            Ok(p) => return signup::save(p, id, user_type, &db).await,
+            Ok(p) => return signup::save(p, id, user_type, school_id, &db).await,
             Err(e) => return Err((400u16, e)),
         };
     } else if user_type == "student" {
+        verify_school(school_id, &db).await?;
+
         match Student::new(id.clone(), names, last_name1, last_name2, password, gender) {
-            Ok(p) => return signup::save(p, id, user_type, &db).await,
+            Ok(p) => return signup::save(p, id, user_type, school_id, &db).await,
             Err(e) => return Err((400u16, e)),
         };
     } else {

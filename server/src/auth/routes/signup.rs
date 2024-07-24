@@ -24,6 +24,7 @@ struct StudentData {
     last_name2: String,
     password: String,
     gender: bool,
+    school_id: String,
 }
 
 pub fn config(cfg: &mut web::ServiceConfig) {
@@ -51,6 +52,7 @@ async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> im
         professor.last_name1.clone(),
         professor.last_name2.clone(),
         professor.gender.clone(),
+        &"".to_string(),
         &db,
     )
     .await;
@@ -68,6 +70,7 @@ async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Res
         student.last_name1.clone(),
         student.last_name2.clone(),
         student.gender,
+        &student.school_id,
         &db,
     )
     .await;
