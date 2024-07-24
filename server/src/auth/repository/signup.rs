@@ -1,5 +1,5 @@
 use crate::shared::{
-    entities::{professor::ProfessorDB, school::School, student::StudentDB},
+    entities::{professor::ProfessorDB, student::StudentDB},
     repository::db::DB,
 };
 use serde::{de::DeserializeOwned, Deserialize};

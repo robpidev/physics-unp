@@ -3,7 +3,6 @@ use surrealdb::{sql::Thing, Response};
 
 use super::DB;
 
-// TODO: Solve problem whit faculty_id this create the relation for any faculty_id
 pub async fn create(name: &String, faculty_id: &String, db: &DB) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
