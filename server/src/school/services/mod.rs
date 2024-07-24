@@ -10,3 +10,7 @@ pub async fn create(name: &String, faculty_id: &String, db: &DB) -> Result<Strin
 pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
     repository::get(db).await
 }
+
+pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
+    repository::delete(id, db).await
+}

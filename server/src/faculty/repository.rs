@@ -1,6 +1,6 @@
 use serde::{Deserialize, Serialize};
 
-use crate::shared::repository::db::DB;
+use crate::shared::{entities::faculty::Faculty, repository::db::DB};
 
 use surrealdb::sql::Thing;
 
@@ -61,7 +61,13 @@ pub async fn get(name: &String, db: &DB) -> Result<impl Serialize, (u16, String)
     };
 
     let faculties = match resp.take::<Vec<FacultyDB>>(0) {
-        Ok(faculties) => faculties,
+        Ok(faculties) => faculties
+            .into_iter()
+            .map(|f| Faculty {
+                id: f.id.to_string(),
+                name: f.name,
+            })
+            .collect::<Vec<Faculty>>(),
         Err(e) => {
             return Err((
                 400,

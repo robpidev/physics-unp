@@ -1,5 +1,5 @@
 use serde::{Deserialize, Serialize};
-use surrealdb::sql::Thing;
+use surrealdb::{sql::Thing, Response};
 
 use super::DB;
 
@@ -7,26 +7,24 @@ use super::DB;
 pub async fn create(name: &String, faculty_id: &String, db: &DB) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-(RELATE faculty:{}
--> includes ->
-(CREATE school SET name = '{}')).out.name;
+IF (SELECT * FROM {}) != [] THEN
+	(RELATE {} -> includes -> (CREATE school SET name = '{}')).out.name
+ELSE
+	(RETURN NONE)
+END;
     "#,
-        faculty_id, name
+        faculty_id, faculty_id, name
     );
 
-    let mut resp = match db.query(query).await {
-        Ok(resp) => resp,
-        Err(err) => return Err((500, format!("Database error: {}", err.to_string()))),
-    };
-
+    let mut resp = make_petition(&query, db).await?;
     let name = match resp.take::<Option<String>>(0) {
         Ok(school) => school,
-        Err(err) => return Err((500, format!("DB Error, School Exists: {}", err.to_string()))),
+        Err(_) => return Err((500, format!("DB Error, School Exists"))),
     };
 
     match name {
-        Some(name) => Ok(name),
-        None => Err((500, "Database error".to_string())),
+        Some(name) => Ok(format!("School created: {}", name)),
+        None => Err((401, "Faculty id dont't exist".to_string())),
     }
 }
 
@@ -45,10 +43,7 @@ struct School {
 pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query = format!(r#"SELECT id, name FROM school;"#);
 
-    let mut resp = match db.query(&query).await {
-        Ok(resp) => resp,
-        Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
-    };
+    let mut resp = make_petition(&query, db).await?;
 
     match resp.take::<Vec<SchoolDB>>(0) {
         Ok(schools) => Ok(schools
@@ -62,7 +57,24 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
     }
 }
 
-pub async fn delete(db: &DB) -> Result<String, (u16, String)> {
-    let query = format!(r#"DELETE school;"#);
-    todo!();
+pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
+    let query = format!(r#"DELETE {} RETURN BEFORE;"#, id);
+
+    let mut result = make_petition(&query, db).await?;
+
+    let school = match result.take::<Option<SchoolDB>>(0) {
+        Ok(school) => school,
+        Err(e) => return Err((500, format!("DB error: {}", e.to_string()))),
+    };
+    match school {
+        Some(school) => Ok(format!("School deleted: {}", school.name)),
+        None => return Err((401, "School don't exist".to_string())),
+    }
+}
+
+async fn make_petition(query: &String, db: &DB) -> Result<Response, (u16, String)> {
+    match db.query(query).await {
+        Ok(resp) => Ok(resp),
+        Err(e) => Err((500, format!("DB query error: {}", e.to_string()))),
+    }
 }
