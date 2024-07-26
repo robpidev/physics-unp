@@ -3,4 +3,5 @@ use serde::{Deserialize, Serialize};
 pub struct Course {
     pub id: String,
     pub name: String,
+    pub places: u16,
 }

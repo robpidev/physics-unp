@@ -87,7 +87,11 @@ where
             }
         };
 
-        if (req.path().contains("/add") || req.path().contains("/delete")) && !is_admin {
+        if (req.path().contains("/add")
+            || req.path().contains("/delete")
+            || req.path().contains("/unregister"))
+            && !is_admin
+        {
             let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
@@ -116,7 +120,7 @@ fn check_token(token: &str) -> Result<bool, (u16, String)> {
     let professor =
         match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate) {
             Ok(t) => t.claims.user,
-            Err(e) => return Err((500, format!("Error to decode: {}", e.to_string()))),
+            Err(e) => return Err((500, format!("Error Professor Tokene: {}", e.to_string()))),
         };
 
     Ok(professor.is_admin())

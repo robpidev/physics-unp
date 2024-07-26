@@ -18,3 +18,9 @@ impl ToString for StudentDB {
         )
     }
 }
+
+impl StudentDB {
+    pub fn get_id(&self) -> String {
+        self.code.clone()
+    }
+}
