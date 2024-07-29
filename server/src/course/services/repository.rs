@@ -187,3 +187,53 @@ DELETE enrolled where in={} && out={} return before
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
 }
+
+pub async fn asign_professor(
+    course_id: &String,
+    teacher_id: &String,
+    db: &DB,
+) -> Result<String, (u16, String)> {
+    let query = format!(
+        r#"
+RELATE {}->teaches->{};
+"#,
+        course_id, teacher_id
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    match resp.take::<Option<CourseDB>>(0) {
+        Ok(c) => match c {
+            Some(_) => Ok(format!(
+                "Teacher {} asigned to course {}",
+                teacher_id, course_id
+            )),
+            None => Err((400, format!("DB resp None"))),
+        },
+        Err(e) => Err((400, format!("Teacher already asigned: {}", e.to_string()))),
+    }
+}
+
+pub async fn desasign_professor(
+    course_id: &String,
+    teacher_id: &String,
+    db: &DB,
+) -> Result<String, (u16, String)> {
+    let query = format!(
+        r#"
+DELETE teaches where in={} && out={} return before
+"#,
+        course_id, teacher_id
+    );
+
+    match db.query(query).await {
+        Ok(_) => Ok(format!(
+            "Teacher {} desasigned from course {}",
+            teacher_id, course_id
+        )),
+        Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
+    }
+}
