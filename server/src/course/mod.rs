@@ -9,9 +9,9 @@ mod services;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
-        web::scope("")
+        web::scope("/course")
             .service(
-                web::scope("/professor/course")
+                web::scope("/professor")
                     .wrap(Admin)
                     .service(add)
                     .service(delete)
@@ -21,7 +21,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(unregister),
             )
             .service(
-                web::scope("/course")
+                web::scope("")
                     .wrap(StudentAuth)
                     .service(get)
                     .service(get_by_school)
