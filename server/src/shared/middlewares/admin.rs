@@ -89,7 +89,8 @@ where
 
         if (req.path().contains("/add")
             || req.path().contains("/delete")
-            || req.path().contains("/unregister"))
+            || req.path().contains("/unregister")
+            || req.path().contains("/asign"))
             && !is_admin
         {
             let err = error::ErrorUnauthorized("Not admin").into();

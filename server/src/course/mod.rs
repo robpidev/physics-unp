@@ -18,7 +18,9 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(get)
                     .service(get_by_school)
                     .service(register_by_id)
-                    .service(unregister),
+                    .service(unregister)
+                    .service(asign)
+                    .service(unasign),
             )
             .service(
                 web::scope("")
@@ -37,6 +39,8 @@ struct Add {
     school_id: String,
 }
 
+// General
+
 #[get("")]
 async fn get(db: web::Data<services::DB>) -> impl Responder {
     match services::get_all(&db).await {
@@ -45,7 +49,8 @@ async fn get(db: web::Data<services::DB>) -> impl Responder {
     }
 }
 
-#[post("")]
+// Professor
+#[post("/add")]
 async fn add(add: web::Form<Add>, db: web::Data<services::DB>) -> impl Responder {
     match services::create(&add.name, add.places, &add.school_id, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
@@ -53,7 +58,7 @@ async fn add(add: web::Form<Add>, db: web::Data<services::DB>) -> impl Responder
     }
 }
 
-#[delete("/delete/{id}")]
+#[delete("delete/{id}")]
 async fn delete(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
     match services::delete(&id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
@@ -95,7 +100,7 @@ struct Enroll {
     user_id: String,
 }
 
-#[post("/enroll")]
+#[post("/register")]
 async fn register_by_id(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
     match services::register(&data.course_id, &data.user_id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
@@ -103,7 +108,7 @@ async fn register_by_id(data: web::Form<Enroll>, db: web::Data<services::DB>) ->
     }
 }
 
-#[delete("/unenroll/")]
+#[delete("/register/")]
 async fn unregister(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
     match services::unregister(&data.course_id, &data.user_id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
@@ -111,16 +116,23 @@ async fn unregister(data: web::Form<Enroll>, db: web::Data<services::DB>) -> imp
     }
 }
 
+#[derive(Deserialize)]
+struct Asign {
+    course_id: String,
+    user_id: String,
+    role: String,
+}
+
 #[post("/asign")]
-async fn asign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
-    match services::asign_professor(&data.course_id, &data.user_id, &db).await {
+async fn asign(data: web::Form<Asign>, db: web::Data<services::DB>) -> impl Responder {
+    match services::asign_professor(&data.course_id, &data.user_id, &data.role, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[delete("/asign")]
-async fn desasign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
+async fn unasign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
     match services::desasign_professor(&data.course_id, &data.user_id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
