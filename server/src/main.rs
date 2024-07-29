@@ -1,4 +1,7 @@
+use std::env;
+
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
+use dotenv::dotenv;
 use server::{auth, course, faculty, school};
 
 #[get("/")]
@@ -8,7 +11,12 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let db = server::shared::repository::db::db_connect().await.unwrap();
+    // Load db
+    dotenv().ok();
+    let db_host = env::var("DB_HOST").unwrap();
+    let db = server::shared::repository::db::db_connect(db_host)
+        .await
+        .unwrap();
 
     HttpServer::new(move || {
         App::new()

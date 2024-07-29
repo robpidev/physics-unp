@@ -6,9 +6,9 @@ use surrealdb::{
 
 pub type DB = Surreal<Client>;
 
-pub async fn db_connect() -> Result<DB, String> {
+pub async fn db_connect(host: String) -> Result<DB, String> {
     print!("Connecting to database...");
-    let db = match Surreal::new::<Ws>("127.0.0.1:8000").await {
+    let db = match Surreal::new::<Ws>(host).await {
         Ok(db) => db,
         Err(e) => return Err(format!("DB HOST ERROR: {}", e.to_string())),
     };
