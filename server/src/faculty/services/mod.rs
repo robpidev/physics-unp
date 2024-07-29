@@ -1,8 +1,8 @@
+mod repository;
+
 pub type DB = crate::shared::repository::db::DB;
 
 use serde::Serialize;
-
-use super::repository;
 
 pub async fn create(name: &String, db: &DB) -> Result<String, (u16, String)> {
     repository::create(name, db).await

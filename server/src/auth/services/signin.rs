@@ -1,4 +1,4 @@
-use crate::auth::repository::signin;
+use super::repository::signin;
 
 pub type DB = crate::shared::repository::db::DB;
 
