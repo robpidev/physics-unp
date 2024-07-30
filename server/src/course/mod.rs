@@ -20,7 +20,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(register_by_id)
                     .service(unregister)
                     .service(asign)
-                    .service(unasign),
+                    .service(unasign)
+                    .service(get_by_professor),
             )
             .service(
                 web::scope("")
@@ -66,12 +67,22 @@ async fn delete(id: web::Path<String>, db: web::Data<services::DB>) -> impl Resp
     }
 }
 
-#[get("/{school_id}")]
+#[get("/courses/{school_id}")]
 async fn get_by_school(
     school_id: web::Path<String>,
     db: web::Data<services::DB>,
 ) -> impl Responder {
     match services::get_by_school(&school_id, &db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[get("/courses")]
+async fn get_by_professor(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+    let professor_id = req.extensions().get::<String>().unwrap().clone();
+
+    match services::get_by_professor(&professor_id, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

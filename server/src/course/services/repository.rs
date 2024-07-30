@@ -98,7 +98,7 @@ pub async fn get_by_school(school_id: &String, db: &DB) -> Result<impl Serialize
         r#"
 SELECT
 out.id as id, out.name as name, out.places as places
-FROM {}->offers
+FROM school:{}->offers
         "#,
         school_id,
     );
@@ -118,6 +118,47 @@ FROM {}->offers
             })
             .collect::<Vec<Course>>()),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
+    }
+}
+
+#[derive(Deserialize)]
+pub struct SchoolDB {
+    id: Thing,
+    name: String,
+}
+
+#[derive(Serialize)]
+pub struct School {
+    id: String,
+    name: String,
+}
+
+pub async fn get_by_professor(
+    professor_id: &String,
+    db: &DB,
+) -> Result<impl Serialize, (u16, String)> {
+    let query = format!(
+        r#"
+SELECT out.name AS name, out.id AS id FROM professor:{}->teaches; 
+    "#,
+        professor_id
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    match resp.take::<Vec<SchoolDB>>(0) {
+        Ok(schools) => Ok(schools
+            .into_iter()
+            .map(|s| School {
+                id: s.id.id.to_string(),
+                name: s.name,
+            })
+            .collect::<Vec<School>>()),
+
+        Err(e) => Err((500, format!("DB error to parse: {}", e.to_string()))),
     }
 }
 

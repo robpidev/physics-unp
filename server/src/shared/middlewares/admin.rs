@@ -1,3 +1,4 @@
+use actix_web::HttpMessage;
 use dotenv::dotenv;
 use std::env;
 use std::future::{ready, Ready};
@@ -79,8 +80,8 @@ where
         //    return Box::pin(async { Err(err) });
         //}
 
-        let is_admin = match check_token(token) {
-            Ok(v) => v,
+        let professor = match check_token(token) {
+            Ok(p) => p,
             Err(e) => {
                 let err = error::ErrorUnauthorized(e.1).into();
                 return Box::pin(async { Err(err) });
@@ -91,11 +92,13 @@ where
             || req.path().contains("/delete")
             || req.path().contains("/unregister")
             || req.path().contains("/asign"))
-            && !is_admin
+            && !professor.is_admin()
         {
             let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
+
+        req.extensions_mut().insert(professor.dni);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })
@@ -108,7 +111,7 @@ struct Claims {
     exp: usize,
 }
 
-fn check_token(token: &str) -> Result<bool, (u16, String)> {
+fn check_token(token: &str) -> Result<ProfessorDB, (u16, String)> {
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
         Ok(v) => v,
@@ -124,5 +127,5 @@ fn check_token(token: &str) -> Result<bool, (u16, String)> {
             Err(e) => return Err((500, format!("Error Professor Tokene: {}", e.to_string()))),
         };
 
-    Ok(professor.is_admin())
+    Ok(professor)
 }

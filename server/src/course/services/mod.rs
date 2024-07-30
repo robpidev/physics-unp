@@ -27,6 +27,13 @@ pub async fn get_by_school(id: &String, db: &DB) -> Result<impl Serialize, (u16,
     repository::get_by_school(id, db).await
 }
 
+pub async fn get_by_professor(
+    professor_id: &String,
+    db: &DB,
+) -> Result<impl Serialize, (u16, String)> {
+    repository::get_by_professor(professor_id, db).await
+}
+
 pub async fn register(
     course_id: &String,
     student_id: &String,
