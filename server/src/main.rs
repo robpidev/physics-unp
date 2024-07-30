@@ -2,7 +2,7 @@ use std::env;
 
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
 use dotenv::dotenv;
-use server::{auth, course, faculty, professor, school};
+use server::{auth, course, evaluation, faculty, professor, school};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -27,6 +27,7 @@ async fn main() -> std::io::Result<()> {
             .configure(school::routes)
             .configure(course::routes)
             .configure(professor::routes)
+            .configure(evaluation::routes)
     })
     .bind(("127.0.0.1", 8080))?
     .run()
