@@ -1,4 +1,4 @@
-use crate::auth::{
+use super::{
     entities::{professor::Professor, student::Student},
     repository::signup::{self, verify_school},
 };

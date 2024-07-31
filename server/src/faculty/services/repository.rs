@@ -64,7 +64,7 @@ pub async fn get(name: &String, db: &DB) -> Result<impl Serialize, (u16, String)
         Ok(faculties) => faculties
             .into_iter()
             .map(|f| Faculty {
-                id: f.id.to_string(),
+                id: f.id.id.to_string(),
                 name: f.name,
             })
             .collect::<Vec<Faculty>>(),

@@ -1,5 +1,8 @@
+use std::env;
+
 use actix_web::{get, web, App, HttpResponse, HttpServer, Responder};
-use server::{auth, course, faculty, school};
+use dotenv::dotenv;
+use server::{auth, course, evaluation, faculty, professor, school, student};
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -8,18 +11,28 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    let db = server::shared::repository::db::db_connect().await.unwrap();
+    // Load db
+    dotenv().ok();
+    let db_host = env::var("DB_HOST").unwrap();
+    let host = env::var("HOST").unwrap();
+
+    let db = server::shared::repository::db::db_connect(db_host)
+        .await
+        .unwrap();
 
     HttpServer::new(move || {
         App::new()
             .app_data(web::Data::new(db.clone()))
             .service(hello)
-            .configure(auth::routes::config)
-            .configure(faculty::routes::config)
+            .configure(auth::routes)
+            .configure(faculty::routes)
             .configure(school::routes)
             .configure(course::routes)
+            .configure(professor::routes)
+            .configure(evaluation::routes)
+            .configure(student::routes)
     })
-    .bind(("127.0.0.1", 8080))?
+    .bind(host)?
     .run()
     .await
 }

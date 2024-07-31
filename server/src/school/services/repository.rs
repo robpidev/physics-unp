@@ -7,7 +7,7 @@ pub async fn create(name: &String, faculty_id: &String, db: &DB) -> Result<Strin
     let query = format!(
         r#"
 IF (SELECT * FROM {}) != [] THEN
-	(RELATE {} -> includes -> (CREATE school SET name = '{}')).out.name
+	(RELATE faculty:{} -> includes -> (CREATE school SET name = '{}')).out.name
 ELSE
 	(RETURN NONE)
 END;
@@ -48,7 +48,7 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
         Ok(schools) => Ok(schools
             .into_iter()
             .map(|s| School {
-                id: s.id.to_string(),
+                id: s.id.id.to_string(),
                 name: s.name,
             })
             .collect::<Vec<School>>()),
@@ -57,7 +57,7 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
 }
 
 pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
-    let query = format!(r#"DELETE {} RETURN BEFORE;"#, id);
+    let query = format!(r#"DELETE school:{} RETURN BEFORE;"#, id);
 
     let mut result = make_petition(&query, db).await?;
 

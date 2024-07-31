@@ -47,7 +47,7 @@ COMMIT TRANSACTION;
 
     match course {
         Some(c) => Ok(Course {
-            id: c.id.to_string(),
+            id: c.id.id.to_string(),
             name: c.name,
             places: c.places,
         }),
@@ -84,7 +84,7 @@ pub async fn get_all(db: &DB) -> Result<impl Serialize, (u16, String)> {
         Ok(resp) => Ok(resp
             .into_iter()
             .map(|c| Course {
-                id: c.id.to_string(),
+                id: c.id.id.to_string(),
                 name: c.name,
                 places: c.places,
             })
@@ -98,7 +98,7 @@ pub async fn get_by_school(school_id: &String, db: &DB) -> Result<impl Serialize
         r#"
 SELECT
 out.id as id, out.name as name, out.places as places
-FROM {}->offers
+FROM school:{}->offers
         "#,
         school_id,
     );
@@ -112,7 +112,7 @@ FROM {}->offers
         Ok(resp) => Ok(resp
             .into_iter()
             .map(|c| Course {
-                id: c.id.to_string(),
+                id: c.id.id.to_string(),
                 name: c.name,
                 places: c.places,
             })
@@ -121,8 +121,49 @@ FROM {}->offers
     }
 }
 
+#[derive(Deserialize)]
+pub struct SchoolDB {
+    id: Thing,
+    name: String,
+}
+
+#[derive(Serialize)]
+pub struct School {
+    id: String,
+    name: String,
+}
+
+pub async fn get_by_professor(
+    professor_id: &String,
+    db: &DB,
+) -> Result<impl Serialize, (u16, String)> {
+    let query = format!(
+        r#"
+SELECT out.name AS name, out.id AS id FROM professor:{}->teaches; 
+    "#,
+        professor_id
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    match resp.take::<Vec<SchoolDB>>(0) {
+        Ok(schools) => Ok(schools
+            .into_iter()
+            .map(|s| School {
+                id: s.id.id.to_string(),
+                name: s.name,
+            })
+            .collect::<Vec<School>>()),
+
+        Err(e) => Err((500, format!("DB error to parse: {}", e.to_string()))),
+    }
+}
+
 pub async fn check_id(id: &String, db: &DB) -> Result<bool, (u16, String)> {
-    let query = format!("SELECT * FROM ONLY {};", id);
+    let query = format!("SELECT * FROM ONLY course:{};", id);
 
     let mut resp = match db.query(query).await {
         Ok(resp) => resp,
@@ -138,6 +179,12 @@ pub async fn check_id(id: &String, db: &DB) -> Result<bool, (u16, String)> {
     }
 }
 
+#[derive(Deserialize)]
+pub struct Enroll {
+    #[allow(dead_code)]
+    id: Thing,
+}
+
 pub async fn enroll(
     student_id: &String,
     course_id: &String,
@@ -145,7 +192,7 @@ pub async fn enroll(
 ) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-RELATE {}->enrolled->{};
+select id from RELATE student:{}->enrolled->course:{};
 "#,
         student_id, course_id
     );
@@ -155,7 +202,7 @@ RELATE {}->enrolled->{};
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
 
-    match resp.take::<Option<CourseDB>>(0) {
+    match resp.take::<Option<Enroll>>(0) {
         Ok(c) => match c {
             Some(_) => Ok(format!(
                 "Student {} enrolled in course {}",
@@ -174,7 +221,7 @@ pub async fn unregister(
 ) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-DELETE enrolled where in={} && out={} return before
+DELETE enrolled where in=student:{} && out=course:{} return before
 "#,
         student_id, course_id
     );
@@ -191,13 +238,19 @@ DELETE enrolled where in={} && out={} return before
 pub async fn asign_professor(
     course_id: &String,
     teacher_id: &String,
+    role: &String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-RELATE {}->teaches->{};
+if (select in as in from course:{}<-teaches)[0].in != professor:{} {{
+     RELATE professor:{}->teaches->course:{} set role = "{}";
+     RETURN "created";
+}} else {{
+    return NONE;
+}}
 "#,
-        course_id, teacher_id
+        course_id, teacher_id, teacher_id, course_id, role
     );
 
     let mut resp = match db.query(query).await {
@@ -205,15 +258,15 @@ RELATE {}->teaches->{};
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
 
-    match resp.take::<Option<CourseDB>>(0) {
-        Ok(c) => match c {
+    match resp.take::<Option<String>>(0) {
+        Ok(r) => match r {
             Some(_) => Ok(format!(
                 "Teacher {} asigned to course {}",
                 teacher_id, course_id
             )),
-            None => Err((400, format!("DB resp None"))),
+            None => Err((400, format!("Teacher alredy assigned"))),
         },
-        Err(e) => Err((400, format!("Teacher already asigned: {}", e.to_string()))),
+        Err(e) => Err((500, format!("DB parse error: {}", e.to_string()))),
     }
 }
 
@@ -224,9 +277,9 @@ pub async fn desasign_professor(
 ) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-DELETE teaches where in={} && out={} return before
+DELETE teaches where in=professor:{} && out=course:{} return before
 "#,
-        course_id, teacher_id
+        teacher_id, course_id
     );
 
     match db.query(query).await {

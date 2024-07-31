@@ -27,6 +27,13 @@ pub async fn get_by_school(id: &String, db: &DB) -> Result<impl Serialize, (u16,
     repository::get_by_school(id, db).await
 }
 
+pub async fn get_by_professor(
+    professor_id: &String,
+    db: &DB,
+) -> Result<impl Serialize, (u16, String)> {
+    repository::get_by_professor(professor_id, db).await
+}
+
 pub async fn register(
     course_id: &String,
     student_id: &String,
@@ -50,9 +57,10 @@ pub async fn unregister(
 pub async fn asign_professor(
     course_id: &String,
     professor_id: &String,
+    role: &String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
-    repository::asign_professor(course_id, professor_id, db).await
+    repository::asign_professor(course_id, professor_id, role, db).await
 }
 
 pub async fn desasign_professor(
