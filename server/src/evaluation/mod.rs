@@ -1,5 +1,9 @@
 use actix_web::{
-    get, http::StatusCode, post, web, HttpMessage, HttpRequest, HttpResponse, Responder,
+    get,
+    http::StatusCode,
+    post,
+    web::{self},
+    HttpMessage, HttpRequest, HttpResponse, Responder,
 };
 use serde::Deserialize;
 use services::{add_evaluation, DB};
@@ -18,9 +22,18 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
     );
 }
 
-#[get("")]
-async fn get() -> impl Responder {
-    HttpResponse::Ok().body("Hello from evaluation")
+#[derive(Deserialize)]
+struct Data {
+    student_id: String,
+    course_id: String,
+}
+
+#[post("")]
+async fn get(data: web::Form<Data>, db: web::Data<DB>) -> impl Responder {
+    match services::get_evaluations(&data.student_id, &data.course_id, &db).await {
+        Ok(evs) => HttpResponse::Ok().json(evs),
+        Err((c, e)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(e),
+    }
 }
 
 #[derive(Deserialize)]

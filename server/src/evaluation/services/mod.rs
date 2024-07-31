@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 mod repository;
 
 pub type DB = crate::shared::repository::db::DB;
@@ -18,6 +20,13 @@ pub async fn add_evaluation(
         return Err((400, format!("You aren't practice professor")));
     }
 
-    repository::register_evaluation(professor_id, student_id, ev_type, score, number, weight, db)
-        .await
+    repository::register_evaluation(course_id, student_id, ev_type, score, number, weight, db).await
+}
+
+pub async fn get_evaluations(
+    student_id: &String,
+    course_id: &String,
+    db: &DB,
+) -> Result<impl Serialize, (u16, String)> {
+    repository::get_evaluation(student_id, course_id, db).await
 }
