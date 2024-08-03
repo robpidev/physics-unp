@@ -1,5 +1,4 @@
 use actix_web::{
-    get,
     http::StatusCode,
     post,
     web::{self},

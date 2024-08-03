@@ -24,16 +24,15 @@ pub async fn sign_in(
         r#"
 (SELECT
 *
-FROM {}:{}
-WHERE crypto::bcrypt::compare(password, '{}'))[0];
+FROM type::thing($table, <int>$id)
+WHERE crypto::bcrypt::compare(password, $password))[0];
 "#,
-        user_type, id, password
     );
 
     if user_type == "professor" {
-        login::<ProfessorDB>(query, db).await
+        login::<ProfessorDB>(query, user_type, &id, password, db).await
     } else if user_type == "student" {
-        login::<StudentDB>(query, db).await
+        login::<StudentDB>(query, user_type, &id, password, db).await
     } else {
         Err((400, "Invalid user type".to_string()))
     }
@@ -41,9 +40,18 @@ WHERE crypto::bcrypt::compare(password, '{}'))[0];
 
 async fn login<T: ToString + Serialize + DeserializeOwned>(
     query: String,
+    table: &str,
+    id: &String,
+    password: String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
-    let mut resp = match db.query(query).await {
+    let mut resp = match db
+        .query(query)
+        .bind(("table", table))
+        .bind(("id", id))
+        .bind(("password", password))
+        .await
+    {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
