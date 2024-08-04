@@ -2,14 +2,15 @@ use crate::shared::{
     entities::{professor::ProfessorDB, student::StudentDB},
     repository::db::DB,
 };
-use serde::{de::DeserializeOwned, Deserialize};
-use surrealdb::sql::Thing;
 
-async fn register<T: ToString + DeserializeOwned>(
-    query: String,
-    db: &DB,
+use super::super::entities::{professor::Professor, student::Student};
+use serde::{de::DeserializeOwned, Deserialize};
+use surrealdb::{sql::Thing, Error, Response};
+
+async fn response_parse<T: ToString + DeserializeOwned>(
+    res: Result<Response, Error>,
 ) -> Result<String, (u16, String)> {
-    let mut resp = match db.query(query).await {
+    let mut resp = match res {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
@@ -40,60 +41,80 @@ fn parse_error(error: String) -> String {
     }
 }
 
-fn query_professor(person: String, id: String, person_type: String) -> String {
-    format!(
-        r#"
-IF (SELECT * FROM register_time WHERE for = "{}" AND from < time::now() AND to > time::now()) != []
-  {{
-		RETURN CREATE {}:{} CONTENT {};
-	}}
+pub async fn register_professor(professor: Professor, db: &DB) -> Result<String, (u16, String)> {
+    let query = r#"
+IF (SELECT * FROM register_time WHERE for = "professor" AND from < time::now() AND to > time::now()) != []
+  {
+		RETURN CREATE type::thing('professor', <int>$id) CONTENT {
+    names: $names,
+    last_name1: $last_name1,
+    last_name2: $last_name2,
+    dni: $dni,
+    password: crypto::bcrypt::generate($password),
+    gender: $gender,
+    };
+	}
 ELSE
-  {{
+  {
 		THROW 'Register no avilable';
-	}}
-;"#,
-        person_type, person_type, id, person
-    )
+	}
+;"#;
+
+    let res = db
+        .query(query)
+        .bind(("id", professor.dni.clone()))
+        .bind(("names", professor.names.to_string()))
+        .bind(("last_name1", professor.last_name1.to_string()))
+        .bind(("last_name2", professor.last_name2.to_string()))
+        .bind(("dni", professor.dni))
+        .bind(("password", professor.password))
+        .bind(("gender", professor.gender))
+        .await;
+
+    response_parse::<ProfessorDB>(res).await
 }
 
-fn query_student(person: String, id: String, school_id: &String) -> String {
-    format!(
-        r#"
-BEGIN TRANSACTION;
-IF (SELECT * FROM register_time WHERE for = 'student' AND from < time::now() AND to > time::now()) != []
-  {{
-        let $s = CREATE student:{} CONTENT {};
-		RELATE (select * from {}) -> has -> $s;
-        RETURN $s
-	}}
-ELSE
-  {{
-		THROW 'Register no avilable';
-	}}
-;
-COMMIT TRANSACTION;
-    "#,
-        id, person, school_id
-    )
-}
-
-pub async fn save<T: ToString>(
-    person: T,
-    id: String,
-    user_type: String,
+pub async fn register_student(
+    student: Student,
     school_id: &String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
-    let query;
-    if user_type == "professor" {
-        query = query_professor(person.to_string(), id, user_type.clone());
-        register::<ProfessorDB>(query, db).await
-    } else if user_type == "student" {
-        query = query_student(person.to_string(), id, school_id);
-        register::<StudentDB>(query, db).await
-    } else {
-        Err((400, "User type not valid".to_string()))
-    }
+    let query = r#"
+BEGIN TRANSACTION;
+IF (SELECT * FROM register_time WHERE for = 'student' AND from < time::now() AND to > time::now()) != []
+  {
+        let $s = CREATE type::thing('student', <int>$id) CONTENT {
+        names: $names,
+        last_name1: $last_name1,
+        last_name2: $last_name2,
+        code: $code,
+        password: crypto::bcrypt::generate($password),
+        gender: $gender,
+        };
+		RELATE (select * from type::thing('student', $school_id)) -> has -> $s;
+        RETURN $s;
+	}
+ELSE
+  {
+		THROW 'Register no avilable';
+	}
+;
+COMMIT TRANSACTION;
+    "#;
+
+    let res = db
+        .query(query)
+        .bind(("id", student.code.clone()))
+        .bind(("names", student.names.to_string()))
+        .bind(("last_name1", student.last_name1.to_string()))
+        .bind(("last_name2", student.last_name2.to_string()))
+        .bind(("code", student.code))
+        .bind(("password", student.password))
+        .bind(("gender", student.gender))
+        .bind(("school_id", school_id))
+        .await;
+
+    response_parse::<StudentDB>(res).await
 }
 
 #[derive(Deserialize)]
@@ -103,8 +124,8 @@ struct SchoolDB {
 }
 
 pub async fn verify_school(school_id: &String, db: &DB) -> Result<(), (u16, String)> {
-    let query = format!("select id from {}", school_id);
-    let mut resp = match db.query(query).await {
+    let query = "select id from type::thing('school', $id)";
+    let mut resp = match db.query(query).bind(("id", school_id)).await {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };

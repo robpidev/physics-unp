@@ -38,6 +38,10 @@
 
 	<nav>
 		<ul>
+<<<<<<< HEAD
+			<li><a class="link" href="/">link 1</a></li>
+			<li><a class="signin" href="/signin">Iniciar sesión</a></li>
+=======
 			{#if tk !== null}
 				<li><span class="name">{usr?.names}</span></li>
 				<li>
@@ -46,6 +50,7 @@
 			{:else if !$page.url.pathname.includes('/signin') && !$page.url.pathname.includes('/signup')}
 				<li><a class="signin" href="/signin">Iniciar sesión</a></li>
 			{/if}
+>>>>>>> 99da2311c3e72a3fee7302281841e69e312a0b61
 		</ul>
 	</nav>
 </header>

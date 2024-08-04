@@ -1,12 +1,12 @@
 use super::{last_name::LastName, names::Names};
 
 pub struct Student {
-    code: String,
-    names: Names,
-    last_name1: LastName,
-    last_name2: LastName,
-    password: String,
-    gender: bool,
+    pub code: String,
+    pub names: Names,
+    pub last_name1: LastName,
+    pub last_name2: LastName,
+    pub password: String,
+    pub gender: bool,
 }
 
 impl Student {
