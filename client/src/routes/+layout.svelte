@@ -7,7 +7,7 @@
 	<nav>
 		<ul>
 			<li><a class="link" href="/">link 1</a></li>
-			<li><a class="signin" href="/">Iniciar sesión</a></li>
+			<li><a class="signin" href="/signin">Iniciar sesión</a></li>
 		</ul>
 	</nav>
 </header>
