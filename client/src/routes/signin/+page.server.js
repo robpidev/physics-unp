@@ -1,7 +1,7 @@
 import { fail } from "@sveltejs/kit";
 
 export const actions = {
-  signin: async ({ request, cookies }) => {
+  signin: async ({ request }) => {
     const data = await request.formData();
 
     const url = 'http://localhost:8080/auth/signin';
