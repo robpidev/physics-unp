@@ -18,14 +18,14 @@ pub async fn register(
 ) -> Result<String, (u16, String)> {
     if user_type == "professor" {
         match Professor::new(id.clone(), names, last_name1, last_name2, password, gender) {
-            Ok(p) => return signup::save(p, id, user_type, school_id, &db).await,
+            Ok(p) => return signup::register_professor(p, &db).await,
             Err(e) => return Err((400u16, e)),
         };
     } else if user_type == "student" {
         verify_school(school_id, &db).await?;
 
         match Student::new(id.clone(), names, last_name1, last_name2, password, gender) {
-            Ok(p) => return signup::save(p, id, user_type, school_id, &db).await,
+            Ok(p) => return signup::register_student(p, school_id, &db).await,
             Err(e) => return Err((400u16, e)),
         };
     } else {

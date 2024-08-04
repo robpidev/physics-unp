@@ -20,14 +20,12 @@ pub async fn sign_in(
     user_type: &str,
     db: &DB,
 ) -> Result<String, (u16, String)> {
-    let query = format!(
-        r#"
+    let query = "
 (SELECT
 *
 FROM type::thing($table, <int>$id)
 WHERE crypto::bcrypt::compare(password, $password))[0];
-"#,
-    );
+";
 
     if user_type == "professor" {
         login::<ProfessorDB>(query, user_type, &id, password, db).await
@@ -39,7 +37,7 @@ WHERE crypto::bcrypt::compare(password, $password))[0];
 }
 
 async fn login<T: ToString + Serialize + DeserializeOwned>(
-    query: String,
+    query: &str,
     table: &str,
     id: &String,
     password: String,

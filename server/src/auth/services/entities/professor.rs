@@ -2,12 +2,12 @@ use super::last_name::LastName;
 use super::names::Names;
 
 pub struct Professor {
-    names: Names,
-    last_name1: LastName,
-    last_name2: LastName,
-    dni: String,
-    password: String,
-    gender: bool,
+    pub names: Names,
+    pub last_name1: LastName,
+    pub last_name2: LastName,
+    pub dni: String,
+    pub password: String,
+    pub gender: bool,
 }
 
 impl Professor {

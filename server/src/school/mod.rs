@@ -1,17 +1,26 @@
 mod services;
 
-use actix_web::{delete, get, http::StatusCode, post, web, HttpResponse, Responder};
+use actix_web::{
+    delete, get,
+    http::StatusCode,
+    post,
+    web::{self},
+    HttpResponse, Responder,
+};
 use serde::Deserialize;
 
-use crate::shared::middlewares::admin;
+use crate::shared::middlewares::admin::Admin;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/school")
-            .wrap(admin::Admin)
-            .service(school)
-            .service(add)
-            .service(delete),
+            .service(
+                web::scope("/admin")
+                    .wrap(Admin)
+                    .service(add)
+                    .service(delete),
+            )
+            .service(school),
     );
 }
 
