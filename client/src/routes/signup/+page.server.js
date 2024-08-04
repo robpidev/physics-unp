@@ -37,7 +37,6 @@ export const actions = {
     } else if (data.get("dni") !== null) {
       url = 'http://127.0.0.1:8080/auth/signup/professor';
     }
-    console.log(data)
 
     try {
       const response = await fetch(url, options);

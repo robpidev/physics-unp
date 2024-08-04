@@ -30,7 +30,6 @@
 		action="?/signup"
 		use:enhance={() => {
 			return async ({ result }) => {
-				console.log(result.data);
 				if (result.status === 200) {
 					user.update(() => result.data.user);
 					goto('/newuser');

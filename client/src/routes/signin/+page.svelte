@@ -1,6 +1,3 @@
-<<<<<<< HEAD
-<h1> Hola mundo </h1>
-=======
 <script>
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
@@ -130,4 +127,3 @@
 		color: red;
 	}
 </style>
->>>>>>> 99da2311c3e72a3fee7302281841e69e312a0b61
