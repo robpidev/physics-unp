@@ -1,3 +1,35 @@
+<script>
+	import { onDestroy, onMount } from 'svelte';
+	import { page } from '$app/stores';
+	import { token, user } from '$lib/stores';
+
+	let tk;
+	let usr;
+	onMount(async () => {
+		tk = localStorage.getItem('token');
+		usr = JSON.parse(localStorage.getItem('user'));
+	});
+
+	token.update(() => tk);
+	const token_sus = token.subscribe((value) => {
+		tk = value;
+	});
+
+	const user_sus = user.subscribe((value) => {
+		usr = value;
+	});
+	onDestroy(token_sus);
+	onDestroy(user_sus);
+
+	function signout() {
+		token.update(() => null);
+		user.update(() => null);
+		localStorage.removeItem('token');
+		localStorage.removeItem('user');
+		//goto('/');
+	}
+</script>
+
 <header>
 	<a class="logo" href="/">
 		<img src="favicon.png" alt="" />
@@ -6,8 +38,19 @@
 
 	<nav>
 		<ul>
+<<<<<<< HEAD
 			<li><a class="link" href="/">link 1</a></li>
 			<li><a class="signin" href="/signin">Iniciar sesión</a></li>
+=======
+			{#if tk !== null}
+				<li><span class="name">{usr?.names}</span></li>
+				<li>
+					<a on:click={signout} class="link" href="/signin">Salir</a>
+				</li>
+			{:else if !$page.url.pathname.includes('/signin') && !$page.url.pathname.includes('/signup')}
+				<li><a class="signin" href="/signin">Iniciar sesión</a></li>
+			{/if}
+>>>>>>> 99da2311c3e72a3fee7302281841e69e312a0b61
 		</ul>
 	</nav>
 </header>
@@ -56,6 +99,14 @@
 		list-style: none;
 		display: flex;
 		gap: 1em;
+	}
+
+	.name {
+		background: var(--primary);
+		color: white;
+		padding: 0.5em 1em;
+		border-radius: 12px;
+		pointer-events: none;
 	}
 
 	.link {
