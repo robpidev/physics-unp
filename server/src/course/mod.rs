@@ -29,7 +29,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     //.service(get)
                     .service(get_by_student)
                     .service(get_by_school)
-                    .service(register),
+                    .service(register)
+                    .service(get_enrolled),
             ),
     );
 }
@@ -157,6 +158,15 @@ async fn get_by_student(db: web::Data<services::DB>, req: HttpRequest) -> impl R
     let student_id = req.extensions().get::<String>().unwrap().clone();
 
     match services::get_by_student(&student_id, &db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[get("/enrolled")]
+async fn get_enrolled(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+    let student_id = req.extensions().get::<String>().unwrap().clone();
+    match services::get_enrolled(&student_id, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

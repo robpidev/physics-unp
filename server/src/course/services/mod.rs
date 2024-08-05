@@ -74,3 +74,7 @@ pub async fn desasign_professor(
 pub async fn get_by_student(student_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     repository::get_by_student(student_id, db).await
 }
+
+pub async fn get_enrolled(student_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    repository::get_enrolled(student_id, db).await
+}

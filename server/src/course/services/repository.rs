@@ -317,3 +317,30 @@ pub async fn get_by_student(id: &String, db: &DB) -> Result<Vec<Course>, (u16, S
         })
         .collect::<Vec<Course>>())
 }
+
+pub async fn get_enrolled(id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query = format!(
+        r#"
+(select out.* as course from student:{id}->enrolled)[0].course
+"#,
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let course = match resp.take::<Option<CourseDB>>(0) {
+        Ok(c) => c,
+        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
+    };
+
+    match course {
+        Some(c) => Ok(Course {
+            id: c.id.id.to_string(),
+            name: c.name,
+            places: c.places,
+        }),
+        None => Err((204, format!("Not enrolled: {}", id))),
+    }
+}
