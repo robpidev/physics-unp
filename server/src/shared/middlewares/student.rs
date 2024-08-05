@@ -83,9 +83,7 @@ where
             }
         };
 
-        if req.path().contains("register") {
-            req.extensions_mut().insert(id);
-        }
+        req.extensions_mut().insert(id);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })

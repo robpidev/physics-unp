@@ -1,4 +1,3 @@
-use actix_web::HttpMessage;
 use dotenv::dotenv;
 use std::env;
 use std::future::{ready, Ready};
@@ -75,17 +74,18 @@ where
             }
         };
 
-        let user = match get_user(token) {
-            Ok(u) => u,
+        match get_user(token) {
+            Ok(_) => {}
             Err((_, msg)) => {
                 let err = error::ErrorUnauthorized(msg).into();
                 return Box::pin(async { Err(err) });
             }
         };
 
-        if req.path().contains("register") {
-            req.extensions_mut().insert(user);
-        }
+        //
+        //if req.path().contains("register") {
+        //    req.extensions_mut().insert(user);
+        //}
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })

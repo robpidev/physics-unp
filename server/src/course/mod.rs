@@ -15,7 +15,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .wrap(Admin)
                     .service(add)
                     .service(delete)
-                    .service(get)
+                    //.service(get)
                     .service(get_by_school)
                     .service(register_by_id)
                     .service(unregister)
@@ -26,7 +26,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("")
                     .wrap(StudentAuth)
-                    .service(get)
+                    //.service(get)
+                    .service(get_by_student)
                     .service(get_by_school)
                     .service(register),
             ),
@@ -43,7 +44,7 @@ struct Add {
 // General
 
 #[get("")]
-async fn get(db: web::Data<services::DB>) -> impl Responder {
+async fn _get(db: web::Data<services::DB>) -> impl Responder {
     match services::get_all(&db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
@@ -146,6 +147,17 @@ async fn asign(data: web::Form<Asign>, db: web::Data<services::DB>) -> impl Resp
 async fn unasign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
     match services::desasign_professor(&data.course_id, &data.user_id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+// student
+#[get("")]
+async fn get_by_student(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+    let student_id = req.extensions().get::<String>().unwrap().clone();
+
+    match services::get_by_student(&student_id, &db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
