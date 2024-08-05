@@ -15,7 +15,6 @@ struct Claims {
 #[derive(Deserialize, Clone)]
 struct UserDB {
     id: Thing,
-    password: String,
     names: String,
     last_name1: String,
     last_name2: String,
@@ -38,7 +37,7 @@ pub async fn sign_in(
 ) -> Result<impl Serialize, (u16, String)> {
     let query = "
 (SELECT
-id, password, names, last_name1, last_name2, role, gender
+id, names, last_name1, last_name2, role, gender
 FROM type::thing($table, <int>$id)
 WHERE crypto::bcrypt::compare(password, $password))[0];
 ";

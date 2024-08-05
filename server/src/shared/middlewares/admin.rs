@@ -14,7 +14,7 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
-use super::super::entities::professor::ProfessorDB;
+use crate::shared::entities::user::User;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
@@ -92,13 +92,13 @@ where
             || req.path().contains("/delete")
             || req.path().contains("/unregister")
             || req.path().contains("/asign"))
-            && !professor.is_admin()
+            && !(professor.role == "admin")
         {
             let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
 
-        req.extensions_mut().insert(professor.dni);
+        req.extensions_mut().insert(professor.id);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })
@@ -107,11 +107,11 @@ where
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
-    user: ProfessorDB,
+    user: User,
     exp: usize,
 }
 
-fn check_token(token: &str) -> Result<ProfessorDB, (u16, String)> {
+fn check_token(token: &str) -> Result<User, (u16, String)> {
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
         Ok(v) => v,
