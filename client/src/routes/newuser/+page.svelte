@@ -1,11 +1,16 @@
 <script>
 	import { user } from '$lib/stores.js';
-	import { onDestroy } from 'svelte';
+	import { onDestroy, onMount } from 'svelte';
+	import { goto } from '$app/navigation';
 	let usr;
 	let user_sus = user.subscribe((u) => {
 		usr = u;
 	});
 	onDestroy(user_sus);
+	onMount(() => {
+		console.log(usr);
+		if (usr === null) goto('/signin');
+	});
 </script>
 
 <div class="containder">

@@ -1,7 +1,11 @@
 import { fail } from "@sveltejs/kit";
 
+export function load({ cookies }) {
+  cookies.delete('token', { path: '/' });
+}
+
 export const actions = {
-  signin: async ({ request }) => {
+  signin: async ({ request, cookies }) => {
     const data = await request.formData();
 
     const url = 'http://localhost:8080/auth/signin';
@@ -27,7 +31,8 @@ export const actions = {
 
     if (response.ok) {
       let data = await response.json();
-      return { user: data.user, token: data.token };
+      cookies.set('token', data.token, { path: '/' });
+      return { user: data.user };
     }
 
     return fail(500, {

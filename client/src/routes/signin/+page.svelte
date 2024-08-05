@@ -1,13 +1,12 @@
 <script>
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
-	import { token, user } from '$lib/stores.js';
+	import { user } from '$lib/stores.js';
 	import { onMount } from 'svelte';
 
 	export let form;
 	onMount(async () => {
 		await fetch('/?/logout');
-		token.update(() => null);
 		user.update(() => null);
 	});
 </script>
@@ -20,11 +19,15 @@
 		use:enhance={() => {
 			return async ({ result }) => {
 				if (result.status === 200) {
-					token.update(() => result.data.token);
+					const u = result.data.user;
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
-					localStorage.setItem('token', result.data.token);
-					goto('/');
+
+					console.log(u);
+
+					if (user.role === 'professor') goto('/professor');
+					else if (u.role === 'student') goto('/student');
+					else if (u.role === 'admin') goto('/admin');
 				}
 
 				form = result.data;
@@ -91,16 +94,6 @@
 		/*outline: none;*/
 	}
 
-	button {
-		margin: 1.5em 0 0.5em 0;
-		background: var(--primary);
-		color: white;
-		padding: 0.5em 1em;
-		border-radius: 6px;
-		border: none;
-		font-weight: 600;
-	}
-
 	a {
 		color: var(--primary);
 		text-decoration: none;
@@ -113,14 +106,6 @@
 
 	a:active {
 		color: var(--active);
-	}
-
-	button:hover {
-		background: var(--hover);
-	}
-
-	button:active {
-		background: var(--active);
 	}
 
 	.error {
