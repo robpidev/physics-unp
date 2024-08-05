@@ -13,7 +13,7 @@ pub struct StudentDB {
 impl ToString for StudentDB {
     fn to_string(&self) -> String {
         format!(
-            r#"{{"code":"{}","names":"{}","last_name1":"{}","last_name2":"{}","gender":{}}}"#,
+            r#"{{"id":"{}","names":"{}","last_name1":"{}","last_name2":"{}","gender":{},"role":"student"}}"#,
             self.code, self.names, self.last_name1, self.last_name2, self.gender
         )
     }
