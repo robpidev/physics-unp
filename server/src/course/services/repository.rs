@@ -290,3 +290,57 @@ DELETE teaches where in=professor:{} && out=course:{} return before
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
 }
+
+pub async fn get_by_student(id: &String, db: &DB) -> Result<Vec<Course>, (u16, String)> {
+    let query = format!(
+        r#"
+(select <-has<-school->offers.out.* as courses from only student:{id}).courses
+"#,
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let courses = match resp.take::<Vec<CourseDB>>(0) {
+        Ok(c) => c,
+        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
+    };
+
+    Ok(courses
+        .into_iter()
+        .map(|c| Course {
+            id: c.id.id.to_string(),
+            name: c.name,
+            places: c.places,
+        })
+        .collect::<Vec<Course>>())
+}
+
+pub async fn get_enrolled(id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query = format!(
+        r#"
+(select out.* as course from student:{id}->enrolled)[0].course
+"#,
+    );
+
+    let mut resp = match db.query(query).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let course = match resp.take::<Option<CourseDB>>(0) {
+        Ok(c) => c,
+        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
+    };
+
+    match course {
+        Some(c) => Ok(Course {
+            id: c.id.id.to_string(),
+            name: c.name,
+            places: c.places,
+        }),
+        None => Err((204, format!("Not enrolled: {}", id))),
+    }
+}

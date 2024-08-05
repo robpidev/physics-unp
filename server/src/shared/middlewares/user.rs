@@ -1,7 +1,3 @@
-pub mod admin;
-pub mod student;
-pub mod user;
-
 use dotenv::dotenv;
 use std::env;
 use std::future::{ready, Ready};
@@ -17,17 +13,17 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
-use super::entities::professor::ProfessorDB;
+use crate::shared::entities::user::User;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
 // 2. Middleware's call method gets called with normal request.
-pub struct Example;
+pub struct UserAuth;
 
 // Middleware factory is `Transform` trait
 // `S` - type of the next service
 // `B` - type of response's body
-impl<S, B> Transform<S, ServiceRequest> for Example
+impl<S, B> Transform<S, ServiceRequest> for UserAuth
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -36,19 +32,19 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = SayHiMiddleware<S>;
+    type Transform = UserMiddleware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(SayHiMiddleware { service }))
+        ready(Ok(UserMiddleware { service }))
     }
 }
 
-pub struct SayHiMiddleware<S> {
+pub struct UserMiddleware<S> {
     service: S,
 }
 
-impl<S, B> Service<ServiceRequest> for SayHiMiddleware<S>
+impl<S, B> Service<ServiceRequest> for UserMiddleware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -64,7 +60,7 @@ where
         let auth = match req.headers().get("Authorization") {
             Some(auth) => auth,
             None => {
-                let err = error::ErrorUnauthorized("Authorization header not found").into();
+                let err = error::ErrorBadRequest("Authorization header not found").into();
                 return Box::pin(async { Err(err) });
             }
         };
@@ -78,14 +74,18 @@ where
             }
         };
 
-        //if auth != "token" {
-        //    let err = error::ErrorUnauthorized("Invalid token").into();
-        //    return Box::pin(async { Err(err) });
+        match get_user(token) {
+            Ok(_) => {}
+            Err((_, msg)) => {
+                let err = error::ErrorUnauthorized(msg).into();
+                return Box::pin(async { Err(err) });
+            }
+        };
+
+        //
+        //if req.path().contains("register") {
+        //    req.extensions_mut().insert(user);
         //}
-        if let Err(e) = check_token(token) {
-            let err = error::ErrorUnauthorized(e.1).into();
-            return Box::pin(async { Err(err) });
-        }
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })
@@ -94,11 +94,11 @@ where
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
-    user: ProfessorDB,
+    user: User,
     exp: usize,
 }
 
-fn check_token(token: &str) -> Result<String, (u16, String)> {
+fn get_user(token: &str) -> Result<User, (u16, String)> {
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
         Ok(v) => v,
@@ -108,13 +108,11 @@ fn check_token(token: &str) -> Result<String, (u16, String)> {
     let mut validate = Validation::default();
     validate.validate_exp = false;
 
-    let decode =
-        match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate) {
-            Ok(t) => format!("Decoded: {:?}", t.claims.user.to_string()),
-            Err(e) => return Err((500, format!("Error to decode: {}", e.to_string()))),
-        };
+    let user = match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate)
+    {
+        Ok(t) => t.claims.user,
+        Err(e) => return Err((500, format!("Token Student Error: {}", e.to_string()))),
+    };
 
-    println!("Decoded: {:?}", decode);
-
-    return Ok(format!("{:?}", decode));
+    Ok(user)
 }

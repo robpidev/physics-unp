@@ -1,6 +1,6 @@
-use serde::Serialize;
+use serde::{Deserialize, Serialize};
 
-#[derive(Serialize)]
+#[derive(Serialize, Deserialize, Clone)]
 pub struct User {
     #[allow(dead_code)]
     pub id: String,

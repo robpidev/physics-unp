@@ -14,7 +14,7 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
-use crate::shared::entities::student::StudentDB;
+use crate::shared::entities::user::User;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
@@ -83,9 +83,7 @@ where
             }
         };
 
-        if req.path().contains("register") {
-            req.extensions_mut().insert(id);
-        }
+        req.extensions_mut().insert(id);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })
@@ -94,7 +92,7 @@ where
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
-    user: StudentDB,
+    user: User,
     exp: usize,
 }
 
@@ -114,5 +112,5 @@ fn get_id(token: &str) -> Result<String, (u16, String)> {
             Err(e) => return Err((500, format!("Token Student Error: {}", e.to_string()))),
         };
 
-    Ok(student.get_id())
+    Ok(student.id)
 }

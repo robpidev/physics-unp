@@ -91,7 +91,7 @@ IF (SELECT * FROM register_time WHERE for = 'student' AND from < time::now() AND
         password: crypto::bcrypt::generate($password),
         gender: $gender,
         };
-		RELATE (select * from type::thing('student', $school_id)) -> has -> $s;
+		RELATE (select * from type::thing('school', $school_id)) -> has -> $s;
         RETURN $s;
 	}
 ELSE

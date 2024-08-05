@@ -19,7 +19,7 @@ impl ProfessorDB {
 impl ToString for ProfessorDB {
     fn to_string(&self) -> String {
         format!(
-            r#"{{"names":"{}","last_name1":"{}","last_name2":"{}","dni":"{}","gender":{},"role":"{}"}}"#,
+            r#"{{"names":"{}","last_name1":"{}","last_name2":"{}","id":"{}","gender":{},"role":"{}"}}"#,
             self.names, self.last_name1, self.last_name2, self.dni, self.gender, self.role
         )
     }
