@@ -1,48 +1,58 @@
 use std::env;
 
+use crate::shared::{entities::user::User, repository::db::DB};
 use dotenv::dotenv;
 use jsonwebtoken::{encode, EncodingKey, Header};
-use serde::Serialize;
-
-use serde::de::DeserializeOwned;
+use serde::{Deserialize, Serialize};
+use surrealdb::sql::Thing;
 
 #[derive(Serialize)]
-struct Claims<T> {
-    user: T,
+struct Claims {
+    user: User,
     exp: usize,
 }
 
-use crate::shared::entities::{professor::ProfessorDB, student::StudentDB};
-use crate::shared::repository::db::DB;
+#[derive(Deserialize, Clone)]
+struct UserDB {
+    id: Thing,
+    password: String,
+    names: String,
+    last_name1: String,
+    last_name2: String,
+    role: Option<String>,
+    gender: bool,
+}
+
+#[derive(Serialize)]
+struct UserToken {
+    user: User,
+    token: String,
+}
+
+//use crate::shared::entities::{professor::ProfessorDB, student::StudentDB};
 pub async fn sign_in(
     id: String,
     password: String,
     user_type: &str,
     db: &DB,
-) -> Result<String, (u16, String)> {
+) -> Result<impl Serialize, (u16, String)> {
     let query = "
 (SELECT
-*
+id, password, names, last_name1, last_name2, role, gender
 FROM type::thing($table, <int>$id)
 WHERE crypto::bcrypt::compare(password, $password))[0];
 ";
 
-    if user_type == "professor" {
-        login::<ProfessorDB>(query, user_type, &id, password, db).await
-    } else if user_type == "student" {
-        login::<StudentDB>(query, user_type, &id, password, db).await
-    } else {
-        Err((400, "Invalid user type".to_string()))
-    }
+    login(query, user_type, &id, password, db).await
 }
 
-async fn login<T: ToString + Serialize + DeserializeOwned>(
+async fn login(
     query: &str,
     table: &str,
     id: &String,
     password: String,
     db: &DB,
-) -> Result<String, (u16, String)> {
+) -> Result<impl Serialize, (u16, String)> {
     let mut resp = match db
         .query(query)
         .bind(("table", table))
@@ -54,7 +64,7 @@ async fn login<T: ToString + Serialize + DeserializeOwned>(
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
 
-    let user_result = match resp.take::<Option<T>>(0) {
+    let user_result = match resp.take::<Option<UserDB>>(0) {
         Ok(professor) => professor,
         Err(e) => {
             return Err((
@@ -65,12 +75,21 @@ async fn login<T: ToString + Serialize + DeserializeOwned>(
     };
 
     let user = match user_result {
-        Some(u) => u,
+        Some(u) => User {
+            id: u.id.id.to_string(),
+            names: u.names,
+            last_name1: u.last_name1,
+            last_name2: u.last_name2,
+            role: u.role.unwrap_or("student".to_string()),
+            gender: u.gender,
+        },
         None => return Err((401, "User or password invalid".to_string())),
     };
 
-    let user_str = user.to_string();
-    let claims = Claims { user, exp: 30 };
+    let claims = Claims {
+        user: user.clone(),
+        exp: 30,
+    };
 
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
@@ -87,7 +106,7 @@ async fn login<T: ToString + Serialize + DeserializeOwned>(
         Err(e) => return Err((500, format!("Error encoding token: {}", e.to_string()))),
     };
 
-    Ok(format!(r#"{{"user":{},"token":"{}"}}"#, user_str, token))
+    Ok(UserToken { user, token })
 }
 
 fn parse_error(error: String) -> String {
