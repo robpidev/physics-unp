@@ -8,7 +8,6 @@
 	});
 	onDestroy(user_sus);
 	onMount(() => {
-		console.log(usr);
 		if (usr === null) goto('/signin');
 	});
 </script>

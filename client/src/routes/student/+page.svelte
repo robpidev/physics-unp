@@ -47,7 +47,11 @@
 					</label>
 				{/each}
 
-				<button type="submit">Inscribirme</button>
+				{#if courses.length === 0}
+					<span>No hay cursos disponibles</span>
+				{:else}
+					<button type="submit" disabled={courses.length === 0}>Inscribirme</button>
+				{/if}
 			</form>
 		{/if}
 	</div>

@@ -3,7 +3,9 @@
 	import { enhance } from '$app/forms';
 	import { goto } from '$app/navigation';
 	import { user } from '$lib/stores.js';
+
 	export let data;
+
 	let code = '';
 	$: code_name = code.length === 10 ? 'code' : 'dni';
 	let id = -1;
@@ -182,13 +184,6 @@
 	}
 	button {
 		margin: 1em 0 0.5em 0;
-		background: var(--primary);
-		color: white;
-		padding: 0.5em 1em;
-		border-radius: 6px;
-		border: none;
-		font-weight: 600;
-		width: 100%;
 	}
 
 	button:disabled {

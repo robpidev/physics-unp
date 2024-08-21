@@ -57,7 +57,6 @@ export const actions = {
 
       if (response.ok) {
         let data = await response.json();
-        console.log(data)
         return { user: data }
       }
 

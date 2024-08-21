@@ -90,14 +90,14 @@
 		gap: 1em;
 	}
 
-	.name {
-		background: var(--primary);
-		color: white;
-		padding: 0.5em 1em;
-		border-radius: 12px;
-		pointer-events: none;
-	}
-
+	/*.name {*/
+	/*	background: var(--primary);*/
+	/*	color: white;*/
+	/*	padding: 0.5em 1em;*/
+	/*	border-radius: 12px;*/
+	/*	pointer-events: none;*/
+	/*}*/
+	/**/
 	.link {
 		font-weight: 700;
 	}
