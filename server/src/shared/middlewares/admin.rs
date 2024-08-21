@@ -61,7 +61,7 @@ where
         let auth = match req.headers().get("Authorization") {
             Some(auth) => auth,
             None => {
-                let err = error::ErrorBadRequest("Authorization header not found").into();
+                let err = error::ErrorUnauthorized("Authorization header not found").into();
                 return Box::pin(async { Err(err) });
             }
         };

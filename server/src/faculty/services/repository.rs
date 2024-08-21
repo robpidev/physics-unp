@@ -49,11 +49,8 @@ fn parse_error(error: String) -> String {
     }
 }
 
-pub async fn get(name: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
-    let query = format!(
-        r#"SELECT id, name FROM faculty WHERE string::contains(name, string::uppercase('{}'));"#,
-        name
-    );
+pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query = format!(r#"SELECT id, name FROM faculty;"#);
 
     let mut resp = match db.query(&query).await {
         Ok(resp) => resp,
