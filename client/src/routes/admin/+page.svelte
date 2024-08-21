@@ -5,80 +5,50 @@
 	let error = '';
 </script>
 
-<div class="page">
-	<h1>{error}</h1>
-	<nav>
-		<ul class="breadcrumb">
-			<li><a href="/admin">facultades</a></li>
-			<li><span class="/">►</span></li>
-			<li><a href="/admin">facultades</a></li>
-		</ul>
-	</nav>
+<h1>{error}</h1>
 
-	<section>
-		<form
-			method="POST"
-			action="?/add"
-			use:enhance={() => {
-				return async ({ result }) => {
-					if (result.status !== 200) {
-						console.log(error);
-						error = result.data.error;
-					} else {
-						facultyName = '';
-						error = '';
-					}
-				};
-			}}
-		>
-			<label>
-				<span>Nombre de la facultad: </span>
-				<input on:keydown={() => (error = '')} type="text" name="name" bind:value={facultyName} />
-				<button
-					disabled={facultyName === '' ||
-						error !== '' ||
-						data?.faculties.some((s) => s.name === facultyName.toUpperCase())}
-					type="submit">Agregar</button
-				>
-			</label>
-		</form>
-	</section>
+<section>
+	<form
+		method="POST"
+		action="?/add"
+		use:enhance={() => {
+			return async ({ result }) => {
+				if (result.status !== 200) {
+					// console.log(error);
+					error = result.data.error;
+				} else {
+					facultyName = '';
+					error = '';
+				}
+			};
+		}}
+	>
+		<label>
+			<span>Nombre de la facultad: </span>
+			<input on:keydown={() => (error = '')} type="text" name="name" bind:value={facultyName} />
+			<button
+				disabled={facultyName === '' ||
+					error !== '' ||
+					data?.faculties.some((s) => s.name === facultyName.toUpperCase())}
+				type="submit">Agregar</button
+			>
+		</label>
+	</form>
+</section>
 
-	<section>
-		<ul class="faculties">
-			{#each data?.faculties as f, i}
-				<li>
-					<a href={`/admin/${f.id}`} class="faculty">{f.name}</a>
-				</li>
-			{/each}
-		</ul>
-	</section>
-</div>
+<section>
+	<ul class="faculties">
+		{#each data?.faculties as f, i}
+			<li>
+				<a href={`/admin/${f.id}`} class="faculty">{f.name}</a>
+			</li>
+		{/each}
+	</ul>
+</section>
 
 <style>
-	.page {
-		max-width: 1000px;
-		/*border: solid 1px;*/
-		width: 100%;
-		padding: 0 1em;
-	}
-
-	.breadcrumb {
-		display: flex;
-		list-style: none;
-		padding: 0;
-		margin: 0;
-	}
-
 	a {
 		font-weight: 700;
-	}
-
-	nav {
-		margin: 10px;
-		padding: 6px;
-		border: solid 1px var(--border);
-		border-radius: 8px;
 	}
 
 	.faculties {
