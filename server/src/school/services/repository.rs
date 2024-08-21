@@ -44,6 +44,10 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
 
     let mut resp = make_petition(&query, db).await?;
 
+    parse_school(&mut resp)
+}
+
+fn parse_school(resp: &mut Response) -> Result<impl Serialize, (u16, String)> {
     match resp.take::<Vec<SchoolDB>>(0) {
         Ok(schools) => Ok(schools
             .into_iter()
@@ -76,4 +80,16 @@ async fn make_petition(query: &String, db: &DB) -> Result<Response, (u16, String
         Ok(resp) => Ok(resp),
         Err(e) => Err((500, format!("DB query error: {}", e.to_string()))),
     }
+}
+
+pub async fn get_by_id(id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query =
+        r#"SELECT out.id AS id, out.name AS name FROM type::thing("faculty", $id)->includes;"#;
+
+    let mut resp = match db.query(query).bind(("id", id)).await {
+        Ok(resp) => resp,
+        Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
+    };
+
+    parse_school(&mut resp)
 }

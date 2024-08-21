@@ -14,3 +14,7 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
 pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
     repository::delete(id, db).await
 }
+
+pub async fn get_by_id(id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    repository::get_by_id(id, db).await
+}
