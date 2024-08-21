@@ -21,8 +21,8 @@ struct Faculty {
 }
 
 #[get("")]
-async fn faculty(fac: web::Query<Faculty>, db: web::Data<services::DB>) -> impl Responder {
-    match services::get(&fac.name, &db).await {
+async fn faculty(db: web::Data<services::DB>) -> impl Responder {
+    match services::get(&db).await {
         Ok(resp) => HttpResponse::Ok().json(resp),
         Err(e) => HttpResponse::build(StatusCode::from_u16(e.0).unwrap()).body(e.1),
     }

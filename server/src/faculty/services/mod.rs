@@ -8,8 +8,8 @@ pub async fn create(name: &String, db: &DB) -> Result<String, (u16, String)> {
     repository::create(name, db).await
 }
 
-pub async fn get(name: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
-    repository::get(name, db).await
+pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
+    repository::get(db).await
 }
 
 pub async fn delete(name: &String, db: &DB) -> Result<String, (u16, String)> {
