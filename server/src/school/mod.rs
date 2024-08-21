@@ -20,6 +20,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(add)
                     .service(delete),
             )
+            .service(get_by_id)
             .service(school),
     );
 }
@@ -41,6 +42,14 @@ async fn add(data: web::Form<Add>, db: web::Data<services::DB>) -> impl Responde
 #[get("")]
 async fn school(db: web::Data<services::DB>) -> impl Responder {
     match services::get(&db).await {
+        Ok(schools) => HttpResponse::Ok().json(schools),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[get("/{id}")]
+async fn get_by_id(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
+    match services::get_by_id(&id, &db).await {
         Ok(schools) => HttpResponse::Ok().json(schools),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
