@@ -1,6 +1,7 @@
 <script>
 	export let data;
 	import { enhance } from '$app/forms';
+	import { page } from '$app/stores';
 	let course = '';
 </script>
 
@@ -25,7 +26,7 @@
 	<ul class="courses">
 		{#each data.courses as course, id}
 			<li class="course">
-				<a href="/{course.id}">{course.name}</a>
+				<a href="/admin/{$page.params.faculty}/{$page.params.school}/{course.id}">{course.name}</a>
 			</li>
 		{/each}
 	</ul>
