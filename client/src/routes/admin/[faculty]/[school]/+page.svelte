@@ -12,9 +12,8 @@
 
 			<button
 				type="submit"
-				disabled={data.schools.some((s) => {
+				disabled={data.courses.some((s) => {
 					let resp = s.name.toUpperCase() == course.trim().toUpperCase();
-					console.log(resp);
 					return resp;
 				})}>Agregar</button
 			>
@@ -23,9 +22,23 @@
 </section>
 
 <section class="courses">
-	<ul>
-		{#each data.schools as school, id}
-			<li><a href="/admin">{school.name}</a></li>
+	<ul class="courses">
+		{#each data.courses as course, id}
+			<li class="course">
+				<a href="/{course.id}">{course.name}</a>
+			</li>
 		{/each}
 	</ul>
 </section>
+
+<style>
+	.courses {
+		list-style: none;
+	}
+	.course {
+		border: solid 1px var(--border);
+		margin-bottom: 10px;
+		padding: 0.5em 1em;
+		border-radius: 8px;
+	}
+</style>

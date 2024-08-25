@@ -14,11 +14,11 @@ export async function load({ cookies }) {
   const response = await fetch(url, options);
 
   if (!cookies.get('token')) {
-    throw new error(401, 'Token invalid');
+    throw error(401, 'Token invalid');
   }
 
   if (response.status === 401) {
-    throw new error(401, 'Unauthorized');
+    throw error(401, 'Unauthorized');
   }
 
   if (response.ok) {
@@ -28,7 +28,7 @@ export async function load({ cookies }) {
     }
   }
 
-  throw new error(500, '  Internal error server');
+  throw error(500, '  Internal error server');
 
 }
 
@@ -75,6 +75,6 @@ export const actions = {
     }
 
 
-    throw new error(500, 'Internal error server')
+    throw error(500, 'Internal error server')
   }
 }

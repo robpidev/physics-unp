@@ -18,7 +18,7 @@ export async function load({ params }) {
   }
 
   const error = response.text()
-  throw new error(500, "Internal error server")
+  throw error(500, "Internal error server")
 }
 
 export const actions = {
@@ -62,6 +62,6 @@ export const actions = {
       }
     }
 
-    throw new error(500, 'Internal error server' + await response.text())
+    throw error(500, 'Internal error server' + await response.text())
   }
 }

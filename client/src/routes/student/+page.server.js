@@ -27,14 +27,14 @@ export async function load({ cookies }) {
   }
 
   if (response.status === 401) {
-    throw new error(401, 'Unauthorized');
+    throw error(401, 'Unauthorized');
   }
 
   if (response.status === 400) {
-    throw new error(400, 'Authorization header not found');
+    throw error(400, 'Authorization header not found');
   }
 
-  throw new error(500, 'Internal error server')
+  throw error(500, 'Internal error server')
 
 }
 
@@ -59,14 +59,14 @@ export const actions = {
     }
 
     if (response.status === 400) {
-      throw new error(400, 'Authorization header not found');
+      throw error(400, 'Authorization header not found');
     }
 
     if (response.status === 401) {
-      throw new error(401, 'Token invalid');
+      throw error(401, 'Token invalid');
     }
 
-    throw new error(500, 'Internal error server')
+    throw error(500, 'Internal error server')
 
   },
 

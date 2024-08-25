@@ -1,3 +1,4 @@
+import { request } from "@playwright/test";
 import { fail, error } from "@sveltejs/kit";
 
 export async function load({ params, cookies }) {
@@ -12,15 +13,14 @@ export async function load({ params, cookies }) {
   const response = await fetch(url, options);
 
   if (response.status === 200) {
-    const schools = await response.json()
-    console.log(schools)
+    const courses = await response.json()
     return {
-      schools
+      courses: courses
     }
   }
 
-  const error = response.text()
-  throw new error(500, "Internal error server")
+  // const error = response.text()
+  throw error(500, "Internal error server");
 }
 
 export const actions = {
@@ -43,9 +43,10 @@ export const actions = {
     const response = await fetch(url, options);
 
     if (response.status == 200) {
-      const school = await response.json();
+      const courses = await response.json();
+      console.log(courses)
       return {
-        school
+        courses: courses
       }
     }
 
@@ -58,9 +59,29 @@ export const actions = {
     }
 
     if (response.status === 401) {
-      throw new error(401, 'Unauthorized');
+      throw error(401, 'Unauthorized');
     }
 
-    throw new error(500, "Internal error server")
+    throw error(500, "Internal error server")
+  },
+
+  delete: async ({ request, cookies }) => {
+    const url = 'http://localhost:8080/course/professor/delete/enyy3yfalin7iq2wj0yc';
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiMTIzNDU2NzgiLCJuYW1lcyI6IlJvYmVyIEVzYmwiLCJsYXN0X25hbWUxIjoiVG9ycmVzdCIsImxhc3RfbmFtZTIiOiJUYXJyaWxsbyIsImdlbmRlciI6dHJ1ZSwicm9sZSI6ImFkbWluIn0sImV4cCI6MzB9.kxERAYEHv2jxL-KT2atdQ84Sg6j5TPZzhjww7bmsqWI'
+      },
+      body: new URLSearchParams({ name: 'Lab. Física III' })
+    };
+
+    try {
+      const response = await fetch(url, options);
+      const data = await response.json();
+      console.log(data);
+    } catch (error) {
+      console.error(error);
+    }
   }
 }
