@@ -21,7 +21,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(unregister)
                     .service(asign)
                     .service(unasign)
-                    .service(get_by_professor),
+                    .service(get_by_professor)
+                    .service(get_professors),
             )
             .service(
                 web::scope("")
@@ -148,6 +149,16 @@ async fn asign(data: web::Form<Asign>, db: web::Data<services::DB>) -> impl Resp
 async fn unasign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
     match services::desasign_professor(&data.course_id, &data.user_id, &db).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+#[get("/professors/{course_id}")]
+async fn get_professors(
+    course_id: web::Path<String>,
+    db: web::Data<services::DB>,
+) -> impl Responder {
+    match services::get_professors(&course_id, &db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
