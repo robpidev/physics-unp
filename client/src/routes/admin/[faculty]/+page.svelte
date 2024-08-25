@@ -6,27 +6,17 @@
 	let error = '';
 </script>
 
-<section>
-	<form
-		method="post"
-		action="?/add"
-		use:enhance={() => {
-			return async ({ result }) => {
-				if (result.status !== 200) {
-					// console.log(error);
-					error = result.data.error;
-				} else {
-					error = '';
-				}
-			};
-		}}
-	>
-		<input bind:value={name} type="text" name="school" />
+<section class="add">
+	<form method="post" action="?/add" use:enhance>
+		<label>
+			<span>Nombre de la escuela: </span>
+			<input bind:value={name} type="text" name="school" />
+		</label>
 		<button
 			type="submit"
 			disabled={name.length === 0 ||
 				data?.data.some((s) => {
-					return s.name === name.toUpperCase();
+					return s.name === name.toUpperCase().trim();
 				})}>Agregar</button
 		>
 	</form>
@@ -38,7 +28,7 @@
 	<ul class="schools">
 		{#each data.data as school, id}
 			<li class="school">
-				<a href="{$page.params.slug}/{school.id}">{school.name}</a>
+				<a href="{$page.params.faculty}/{school.id}">{school.name}</a>
 			</li>
 		{/each}
 	</ul>
@@ -51,10 +41,15 @@
 		flex-direction: column;
 		gap: 6px;
 	}
+
 	.school {
 		border: 1px solid var(--border);
 		width: 100%;
 		padding: 0.5em 1em;
 		border-radius: 8px;
+	}
+
+	.add {
+		padding: 0 1em;
 	}
 </style>
