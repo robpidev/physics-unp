@@ -21,9 +21,9 @@ pub async fn create(
     let query = format!(
         r#"
 BEGIN TRANSACTION;
-IF (SELECT * FROM {}) != [] THEN
+IF (SELECT * FROM school:{}) != [] THEN
 	(SELECT out.id AS id, out.name AS name, out.places AS places FROM
-  (RELATE {} -> offers -> (CREATE course CONTENT {{
+  (RELATE school:{} -> offers -> (CREATE course CONTENT {{
 		name: "{}",
 		places: {},
 	}})))
@@ -56,7 +56,7 @@ COMMIT TRANSACTION;
 }
 
 pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
-    let query = format!("DELETE {}  RETURN BEFORE;", id);
+    let query = format!("DELETE course:{}  RETURN BEFORE;", id);
 
     let mut resp = match db.query(query).await {
         Ok(resp) => resp,

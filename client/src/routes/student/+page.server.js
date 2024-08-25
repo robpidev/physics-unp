@@ -1,4 +1,3 @@
-import { request } from '@playwright/test';
 import { error } from '@sveltejs/kit';
 
 export async function load({ cookies }) {

@@ -44,7 +44,7 @@
  }
 
  button {
-   margin: 1.5em 0 0.5em 0;
+   /*margin: 1.5em 0 0.5em 0;*/
    background: var(--primary);
    color: white;
    padding: 0.5em 1em;
@@ -59,4 +59,20 @@
 
  button:active {
    background: var(--active);
+ }
+
+ button:disabled {
+   background: var(--color-400);
+ }
+
+
+ input {
+   border-radius: 6px;
+   border: solid 1px var(--border);
+   height: 2.3em;
+ }
+
+ input:focus {
+   outline: solid 2px var(--primary);
+   /*outline: none;*/
  }

@@ -82,22 +82,14 @@
 		flex-direction: column;
 		gap: 0.5rem;
 	}
-
-	input {
-		border-radius: 6px;
-		border: solid 1px var(--border);
-		height: 2.3em;
-	}
-
-	input:focus {
-		outline: solid 2px var(--primary);
-		/*outline: none;*/
-	}
-
 	a {
 		color: var(--primary);
 		text-decoration: none;
 		font-weight: 600;
+	}
+
+	button {
+		margin: 1.5em 0 0.5em 0;
 	}
 
 	a:hover {
