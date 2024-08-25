@@ -1,20 +1,15 @@
 <script>
-	import { onDestroy, onMount } from 'svelte';
+	import { onMount } from 'svelte';
 	import { page } from '$app/stores';
 	import { user } from '$lib/stores';
 
-	let usr;
 	onMount(async () => {
-		usr = JSON.parse(localStorage.getItem('user'));
+		const usr = JSON.parse(localStorage.getItem('user'));
+		user.set(usr);
 	});
-
-	const user_sus = user.subscribe((value) => {
-		usr = value;
-	});
-	onDestroy(user_sus);
 
 	function signout() {
-		user.update(() => null);
+		user.set(null);
 		localStorage.removeItem('user');
 		//goto('/');
 	}
@@ -28,9 +23,9 @@
 
 	<nav>
 		<ul>
-			{#if usr !== null}
+			{#if $user !== null}
 				<li>
-					<a href="/student" class="link">Mi perfil</a>
+					<a href="/{$user.role}" class="link">{$user.names.split(' ')[0]}</a>
 				</li>
 				<li>
 					<a on:click={signout} data-sveltekit-preload-data={false} class="link" href="/signin"

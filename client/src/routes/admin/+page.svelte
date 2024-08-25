@@ -29,7 +29,7 @@
 			<button
 				disabled={facultyName === '' ||
 					error !== '' ||
-					data?.faculties.some((s) => s.name === facultyName.toUpperCase())}
+					data?.faculties.some((s) => s.name === facultyName.toUpperCase().trim())}
 				type="submit">Agregar</button
 			>
 		</label>
@@ -39,8 +39,8 @@
 <section>
 	<ul class="faculties">
 		{#each data?.faculties as f, i}
-			<li>
-				<a href={`/admin/${f.id}`} class="faculty">{f.name}</a>
+			<li class="faculty">
+				<a href={`/admin/${f.id}`}>{f.name}</a>
 			</li>
 		{/each}
 	</ul>
@@ -55,19 +55,20 @@
 		display: flex;
 		flex-direction: column;
 		flex-wrap: wrap;
-		gap: 40px;
+		gap: 10px;
 		list-style: none;
+	}
+
+	.faculty {
+		width: 100%;
+		border: solid 1px var(--border);
+		border-radius: 8px;
+		padding: 0.5em 1em;
 	}
 
 	ul {
 		padding: 0;
 		margin: 0;
-	}
-
-	.faculty {
-		border: solid 1px var(--border);
-		padding: 1em;
-		border-radius: 12px;
 	}
 
 	section {
