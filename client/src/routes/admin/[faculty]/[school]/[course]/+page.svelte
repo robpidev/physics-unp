@@ -1,6 +1,6 @@
 <script>
-	import { onMount } from 'svelte';
 	import AssignButton from './AssignButton.svelte';
+	import DeleteButton from './DeleteButton.svelte';
 	let professors = [];
 	async function getProfessors() {
 		const url = '/api/professors';
@@ -13,7 +13,7 @@
 
 {#if data.professors.length > 0}
 	<h2>Profesores del curso</h2>
-	{#each data.professors as professor}
+	{#each data.professors as professor, id}
 		<ul>
 			<li class="professor">
 				<div class="info">
@@ -23,7 +23,7 @@
 
 				<div class="buttons">
 					<span>{professor.role}</span>
-					<button>Quitar</button>
+					<DeleteButton user_id={professor.id} />
 				</div>
 			</li>
 		</ul>
@@ -44,20 +44,8 @@
 						<span class="lastname">{professor.last_name1} {professor.last_name2}</span>
 					</div>
 					<div class="buttons">
-						<AssignButton
-							role="practice"
-							user_id={professor.id}
-							on:assigned={() => {
-								professors = professors.filter((p) => !data.professors.some((cp) => cp.id == p.id));
-							}}>Práctica</AssignButton
-						>
-						<AssignButton
-							role="teory"
-							user_id={professor.id}
-							on:assigned={() => {
-								professors = professors.filter((p) => !data.professors.some((cp) => cp.id == p.id));
-							}}>Teoría</AssignButton
-						>
+						<AssignButton role="practice" user_id={professor.id} }>Práctica</AssignButton>
+						<AssignButton role="theory" user_id={professor.id} }>Teoría</AssignButton>
 					</div>
 				</li>
 			{/if}
@@ -88,5 +76,9 @@
 	.buttons {
 		display: flex;
 		gap: 5px;
+	}
+
+	.buttons span {
+		width: 4em;
 	}
 </style>

@@ -20,3 +20,4 @@ export async function GET({ cookies }) {
   // TODO: Manejar este error
   throw error(500, "Internal error")
 }
+

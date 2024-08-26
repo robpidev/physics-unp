@@ -50,5 +50,26 @@ export const actions = {
     }
 
     throw error(500, "Internal error server")
+  },
+
+  unassign: async ({ request, cookies, params }) => {
+    let data = await request.formData()
+
+    const url = 'http://localhost:8080/course/professor/asign';
+    const options = {
+      method: 'DELETE',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: cookies.get("token")
+      },
+      body: new URLSearchParams({ course_id: params.course, user_id: data.get("user_id") })
+    };
+
+    const response = await fetch(url, options);
+    if (response.status == 200) {
+      return { ok: true }
+    }
+
+    throw error(500, "Internal error server")
   }
 }
