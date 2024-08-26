@@ -1,7 +1,7 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use crate::shared::entities::course::Course;
+use crate::shared::entities::{course::Course, user::User};
 
 use super::DB;
 
@@ -21,9 +21,9 @@ pub async fn create(
     let query = format!(
         r#"
 BEGIN TRANSACTION;
-IF (SELECT * FROM {}) != [] THEN
+IF (SELECT * FROM school:{}) != [] THEN
 	(SELECT out.id AS id, out.name AS name, out.places AS places FROM
-  (RELATE {} -> offers -> (CREATE course CONTENT {{
+  (RELATE school:{} -> offers -> (CREATE course CONTENT {{
 		name: "{}",
 		places: {},
 	}})))
@@ -56,7 +56,7 @@ COMMIT TRANSACTION;
 }
 
 pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
-    let query = format!("DELETE {}  RETURN BEFORE;", id);
+    let query = format!("DELETE course:{}  RETURN BEFORE;", id);
 
     let mut resp = match db.query(query).await {
         Ok(resp) => resp,
@@ -343,4 +343,49 @@ pub async fn get_enrolled(id: &String, db: &DB) -> Result<impl Serialize, (u16, 
         }),
         None => Err((204, format!("Not enrolled: {}", id))),
     }
+}
+
+#[derive(Deserialize)]
+pub struct UserDB {
+    pub id: Thing,
+    pub names: String,
+    pub last_name1: String,
+    pub last_name2: String,
+    pub gender: bool,
+    pub role: String,
+}
+
+pub async fn get_professors(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query = r#"
+SELECT
+in.id AS id,
+in.names AS names,
+in.last_name1 AS last_name1,
+in.last_name2 AS last_name2,
+in.gender AS gender,
+role
+FROM type::thing("course", $id)<-teaches
+"#;
+
+    let mut resp = match db.query(query).bind(("id", course_id)).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let professors = match resp.take::<Vec<UserDB>>(0) {
+        Ok(p) => p,
+        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
+    };
+
+    Ok(professors
+        .into_iter()
+        .map(|p| User {
+            id: p.id.id.to_string(),
+            names: p.names,
+            last_name1: p.last_name1,
+            last_name2: p.last_name2,
+            gender: p.gender,
+            role: p.role,
+        })
+        .collect::<Vec<User>>())
 }

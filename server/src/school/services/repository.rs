@@ -6,11 +6,11 @@ use super::DB;
 pub async fn create(name: &String, faculty_id: &String, db: &DB) -> Result<String, (u16, String)> {
     let query = format!(
         r#"
-IF (SELECT * FROM {}) != [] THEN
+IF (SELECT * FROM faculty:{}) != [] {{
 	(RELATE faculty:{} -> includes -> (CREATE school SET name = '{}')).out.name
-ELSE
+}} ELSE {{
 	(RETURN NONE)
-END;
+}}
     "#,
         faculty_id, faculty_id, name
     );
@@ -18,12 +18,12 @@ END;
     let mut resp = make_petition(&query, db).await?;
     let name = match resp.take::<Option<String>>(0) {
         Ok(school) => school,
-        Err(_) => return Err((500, format!("DB Error, School Exists"))),
+        Err(_) => return Err((400, format!("DB Error, School Exists"))),
     };
 
     match name {
         Some(name) => Ok(format!("School created: {}", name)),
-        None => Err((401, "Faculty id dont't exist".to_string())),
+        None => Err((400, "Faculty id dont't exist".to_string())),
     }
 }
 
