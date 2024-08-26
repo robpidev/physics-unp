@@ -1,5 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { breadcrum } from '$lib/stores.js';
+
 	export let data;
 	let facultyName = '';
 	let error = '';
