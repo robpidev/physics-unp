@@ -12,7 +12,6 @@ export async function load({ params, cookies }) {
 
   if (response.status == 200) {
     const professors = await response.json();
-    console.log(professors)
     return {
       professors
     }

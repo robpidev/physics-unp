@@ -1,6 +1,5 @@
 <script>
 	import { enhance } from '$app/forms';
-	import { breadcrum } from '$lib/stores.js';
 
 	export let data;
 	let facultyName = '';
@@ -10,21 +9,7 @@
 <h1>{error}</h1>
 
 <section>
-	<form
-		method="POST"
-		action="?/add"
-		use:enhance={() => {
-			return async ({ result }) => {
-				if (result.status !== 200) {
-					// console.log(error);
-					error = result.data.error;
-				} else {
-					facultyName = '';
-					error = '';
-				}
-			};
-		}}
-	>
+	<form method="POST" action="?/add" use:enhance>
 		<label>
 			<span>Nombre de la facultad: </span>
 			<input on:keydown={() => (error = '')} type="text" name="name" bind:value={facultyName} />
@@ -40,7 +25,7 @@
 
 <section>
 	<ul class="faculties">
-		{#each data?.faculties as f, i}
+		{#each data?.faculties as f}
 			<li class="faculty">
 				<a href={`/admin/${f.id}`}>{f.name}</a>
 			</li>
