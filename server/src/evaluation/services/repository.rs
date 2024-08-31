@@ -14,7 +14,9 @@ pub async fn register_evaluation(
 ) -> Result<String, (u16, String)> {
     let query = r#"
 IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
-    RELATE course:ff17z1vng2mqs6rm095p->evaluated->student:1111111111
+    let $course = type::thing("course", $course_id);
+    let $student = type::thing("student", $student_id);
+    RELATE $course->evaluated->$student
     SET
     ev_type = $ev_type,
     number = $number,
