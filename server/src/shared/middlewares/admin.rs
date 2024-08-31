@@ -80,7 +80,7 @@ where
         //    return Box::pin(async { Err(err) });
         //}
 
-        let professor = match check_token(token) {
+        let user = match check_token(token) {
             Ok(p) => p,
             Err(e) => {
                 let err = error::ErrorUnauthorized(e.1).into();
@@ -92,13 +92,13 @@ where
             || req.path().contains("/delete")
             || req.path().contains("/unregister")
             || req.path().contains("/asign"))
-            && !(professor.role == "admin")
+            && !(user.role == "admin")
         {
             let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
 
-        req.extensions_mut().insert(professor.id);
+        req.extensions_mut().insert(user.id);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })

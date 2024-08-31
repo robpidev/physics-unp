@@ -8,8 +8,8 @@ use crate::shared::middlewares::admin::Admin;
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/faculty")
-            .service(faculty)
             .wrap(Admin)
+            .service(faculty)
             .service(add)
             .service(delete),
     );
