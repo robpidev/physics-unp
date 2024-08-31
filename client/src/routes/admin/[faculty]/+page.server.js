@@ -6,7 +6,6 @@ export async function load({ params }) {
 
   const response = await fetch(url, options);
 
-  console.log(params.faculty)
 
   if (response.status === 200) {
     const data = await response.json()

@@ -23,8 +23,6 @@
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
 
-					console.log(u);
-
 					if (user.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
