@@ -9,17 +9,17 @@ pub async fn register_evaluation(
     ev_type: &String,
     score: f32,
     number: u8,
-    weight: u8,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
 IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
-    RELATE course:ff17z1vng2mqs6rm095p->evaluated->student:1111111111
+    let $course = type::thing("course", $course_id);
+    let $student = type::thing("student", <int>$student_id);
+    RELATE $course->evaluated->$student
     SET
     ev_type = $ev_type,
     number = $number,
     score = $score,
-    weight = $weight;
     RETURN 'Evaluation registered';
 	
 } ELSE {
@@ -34,7 +34,6 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
         .bind(("ev_type", ev_type))
         .bind(("score", score))
         .bind(("number", number))
-        .bind(("weight", weight))
         .await
     {
         Ok(r) => r,
@@ -54,14 +53,13 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 pub async fn update_evaluation(
     ev_id: &String,
     score: f32,
-    weight: u8,
     number: u8,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
 
 IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
-    UPDATE type::thing("evaluated", $ev_id) set score = $score, weight = $weight;
+    UPDATE type::thing("evaluated", $ev_id) set score = $score;
     RETURN 'Evaluation updated';
 } ELSE {
         THROW 'Update no avilable';
@@ -72,7 +70,6 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
         .query(query)
         .bind(("ev_id", ev_id))
         .bind(("score", score))
-        .bind(("weight", weight))
         .bind(("number", number))
         .await
     {
@@ -123,7 +120,6 @@ struct Evaluation {
     #[allow(dead_code)]
     ev_type: String,
     score: f32,
-    weight: u8,
     number: u8,
 }
 
@@ -137,7 +133,7 @@ pub async fn get_evaluation(
 SELECT
 id.type AS ev_type,
 id.number AS number,
-score, weight
+score
 FROM student:{}<-evaluated
 WHERE in = course:{};
 "#,
@@ -161,7 +157,6 @@ struct ScoreDB {
     ev_type: String,
     number: u8,
     score: f32,
-    weight: u8,
 }
 
 // TODO: Filter in db
@@ -177,7 +172,6 @@ struct Score {
     id: String,
     number: u8,
     score: f32,
-    weight: u8,
     ev_type: String,
 }
 
@@ -221,7 +215,6 @@ from type::thing("course", $course_id)<-enrolled
                     id: s.id.id.to_string(),
                     number: s.number,
                     score: s.score,
-                    weight: s.weight,
                     ev_type: s.ev_type,
                 })
                 .collect::<Vec<Score>>(),

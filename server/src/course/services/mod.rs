@@ -82,3 +82,16 @@ pub async fn get_enrolled(student_id: &String, db: &DB) -> Result<impl Serialize
 pub async fn get_professors(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     repository::get_professors(course_id, db).await
 }
+
+pub async fn get_course(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    repository::get_course(course_id, db).await
+}
+
+pub async fn update_test(
+    course_id: &String,
+    test: u8,
+    weight: u8,
+    db: &DB,
+) -> Result<String, (u16, String)> {
+    repository::update_test(course_id, test, weight, db).await
+}

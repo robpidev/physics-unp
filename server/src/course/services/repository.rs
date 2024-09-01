@@ -26,6 +26,7 @@ IF (SELECT * FROM school:{}) != [] THEN
   (RELATE school:{} -> offers -> (CREATE course CONTENT {{
 		name: "{}",
 		places: {},
+    tests: [{{name: "test", weight: 50}}, {{name: "práctice", weight: 50}}],
 	}})))
 ELSE
 	(RETURN NONE)
@@ -118,6 +119,71 @@ FROM school:{}->offers
             })
             .collect::<Vec<Course>>()),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
+    }
+}
+#[derive(Serialize, Deserialize)]
+struct Test {
+    name: String,
+    weight: u8,
+}
+
+#[derive(Serialize, Deserialize)]
+pub struct CourseTest {
+    name: String,
+    tests: Vec<Test>,
+}
+
+pub async fn get_course(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+    let query = r#"SELECT * FROM type::thing("course", $course_id)"#;
+
+    let mut resp = match db.query(query).bind(("course_id", course_id)).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB conection Error: {}", e.to_string()))),
+    };
+
+    let course = match resp.take::<Option<CourseTest>>(0) {
+        Ok(c) => c,
+        Err(e) => return Err((500, format!("DB Error parse: {}", e.to_string()))),
+    };
+
+    match course {
+        Some(c) => Ok(c),
+        None => Err((400, format!("Course dont exists: {}", course_id))),
+    }
+}
+
+pub async fn update_test(
+    course_id: &String,
+    test: u8,
+    weight: u8,
+    db: &DB,
+) -> Result<String, (u16, String)> {
+    let query = r#"
+UPDATE type::thing("course", $course_id) SET tests = [
+	{
+		name: 'test',
+		weight: $test
+	},
+	{
+		name: 'practice',
+		weight: $weight
+	}
+];"#;
+
+    let mut resp = match db
+        .query(query)
+        .bind(("course_id", course_id))
+        .bind(("test", test))
+        .bind(("weight", weight))
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB conection Error: {}", e.to_string()))),
+    };
+
+    match resp.take::<Option<CourseTest>>(0) {
+        Ok(_) => Ok(format!("Course updated")),
+        Err(e) => Err((500, format!("DB Error parse: {}", e.to_string()))),
     }
 }
 
