@@ -92,6 +92,6 @@ pub async fn update_test(
     test: u8,
     weight: u8,
     db: &DB,
-) -> Result<String, (u16, String)> {
+) -> Result<impl Serialize, (u16, String)> {
     repository::update_test(course_id, test, weight, db).await
 }

@@ -19,7 +19,7 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
     SET
     ev_type = $ev_type,
     number = $number,
-    score = $score,
+    score = $score;
     RETURN 'Evaluation registered';
 	
 } ELSE {
@@ -57,7 +57,6 @@ pub async fn update_evaluation(
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-
 IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
     UPDATE type::thing("evaluated", $ev_id) set score = $score;
     RETURN 'Evaluation updated';
@@ -88,18 +87,23 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 }
 
 pub async fn teaches_course(
-    profesor_id: &String,
+    professor_id: &String,
     course_id: &String,
     db: &DB,
 ) -> Result<bool, (u16, String)> {
     let query = format!(
         r#"
-(select role from course:{}<-teaches where in = professor:{})[0].role
+(select role from type::thing("course", $course_id)<-teaches
+where in = type::thing("professor", type::int($professor_id)))[0].role
 "#,
-        course_id, profesor_id
     );
 
-    let mut resp = match db.query(query).await {
+    let mut resp = match db
+        .query(query)
+        .bind(("course_id", course_id))
+        .bind(("professor_id", professor_id))
+        .await
+    {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
