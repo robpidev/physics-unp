@@ -14,7 +14,7 @@
 			<button
 				type="submit"
 				disabled={data.courses.some((s) => {
-					let resp = s.name.toUpperCase() == course.trim().toUpperCase();
+					let resp = s.name.toUpperCase() == course.trim().toUpperCase() || course == '';
 					return resp;
 				})}>Agregar</button
 			>
