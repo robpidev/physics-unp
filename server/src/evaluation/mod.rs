@@ -45,7 +45,6 @@ struct Evaluation {
     evaluation_type: String,
     score: f32,
     number: u8,
-    weight: u8,
 }
 
 #[post("")]
@@ -59,7 +58,6 @@ async fn add(data: web::Form<Evaluation>, req: HttpRequest, db: web::Data<DB>) -
         &data.evaluation_type,
         data.score,
         data.number,
-        data.weight,
         &db,
     )
     .await
@@ -73,7 +71,6 @@ async fn add(data: web::Form<Evaluation>, req: HttpRequest, db: web::Data<DB>) -
 struct EvaluationUpdate {
     ev_id: String,
     score: f32,
-    weight: u8,
     number: u8,
     course_id: String,
 }
@@ -88,7 +85,6 @@ async fn update(
     match services::update_evaluation(
         &data.ev_id,
         data.score,
-        data.weight,
         data.number,
         &professor_id,
         &data.course_id,
@@ -109,7 +105,6 @@ struct EvaluationID {
     evaluation_type: String,
     score: f32,
     number: u8,
-    weight: u8,
 }
 
 #[post("/add")]
@@ -121,7 +116,6 @@ async fn add_with_id(data: web::Form<EvaluationID>, db: web::Data<DB>) -> impl R
         &data.evaluation_type,
         data.score,
         data.number,
-        data.weight,
         &db,
     )
     .await

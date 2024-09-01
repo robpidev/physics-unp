@@ -11,7 +11,6 @@ pub async fn add_evaluation(
     ev_type: &String,
     score: f32,
     number: u8,
-    weight: u8,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     // TODO: Comprobate that student is enrolled in course
@@ -20,13 +19,12 @@ pub async fn add_evaluation(
         return Err((400, format!("You aren't practice professor")));
     }
 
-    repository::register_evaluation(course_id, student_id, ev_type, score, number, weight, db).await
+    repository::register_evaluation(course_id, student_id, ev_type, score, number, db).await
 }
 
 pub async fn update_evaluation(
     ev_id: &String,
     score: f32,
-    weight: u8,
     number: u8,
     professor_id: &String,
     course_id: &String,
@@ -36,7 +34,7 @@ pub async fn update_evaluation(
         return Err((400, format!("You aren't practice professor")));
     }
 
-    repository::update_evaluation(ev_id, score, weight, number, db).await
+    repository::update_evaluation(ev_id, score, number, db).await
 }
 
 pub async fn get_evaluations(

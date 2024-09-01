@@ -1,5 +1,9 @@
 use actix_web::{
-    delete, get, http::StatusCode, post, web, HttpMessage, HttpRequest, HttpResponse, Responder,
+    delete, get,
+    http::StatusCode,
+    patch, post,
+    web::{self},
+    HttpMessage, HttpRequest, HttpResponse, Responder,
 };
 use serde::Deserialize;
 
@@ -22,7 +26,9 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(asign)
                     .service(unasign)
                     .service(get_by_professor)
-                    .service(get_professors),
+                    .service(get_professors)
+                    .service(get)
+                    .service(update_test),
             )
             .service(
                 web::scope("")
@@ -48,6 +54,32 @@ struct Add {
 #[get("")]
 async fn _get(db: web::Data<services::DB>) -> impl Responder {
     match services::get_all(&db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[get("/{id}")]
+async fn get(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
+    match services::get_course(&id, &db).await {
+        Ok(s) => HttpResponse::Ok().json(s),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[derive(Deserialize)]
+struct Test {
+    test: u8,
+    practice: u8,
+}
+
+#[patch("/{id}")]
+async fn update_test(
+    id: web::Path<String>,
+    test: web::Form<Test>,
+    db: web::Data<services::DB>,
+) -> impl Responder {
+    match services::update_test(&id, test.test, test.practice, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
