@@ -26,7 +26,10 @@
 	<ul class="courses">
 		{#each data.courses as course, id}
 			<li class="course">
-				<a href="/admin/{$page.params.faculty}/{$page.params.school}/{course.id}">{course.name}</a>
+				<a
+					data-sveltekit-preload-data="false"
+					href="/admin/{$page.params.faculty}/{$page.params.school}/{course.id}">{course.name}</a
+				>
 			</li>
 		{/each}
 	</ul>
