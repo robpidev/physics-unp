@@ -1,4 +1,4 @@
-import { error } from "@sveltejs/kit";
+import { error, fail } from "@sveltejs/kit";
 
 const host = "http://localhost:8080";
 
@@ -126,6 +126,48 @@ export const actions = {
 
     if (response.status == 401) {
       throw error(401, "Authorization no valid")
+    }
+
+    throw error(500, "Internal error server")
+  },
+
+  update_score: async ({ request, cookies, params }) => {
+    let data = await request.formData();
+    let url = host + "/evaluation";
+
+    const options = {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: cookies.get("token")
+      },
+      body: new URLSearchParams(
+        {
+          score: data.get("score"),
+          ev_id: data.get("ev_id"),
+          course_id: params.course,
+          number: data.get("number"),
+        }
+      )
+    };
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
+    if (response.status == 401) {
+      console.log(await response.text())
+      throw error(401, "Authorization no valid")
+    }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
     }
 
     throw error(500, "Internal error server")

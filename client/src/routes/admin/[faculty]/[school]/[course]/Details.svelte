@@ -1,5 +1,12 @@
 <script>
+	import { enhance } from '$app/forms';
 	export let student;
+	export let form;
+	let newScore = '';
+	let id;
+	let ev_type = '';
+	let number = '';
+	let updating = false;
 </script>
 
 <h3>Detalles de evaluaciones</h3>
@@ -24,15 +31,124 @@
 	{/each}
 
 	{#each student.scores as score}
-		<div class="cell" style="grid-area: {score.ev_type}{score.number}">
+		<button
+			on:click={() => {
+				newScore = score.score;
+				id = score.id;
+				ev_type = score.ev_type;
+				number = score.number;
+			}}
+			active={score.ev_type == ev_type && score.number == number}
+			class="cell"
+			style="
+        grid-area: {score.ev_type}{score.number};
+        color: {score.score >= 10.5 ? 'green' : 'red'};
+      "
+		>
 			{score.score}
-		</div>
+		</button>
 	{/each}
 </div>
 
+<div class="scores">
+	{#if id != null}
+		<form
+			method="post"
+			action="?/update_score"
+			use:enhance={() => {
+				updating = true;
+				return async ({ update }) => {
+					await update();
+					updating = false;
+					id = null;
+					number = null;
+					ev_type = null;
+					newScore = null;
+				};
+			}}
+		>
+			<label>
+				Nota:
+				<input type="number" name="score" bind:value={newScore} />
+			</label>
+			<input type="text" name="ev_id" hidden bind:value={id} />
+			<input type="number" name="number" hidden bind:value={number} />
+			{#if updating}
+				<input type="submit" value="Actualizando..." disabled />
+			{:else}
+				<input
+					type="submit"
+					value="Actualizar"
+					disabled={newScore < 0 || newScore > 20 || newScore == undefined}
+				/>
+				<button
+					class="cancel"
+					on:click={() => {
+						newScore = '';
+						id = null;
+						number = null;
+					}}>Nueva Nota</button
+				>
+			{/if}
+		</form>
+	{:else}
+		<form class="new_score" action="?/add_score">
+			<label>
+				Nota: <input type="number" name="score" bind:value={newScore} required />
+			</label>
+			<label>
+				Práctica: <input type="number" name="number" bind:value={number} required />
+			</label>
+			<label>
+				<input type="radio" name="ev_type" bind:group={ev_type} value="test" required />
+				Entrada
+			</label>
+			<label>
+				<input type="radio" name="ev_type" bind:group={ev_type} value="practice" required />
+				Informes
+			</label>
+			<input
+				type="submit"
+				value="Agregar"
+				disabled={student.scores.some((s) => {
+					if (s.number == number && s.ev_type == ev_type) {
+						return true;
+					}
+					return false;
+				}) ||
+					newScore < 0 ||
+					newScore > 20 ||
+					newScore == undefined ||
+					number == undefined}
+			/>
+		</form>
+	{/if}
+</div>
+
+<p>
+	{form?.error ?? ''}
+</p>
+
 <style>
+	.new_score {
+		display: flex;
+		gap: 1em;
+		flex-wrap: wrap;
+	}
+
+	.new_score input {
+		margin-left: 0.5em;
+	}
+	.new_score label {
+		display: flex;
+		align-items: center;
+	}
 	span {
 		min-width: 90px;
+	}
+
+	.scores input[type='number'] {
+		width: 3em;
 	}
 
 	.student {
@@ -85,6 +201,7 @@
 	}
 
 	.cell {
+		color: black;
 		display: flex;
 		justify-content: right;
 		padding: 0 0.5em;
@@ -102,5 +219,25 @@
 		font-weight: 600;
 		background: var(--color-200);
 		user-select: none;
+	}
+
+	button[active='true'] {
+		background: var(--color-400);
+		color: white;
+	}
+
+	input[type='number']::-webkit-inner-spin-button,
+	input[type='number']::-webkit-outer-spin-button {
+		-webkit-appearance: none;
+		margin: 0;
+	}
+
+	.cancel {
+		color: red;
+		background: initial;
+	}
+
+	.cancel:hover {
+		text-decoration: underline;
 	}
 </style>

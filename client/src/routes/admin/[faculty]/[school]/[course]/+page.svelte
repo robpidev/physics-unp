@@ -13,6 +13,7 @@
 	let student = null;
 
 	export let data;
+	export let form;
 
 	function average(scores) {
 		const tw = data.course.tests[0].weight / 100;
@@ -102,7 +103,7 @@
 
 {#if student != null}
 	<section>
-		<Details {student} />
+		<Details student={data.evaluations[student]} {form} />
 	</section>
 {/if}
 
@@ -121,15 +122,12 @@
 				</tr>
 			</thead>
 			<tbody>
-				{#each data.evaluations as ev}
+				{#each data.evaluations as ev, id}
 					<tr>
 						<td>{ev.id}</td>
 						<td>{ev.name}</td>
-						<td>{average(ev.scores)}</td>
-						<td
-							><button on:click={() => (student = orderScores(ev))} class="details">Detalles</button
-							></td
-						>
+						<td class="average">{average(ev.scores)}</td>
+						<td><button on:click={() => (student = id)} class="details">Detalles</button></td>
 					</tr>
 				{/each}
 			</tbody>
@@ -185,7 +183,7 @@
 		padding: 0.5em 1em;
 	}
 
-	td {
+	.average {
 		text-align: right;
 	}
 

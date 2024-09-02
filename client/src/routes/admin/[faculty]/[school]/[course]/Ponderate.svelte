@@ -19,7 +19,7 @@
 	{#each tests as test}
 		<label>
 			<span>{test.name}:</span>
-			<input type="number" name={test.name} value={test.weight} /> %
+			<input type="number" name={test.name} bind:value={test.weight} /> %
 		</label>
 	{/each}
 	<button disabled={updating} type="submit">Actualizar</button>
@@ -39,6 +39,8 @@
 	input {
 		width: 2.5em;
 		border: none;
+		background: var(--bg);
+		height: min-content;
 	}
 
 	input[type='number']::-webkit-inner-spin-button,
