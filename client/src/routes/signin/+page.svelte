@@ -22,8 +22,7 @@
 					const u = result.data.user;
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
-
-					if (user.role === 'professor') goto('/professor');
+					if (u.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
 				}
