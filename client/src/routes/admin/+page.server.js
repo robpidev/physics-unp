@@ -1,7 +1,5 @@
 import { fail, error } from "@sveltejs/kit";
 
-
-
 export async function load({ cookies }) {
   const url = 'http://localhost:8080/faculty';
   const options = {
