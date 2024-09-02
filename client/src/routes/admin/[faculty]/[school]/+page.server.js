@@ -44,7 +44,6 @@ export const actions = {
 
     if (response.status == 200) {
       const courses = await response.json();
-      console.log(courses)
       return {
         courses: courses
       }
@@ -52,7 +51,6 @@ export const actions = {
 
     if (response.status == 400) {
       const error = await response.text()
-      console.log(error)
       return fail(400, {
         error
       })
@@ -71,7 +69,7 @@ export const actions = {
       method: 'DELETE',
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
-        Authorization: 'eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ1c2VyIjp7ImlkIjoiMTIzNDU2NzgiLCJuYW1lcyI6IlJvYmVyIEVzYmwiLCJsYXN0X25hbWUxIjoiVG9ycmVzdCIsImxhc3RfbmFtZTIiOiJUYXJyaWxsbyIsImdlbmRlciI6dHJ1ZSwicm9sZSI6ImFkbWluIn0sImV4cCI6MzB9.kxERAYEHv2jxL-KT2atdQ84Sg6j5TPZzhjww7bmsqWI'
+        Authorization: cookies.get('token')
       },
       body: new URLSearchParams({ name: 'Lab. Física III' })
     };

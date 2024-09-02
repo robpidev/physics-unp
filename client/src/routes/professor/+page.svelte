@@ -8,7 +8,7 @@
 		<ul class="courses">
 			{#each data.courses as course}
 				<li>
-					<a href="/professor/{course.id}">
+					<a href="/professor/{course.id}" data-sveltekit-preload-data="false">
 						<span class="name">{course.name}</span>
 						<span class="school">{course.school}</span>
 					</a>

@@ -4,6 +4,8 @@
 	import Details from './Details.svelte';
 	export let form;
 	export let data;
+	let search;
+
 	let student;
 	onMount(() => {
 		console.log(data);
@@ -56,6 +58,13 @@
 		<Ponderate tests={data.course.tests} />
 
 		<hr />
+
+		<label>
+			Buscar:
+			<input bind:value={search} type="text" placeholder="Código o nombre" />
+		</label>
+
+		<hr />
 		<div class="table">
 			<span class="head">Código</span>
 			<span class="head">Nombre</span>
@@ -63,12 +72,15 @@
 			<span class="head">Detalles</span>
 
 			{#each data.evaluations as ev, id}
-				<span class="cell center">{ev.id}</span>
-				<span class="cell left">{ev.name}</span>
-				<span class="cell right">{average(ev.scores)}</span>
-				<span class="cell">
-					<button on:click={() => (student = id)} class="details">Detalles</button>
-				</span>
+				{#if search == undefined || ev.name.includes(search) || ev.id.includes(search) || search == ''}
+					<span class="cell center">{ev.id}</span>
+					<span class="cell left">{ev.name}</span>
+					<span class="cell right">{average(ev.scores)}</span>
+					<span class="cell">
+						<button on:click={() => (student = id)} class="details">Ver</button>
+					</span>
+					<!-- content here -->
+				{/if}
 			{/each}
 		</div>
 	{/if}
