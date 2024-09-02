@@ -157,7 +157,7 @@ pub async fn update_test(
     test: u8,
     weight: u8,
     db: &DB,
-) -> Result<String, (u16, String)> {
+) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
 UPDATE type::thing("course", $course_id) SET tests = [
 	{
@@ -182,7 +182,7 @@ UPDATE type::thing("course", $course_id) SET tests = [
     };
 
     match resp.take::<Option<CourseTest>>(0) {
-        Ok(_) => Ok(format!("Course updated")),
+        Ok(c) => Ok(c),
         Err(e) => Err((500, format!("DB Error parse: {}", e.to_string()))),
     }
 }
