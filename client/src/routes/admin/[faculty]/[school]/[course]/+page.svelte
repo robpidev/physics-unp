@@ -112,30 +112,57 @@
 		<h2>Evaluaciones</h2>
 		<Ponderate tests={data.course.tests} />
 
-		<table>
-			<thead>
-				<tr>
-					<th>Código</th>
-					<th>Nombre</th>
-					<th>Promedio</th>
-					<th>Detalles</th>
-				</tr>
-			</thead>
-			<tbody>
-				{#each data.evaluations as ev, id}
-					<tr>
-						<td>{ev.id}</td>
-						<td>{ev.name}</td>
-						<td class="average">{average(ev.scores)}</td>
-						<td><button on:click={() => (student = id)} class="details">Detalles</button></td>
-					</tr>
-				{/each}
-			</tbody>
-		</table>
+		<hr />
+		<div class="table">
+			<span class="head">Código</span>
+			<span class="head">Nombre</span>
+			<span class="head">Promedio</span>
+			<span class="head">Detalles</span>
+
+			{#each data.evaluations as ev, id}
+				<span class="cell center">{ev.id}</span>
+				<span class="cell left">{ev.name}</span>
+				<span class="cell right">{average(ev.scores)}</span>
+				<span class="cell">
+					<button on:click={() => (student = id)} class="details">Detalles</button>
+				</span>
+			{/each}
+		</div>
 	{/if}
 </section>
 
 <style>
+	.table {
+		width: 100%;
+		display: grid;
+		grid-template-columns: 1fr 2fr 0.5fr 0.5fr;
+		gap: 1px;
+		overflow-x: auto;
+	}
+
+	.table .head {
+		background: var(--color-200);
+	}
+	.table span {
+		border-radius: 3px;
+		text-align: center;
+	}
+
+	.table .cell {
+		background: var(--bg);
+		padding: 5px;
+	}
+
+	.left {
+		display: flex;
+		text-justify: left;
+	}
+
+	.right {
+		display: flex;
+		justify-content: right;
+	}
+
 	section {
 		background: white;
 		border-radius: 8px;
@@ -168,28 +195,10 @@
 		width: 4em;
 	}
 
-	table {
-		border-collapse: collapse;
-	}
-
-	th {
-		background-color: var(--color-300);
-		color: var(--text);
-	}
-
-	td,
-	th {
-		border: solid 1px var(--border);
-		padding: 0.5em 1em;
-	}
-
-	.average {
-		text-align: right;
-	}
-
 	.details {
-		background-color: initial;
+		background: var(--bg);
 		color: var(--primary);
+		padding: 0;
 	}
 
 	.details:hover {

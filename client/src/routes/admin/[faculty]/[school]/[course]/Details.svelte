@@ -10,7 +10,6 @@
 </script>
 
 <h3>Detalles de evaluaciones</h3>
-
 <div class="student">
 	<div class="codigo">
 		<span class="label">Código: </span>
@@ -22,6 +21,7 @@
 	</div>
 </div>
 
+<hr />
 <div class="details">
 	<span class="entry">Entrada</span>
 	<span class="prac">Informes</span>
@@ -50,6 +50,7 @@
 	{/each}
 </div>
 
+<hr />
 <div class="scores">
 	{#if id != null}
 		<form
@@ -92,7 +93,21 @@
 			{/if}
 		</form>
 	{:else}
-		<form class="new_score" action="?/add_score">
+		<form
+			method="post"
+			class="new_score"
+			action="?/add_score"
+			use:enhance={() => {
+				updating = true;
+				return async ({ update }) => {
+					await update();
+					updating = false;
+					number = null;
+					ev_type = null;
+					newScore = null;
+				};
+			}}
+		>
 			<label>
 				Nota: <input type="number" name="score" bind:value={newScore} required />
 			</label>
@@ -107,20 +122,25 @@
 				<input type="radio" name="ev_type" bind:group={ev_type} value="practice" required />
 				Informes
 			</label>
-			<input
-				type="submit"
-				value="Agregar"
-				disabled={student.scores.some((s) => {
-					if (s.number == number && s.ev_type == ev_type) {
-						return true;
-					}
-					return false;
-				}) ||
-					newScore < 0 ||
-					newScore > 20 ||
-					newScore == undefined ||
-					number == undefined}
-			/>
+			<input type="number" name="student_id" hidden bind:value={student.id} />
+			{#if updating}
+				<input type="submit" value="Actualizando..." disabled />
+			{:else}
+				<input
+					type="submit"
+					value="Agregar"
+					disabled={student.scores.some((s) => {
+						if (s.number == number && s.ev_type == ev_type) {
+							return true;
+						}
+						return false;
+					}) ||
+						newScore < 0 ||
+						newScore > 20 ||
+						newScore == undefined ||
+						number == undefined}
+				/>
+			{/if}
 		</form>
 	{/if}
 </div>
@@ -172,11 +192,11 @@
 			'test test1     test2     test3     test4     test5'
 			'prac practice1 practice2 practice3 practice4 practice5';
 
-		border: solid 1px var(--border);
 		border-radius: 3px;
 		padding: 1px;
 		overflow-x: auto;
 		margin-bottom: 1em;
+		margin-top: 1em;
 	}
 
 	.type {
@@ -185,11 +205,13 @@
 	}
 	.entry,
 	.prac {
+		width: 100%;
 		font-weight: bold;
 		justify-self: start;
 		font-weight: 600;
 		background: var(--color-200);
 		border-radius: 3px;
+		padding: 0 0.5em;
 	}
 
 	.entry {

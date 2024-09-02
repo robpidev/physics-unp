@@ -1,3 +1,4 @@
+import { request } from "@playwright/test";
 import { error, fail } from "@sveltejs/kit";
 
 const host = "http://localhost:8080";
@@ -161,6 +162,53 @@ export const actions = {
 
     if (response.status == 401) {
       console.log(await response.text())
+      throw error(401, "Authorization no valid")
+    }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    throw error(500, "Internal error server")
+  },
+
+  add_score: async ({ request, cookies, params }) => {
+    const data = await request.formData();
+
+    console.log(data.get("score"))
+    console.log(data.get("ev_type"))
+    console.log(data.get("student_id"))
+    console.log(data.get("number"))
+    console.log(params.course)
+
+
+    const url = host + "/evaluation";
+    const options = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: cookies.get("token")
+      },
+      body: new URLSearchParams({
+        course_id: params.course,
+        student_id: data.get("student_id"),
+        evaluation_type: data.get("ev_type"),
+        score: data.get("score"),
+        number: data.get("number"),
+      })
+    };
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
+    if (response.status == 401) {
       throw error(401, "Authorization no valid")
     }
 
