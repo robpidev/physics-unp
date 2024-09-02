@@ -1,8 +1,8 @@
-import { request } from "@playwright/test";
 import { fail, error } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
-  const url = 'http://localhost:8080/course/professor/courses/' + params.school;
+  const url = host + '/course/professor/courses/' + params.school;
   const options = {
     method: 'GET',
     headers: {
@@ -26,7 +26,8 @@ export async function load({ params, cookies }) {
 export const actions = {
   add: async ({ request, cookies, params }) => {
     const data = await request.formData();
-    const url = 'http://localhost:8080/course/professor/add';
+
+    const url = host + '/course/professor/add';
     const options = {
       method: 'POST',
       headers: {
@@ -64,7 +65,7 @@ export const actions = {
   },
 
   delete: async ({ request, cookies }) => {
-    const url = 'http://localhost:8080/course/professor/delete/enyy3yfalin7iq2wj0yc';
+    const url = host + '/course/professor/delete/enyy3yfalin7iq2wj0yc';
     const options = {
       method: 'DELETE',
       headers: {

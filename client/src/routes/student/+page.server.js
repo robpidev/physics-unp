@@ -1,7 +1,9 @@
+import { host } from '$lib/config';
 import { error } from '@sveltejs/kit';
 
 export async function load({ cookies }) {
-  const url = 'http://localhost:8080/course/enrolled';
+
+  const url = host + "/course/enrolled"
   const options = {
     method: 'GET',
     headers: {
@@ -40,7 +42,7 @@ export async function load({ cookies }) {
 
 export const actions = {
   courses: async ({ cookies }) => {
-    const url = 'http://localhost:8080/course';
+    const url = host + "/course"
     const options = {
       method: 'GET',
       headers: {
@@ -72,7 +74,8 @@ export const actions = {
 
   enroll: async ({ request, cookies }) => {
     const data = await request.formData();
-    const url = 'http://localhost:8080/course/register/' + data.get('course_id');
+    const url = host + '/course/register/' + data.get('course_id');
+    //const url = 'http://localhost:8080/course/register/' + data.get('course_id');
     const options = {
       method: 'POST',
       headers: {
@@ -83,9 +86,12 @@ export const actions = {
     try {
       const response = await fetch(url, options);
       const data = await response.text();
-      console.log(data);
+      return {
+        msj: data,
+        ok: true,
+      }
     } catch (error) {
-      console.error(error);
+      throw error(500, 'Internal error server')
     }
   }
 }

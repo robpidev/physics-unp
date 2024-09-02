@@ -1,4 +1,5 @@
 import { fail } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export function load({ cookies }) {
   cookies.delete('token', { path: '/' });
@@ -8,7 +9,7 @@ export const actions = {
   signin: async ({ request, cookies }) => {
     const data = await request.formData();
 
-    const url = 'http://localhost:8080/auth/signin';
+    const url = host + '/auth/signin';
     const options = {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded' },

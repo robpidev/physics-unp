@@ -1,7 +1,9 @@
 import { fail, error } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export async function load({ cookies }) {
-  const url = 'http://localhost:8080/faculty';
+
+  const url = host + '/faculty'
   const options = {
     method: 'GET',
     headers: {
@@ -39,7 +41,7 @@ export const actions = {
       })
     }
 
-    const url = 'http://localhost:8080/faculty/add';
+    const url = host + '/faculty/add';
     const options = {
       method: 'POST',
       headers: {

@@ -1,7 +1,8 @@
 import { fail } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export async function load() {
-  const url = 'http://localhost:8080/school';
+  const url = host + '/school';
   const options = {
     method: 'GET',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -32,10 +33,9 @@ export const actions = {
     let url;
 
     if (data.get("code") !== null) {
-      url = 'http://127.0.0.1:8080/auth/signup/student';
-
+      url = host + '/auth/signup/student';
     } else if (data.get("dni") !== null) {
-      url = 'http://127.0.0.1:8080/auth/signup/professor';
+      url = host + '/auth/signup/professor';
     }
 
     try {

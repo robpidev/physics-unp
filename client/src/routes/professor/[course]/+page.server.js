@@ -1,5 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
-import { host } from "$lib/index";
+import { host } from "$lib/config";
+
 
 export async function load({ params, cookies }) {
 
