@@ -191,26 +191,28 @@ UPDATE type::thing("course", $course_id) SET tests = [
 pub struct SchoolDB {
     id: Thing,
     name: String,
+    school: String,
 }
 
 #[derive(Serialize)]
 pub struct School {
     id: String,
     name: String,
+    school: String,
 }
 
 pub async fn get_by_professor(
     professor_id: &String,
     db: &DB,
 ) -> Result<impl Serialize, (u16, String)> {
-    let query = format!(
-        r#"
-SELECT out.name AS name, out.id AS id FROM professor:{}->teaches; 
-    "#,
-        professor_id
-    );
+    let query = r#"
+SELECT (->course<-offers<-school.name)[0] as school,
+out.name AS name,
+out.id AS id 
+FROM type::thing("professor", <int>$professor_id)->teaches;
+    "#;
 
-    let mut resp = match db.query(query).await {
+    let mut resp = match db.query(query).bind(("professor_id", professor_id)).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
@@ -221,6 +223,7 @@ SELECT out.name AS name, out.id AS id FROM professor:{}->teaches;
             .map(|s| School {
                 id: s.id.id.to_string(),
                 name: s.name,
+                school: s.school,
             })
             .collect::<Vec<School>>()),
 
