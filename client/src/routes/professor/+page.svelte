@@ -2,35 +2,31 @@
 	export let data;
 </script>
 
-<div class="page">
-	<section>
-		<h1>Cursos</h1>
-		<div>
-			<ul class="courses">
-				{#each data.courses as course}
-					<li>
-						<a href="/professor/{course.id}">
-							<span class="name">{course.name}</span>
-							<span class="school">{course.school}</span>
-						</a>
-					</li>
-				{/each}
-			</ul>
-		</div>
-	</section>
-</div>
+<section>
+	<h1>Cursos</h1>
+	<div>
+		<ul class="courses">
+			{#each data.courses as course}
+				<li>
+					<a href="/professor/{course.id}">
+						<span class="name">{course.name}</span>
+						<span class="school">{course.school}</span>
+					</a>
+				</li>
+			{/each}
+		</ul>
+	</div>
+</section>
 
 <style>
 	section {
 		background: white;
 		padding: 1em 1em;
 		border-radius: 8px;
-	}
-	.page {
 		width: 100%;
-		padding: 1em;
 		max-width: 800px;
 	}
+
 	ul {
 		display: flex;
 		gap: 5px;

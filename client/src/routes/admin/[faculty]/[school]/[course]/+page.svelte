@@ -36,30 +36,12 @@
 		const average = (test / totalTests) * tw + (practice / totalPractice) * pw;
 		return Math.round(average * 100) / 100;
 	}
-
-	function orderScores(student) {
-		student.scores.sort((a, b) => {
-			if (a.number > b.number) {
-				return 1;
-			} else if (a.number < b.number) {
-				return -1;
-			} else {
-				if (a.ev_type < b.ev_type) {
-					return -1;
-				} else {
-					return 1;
-				}
-			}
-		});
-
-		return student;
-	}
 </script>
 
 <section>
 	{#if data.professors.length > 0}
 		<h2>Profesores del curso</h2>
-		{#each data.professors as professor, id}
+		{#each data.professors as professor}
 			<ul>
 				<li class="professor">
 					<div class="info">
