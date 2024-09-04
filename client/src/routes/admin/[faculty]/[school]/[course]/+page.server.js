@@ -1,6 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
-
-const host = "http://localhost:8080";
+import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
   let url = host + '/course/professor/professors/' + params.course;
@@ -59,7 +58,7 @@ export const actions = {
 
     let data = await request.formData()
 
-    const url = 'http://localhost:8080/course/professor/asign';
+    const url = host + "/course/professor/asign";
     const options = {
       method: 'POST',
       headers: {
@@ -83,7 +82,7 @@ export const actions = {
   unassign: async ({ request, cookies, params }) => {
     let data = await request.formData()
 
-    const url = 'http://localhost:8080/course/professor/asign';
+    const url = host + "/course/professor/asign";
     const options = {
       method: 'DELETE',
       headers: {

@@ -1,4 +1,4 @@
-import { host } from "$lib/index"
+import { host } from "$lib/config";
 export async function load({ cookies }) {
   const url = host + '/course/professor/courses';
   const options = {

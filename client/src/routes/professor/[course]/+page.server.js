@@ -1,5 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
-import { host } from "$lib/index";
+import { host } from "$lib/config";
+
 
 export async function load({ params, cookies }) {
 
@@ -18,11 +19,10 @@ export async function load({ params, cookies }) {
     evaluations = await response.json();
   }
 
-  console.log(evaluations)
-
   if (response.status == 401) {
     throw error(401, "Authorization no valid")
   }
+
 
   url = host + "/course/professor/" + params.course;
   response = await fetch(url, options);

@@ -10,6 +10,7 @@
 		professors = await resp.json();
 	}
 
+	let search;
 	let student = null;
 
 	export let data;
@@ -36,30 +37,12 @@
 		const average = (test / totalTests) * tw + (practice / totalPractice) * pw;
 		return Math.round(average * 100) / 100;
 	}
-
-	function orderScores(student) {
-		student.scores.sort((a, b) => {
-			if (a.number > b.number) {
-				return 1;
-			} else if (a.number < b.number) {
-				return -1;
-			} else {
-				if (a.ev_type < b.ev_type) {
-					return -1;
-				} else {
-					return 1;
-				}
-			}
-		});
-
-		return student;
-	}
 </script>
 
 <section>
 	{#if data.professors.length > 0}
 		<h2>Profesores del curso</h2>
-		{#each data.professors as professor, id}
+		{#each data.professors as professor}
 			<ul>
 				<li class="professor">
 					<div class="info">
@@ -113,6 +96,13 @@
 		<Ponderate tests={data.course.tests} />
 
 		<hr />
+
+		<label>
+			Buscar:
+			<input bind:value={search} type="text" placeholder="Código o nombre" />
+		</label>
+
+		<hr />
 		<div class="table">
 			<span class="head">Código</span>
 			<span class="head">Nombre</span>
@@ -120,12 +110,15 @@
 			<span class="head">Detalles</span>
 
 			{#each data.evaluations as ev, id}
-				<span class="cell center">{ev.id}</span>
-				<span class="cell left">{ev.name}</span>
-				<span class="cell right">{average(ev.scores)}</span>
-				<span class="cell">
-					<button on:click={() => (student = id)} class="details">Detalles</button>
-				</span>
+				{#if search == undefined || ev.name.includes(search) || ev.id.includes(search) || search == ''}
+					<span class="cell center">{ev.id}</span>
+					<span class="cell left">{ev.name}</span>
+					<span class="cell right">{average(ev.scores)}</span>
+					<span class="cell">
+						<button on:click={() => (student = id)} class="details">Ver</button>
+					</span>
+					<!-- content here -->
+				{/if}
 			{/each}
 		</div>
 	{/if}

@@ -1,7 +1,9 @@
 import { fail, error } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export async function load({ params }) {
-  const url = 'http://localhost:8080/school/' + params.faculty;
+
+  const url = host + '/school/' + params.faculty;
   const options = { method: 'GET', headers: { 'Content-Type': '' } };
 
   const response = await fetch(url, options);
@@ -10,7 +12,6 @@ export async function load({ params }) {
   if (response.status === 200) {
     const data = await response.json()
 
-    console.log(data)
     return {
       data
     }
@@ -29,7 +30,7 @@ export const actions = {
       })
     }
 
-    const url = 'http://localhost:8080/school/admin/add';
+    const url = host + '/school/admin/add';
     const options = {
       method: 'POST',
       headers: {
