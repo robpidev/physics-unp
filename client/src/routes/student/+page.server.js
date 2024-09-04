@@ -75,7 +75,6 @@ export const actions = {
   enroll: async ({ request, cookies }) => {
     const data = await request.formData();
     const url = host + '/course/register/' + data.get('course_id');
-    //const url = 'http://localhost:8080/course/register/' + data.get('course_id');
     const options = {
       method: 'POST',
       headers: {
