@@ -14,6 +14,9 @@
 		/*border: solid 1px;*/
 		width: 100%;
 		padding: 0 1em;
+		display: flex;
+		flex-direction: column;
+		gap: 1em;
 	}
 
 	.breadcrumb {

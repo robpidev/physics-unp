@@ -8,6 +8,7 @@
 </script>
 
 <section class="add">
+	<h2>Escuelas</h2>
 	<form method="post" action="?/add" use:enhance>
 		<label>
 			<span>Nombre de la escuela: </span>
@@ -21,13 +22,11 @@
 				})}>Agregar</button
 		>
 	</form>
-	<br />
 	<span class="error">{error}</span>
-</section>
 
-<section>
+	<hr />
 	<ul class="schools">
-		{#each data.data as school, id}
+		{#each data.data as school}
 			<li class="school">
 				<a
 					on:click={() => breadcrum.update((url) => url.push({ path: '/otro', name: '/hola' }))}
@@ -39,6 +38,9 @@
 </section>
 
 <style>
+	section {
+		padding: 1em 0;
+	}
 	.schools {
 		list-style: none;
 		display: flex;
@@ -47,13 +49,19 @@
 	}
 
 	.school {
-		border: 1px solid var(--border);
 		width: 100%;
-		padding: 0.5em 1em;
 		border-radius: 8px;
 	}
 
-	.add {
-		padding: 0 1em;
+	section {
+		padding: 0.5em 1em 1em 1em;
+	}
+
+	ul {
+		padding: 0;
+	}
+
+	a {
+		font-weight: 600;
 	}
 </style>
