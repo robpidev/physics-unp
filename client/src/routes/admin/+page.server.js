@@ -3,7 +3,7 @@ import { host } from "$lib/config";
 
 export async function load({ cookies }) {
 
-  const url = host + '/faculty'
+  let url = host + '/faculty'
   const options = {
     method: 'GET',
     headers: {
@@ -11,7 +11,7 @@ export async function load({ cookies }) {
     }
   };
 
-  const response = await fetch(url, options);
+  let response = await fetch(url, options);
 
   if (!cookies.get('token')) {
     throw error(401, 'Token invalid');
@@ -21,11 +21,25 @@ export async function load({ cookies }) {
     throw error(401, 'Unauthorized');
   }
 
+  let faculties;
+
   if (response.ok) {
-    const data = await response.json();
+    faculties = await response.json();
+  }
+
+  url = host + '/calendar';
+  response = await fetch(url, options);
+
+  if (response.ok) {
+    const calendar = await response.json();
     return {
-      faculties: data
+      faculties,
+      calendar
     }
+  }
+
+  if (response.status === 401) {
+    throw error(401, 'Unauthorized');
   }
 
   throw error(500, '  Internal error server');
@@ -73,7 +87,6 @@ export const actions = {
         success: true
       }
     }
-
 
     throw error(500, 'Internal error server')
   }
