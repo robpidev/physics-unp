@@ -44,3 +44,17 @@ pub async fn get_datetimes(db: &DB) -> Result<impl Serialize, (u16, String)> {
         })
         .collect::<Vec<Schedule>>())
 }
+
+pub async fn delete(id: &String, db: &DB) -> Result<(), (u16, String)> {
+    let query = r#"DELETE type::thing("register_time", <string>$id)"#;
+
+    let mut resp = match db.query(query).bind(("id", id)).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB contion error: {}", e.to_string()))),
+    };
+
+    match resp.take::<Vec<()>>(0) {
+        Ok(_) => Ok(()),
+        Err(e) => Err((500, format!("DB parse error: {}", e.to_string()))),
+    }
+}
