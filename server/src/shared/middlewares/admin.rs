@@ -124,7 +124,7 @@ fn check_token(token: &str) -> Result<User, (u16, String)> {
     let professor =
         match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate) {
             Ok(t) => t.claims.user,
-            Err(e) => return Err((500, format!("Error Professor Tokene: {}", e.to_string()))),
+            Err(e) => return Err((500, format!("Error Professor Token: {}", e.to_string()))),
         };
 
     Ok(professor)
