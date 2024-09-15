@@ -1,10 +1,14 @@
 <div class="page">
 	<nav>
 		<ul class="breadcrumb">
-			<li><a href="/admin">facultades</a></li>
+			<li>
+				<a href="/admin">facultades</a>
+			</li>
+			<li>
+				<a href="/admin/calendar">Horarios</a>
+			</li>
 		</ul>
 	</nav>
-
 	<slot></slot>
 </div>
 
@@ -24,6 +28,7 @@
 		list-style: none;
 		padding: 0;
 		margin: 0;
+		gap: 1em;
 	}
 
 	nav {

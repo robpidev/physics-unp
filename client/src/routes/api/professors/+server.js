@@ -1,7 +1,8 @@
 import { error, json } from "@sveltejs/kit";
+import { host } from "$lib/config";
 
 export async function GET({ cookies }) {
-  const url = 'http://localhost:8080/professor';
+  const url = host + '/professor';
   const options = {
     method: 'GET',
     headers: {

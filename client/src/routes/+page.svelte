@@ -4,14 +4,14 @@
 
 <div>
 	<h1>Hola</h1>
-	{#if user == null}
+	{#if $user}
+		Pudes ingresar a
+		<a href="/{$user?.role}">Cursos</a>
+	{:else}
 		Puedes
 		<a href="/signin">Iniciar sesión</a>
 		<span>O</span>
 		<a href="/signup">Registrate</a>
-	{:else}
-		Pudes ingresar a
-		<a href="/{$user.role}">Cursos</a>
 	{/if}
 </div>
 
