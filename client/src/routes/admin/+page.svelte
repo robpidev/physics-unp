@@ -6,9 +6,8 @@
 	let error = '';
 </script>
 
-<h1>{error}</h1>
-
 <section>
+	<h2>Facultades</h2>
 	<form method="POST" action="?/add" use:enhance>
 		<label>
 			<span>Nombre de la facultad: </span>
@@ -21,9 +20,8 @@
 			>
 		</label>
 	</form>
-</section>
 
-<section>
+	<hr />
 	<ul class="faculties">
 		{#each data?.faculties as f}
 			<li class="faculty">
@@ -35,40 +33,37 @@
 
 <style>
 	a {
-		font-weight: 700;
+		font-weight: 600;
 	}
 
 	.faculties {
 		display: flex;
 		flex-direction: column;
-		flex-wrap: wrap;
 		gap: 10px;
 		list-style: none;
 	}
 
 	.faculty {
-		width: 100%;
-		border: solid 1px var(--border);
 		border-radius: 8px;
-		padding: 0.5em 1em;
+		padding: 0;
 	}
 
 	ul {
 		padding: 0;
 		margin: 0;
+		list-style: none;
 	}
 
 	section {
 		padding: 1em;
 	}
 
-	span {
+	a {
 		color: var(--primary);
 		margin: 5px;
 	}
 
 	form {
-		border: solid 1px var(--border);
 		border-radius: 8px;
 		padding: 4px 0px;
 		position: sticky;

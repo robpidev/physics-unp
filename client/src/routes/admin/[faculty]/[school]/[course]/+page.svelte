@@ -60,6 +60,7 @@
 	{:else}
 		<h2>No hay profesores asignados al curso</h2>
 	{/if}
+
 	{#if professors.length > 0}
 		<h3>Eliga el profesor que quiere asignar al curso</h3>
 		{#each professors as professor}
