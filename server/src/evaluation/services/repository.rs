@@ -12,7 +12,7 @@ pub async fn register_evaluation(
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
+IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($number)) != [] {
     let $course = type::thing("course", $course_id);
     let $student = type::thing("student", <int>$student_id);
     RELATE $course->evaluated->$student
@@ -57,7 +57,7 @@ pub async fn update_evaluation(
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
+IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($number)) != [] {
     UPDATE type::thing("evaluated", $ev_id) set score = $score;
     RETURN 'Evaluation updated';
 } ELSE {

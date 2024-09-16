@@ -43,7 +43,7 @@ fn parse_error(error: String) -> String {
 
 pub async fn register_professor(professor: Professor, db: &DB) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE for = "professor" AND from < time::now() AND to > time::now()) != []
+IF (SELECT * FROM register_time WHERE todo = "professor" AND start < time::now() AND end > time::now()) != []
   {
 		RETURN CREATE type::thing('professor', <int>$id) CONTENT {
     names: $names,
@@ -81,7 +81,7 @@ pub async fn register_student(
 ) -> Result<String, (u16, String)> {
     let query = r#"
 BEGIN TRANSACTION;
-IF (SELECT * FROM register_time WHERE for = 'student' AND from < time::now() AND to > time::now()) != []
+IF (SELECT * FROM register_time WHERE todo = 'student' AND start < time::now() AND end > time::now()) != []
   {
         let $s = CREATE type::thing('student', <int>$id) CONTENT {
         names: $names,
