@@ -76,7 +76,7 @@ ELSE
 
 pub async fn register_student(
     student: Student,
-    school_id: &String,
+    school_id: String,
     db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
@@ -105,7 +105,7 @@ COMMIT TRANSACTION;
     let res = db
         .query(query)
         .bind(("id", student.code.clone()))
-        .bind(("names", student.names.to_string()))
+        .bind(("names", student.names))
         .bind(("last_name1", student.last_name1.to_string()))
         .bind(("last_name2", student.last_name2.to_string()))
         .bind(("code", student.code))
@@ -123,7 +123,7 @@ struct SchoolDB {
     id: Thing,
 }
 
-pub async fn verify_school(school_id: &String, db: &DB) -> Result<(), (u16, String)> {
+pub async fn verify_school(school_id: String, db: &DB) -> Result<(), (u16, String)> {
     let query = "select id from type::thing('school', $id)";
     let mut resp = match db.query(query).bind(("id", school_id)).await {
         Ok(resp) => resp,

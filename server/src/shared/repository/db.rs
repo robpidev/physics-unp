@@ -7,7 +7,7 @@ use surrealdb::{
 pub type DB = Surreal<Client>;
 
 pub async fn db_connect(host: String) -> Result<DB, String> {
-    print!("Connecting to database...");
+    println!("Connecting to database...");
     let db = match Surreal::new::<Ws>(host).await {
         Ok(db) => db,
         Err(e) => return Err(format!("DB HOST ERROR: {}", e.to_string())),
@@ -26,6 +26,8 @@ pub async fn db_connect(host: String) -> Result<DB, String> {
     if let Err(e) = db.use_ns("test").use_db("test").await {
         return Err(format!("DB NAMESPACE ERROR: {}", e.to_string()));
     }
+
+    println!("Database connected!");
 
     Ok(db)
 }
