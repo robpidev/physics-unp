@@ -39,9 +39,9 @@ pub async fn unregister(course_id: &String, student_id: &String) -> Result<Strin
 }
 
 pub async fn asign_professor(
-    course_id: &String,
-    professor_id: &String,
-    role: &String,
+    course_id: String,
+    professor_id: String,
+    role: String,
 ) -> Result<String, (u16, String)> {
     repository::professor::asign(course_id, professor_id, role).await
 }

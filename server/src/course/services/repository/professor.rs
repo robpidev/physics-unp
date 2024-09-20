@@ -72,35 +72,36 @@ DELETE teaches where in=professor:{} && out=course:{} return before
 }
 
 pub async fn asign(
-    course_id: &String,
-    teacher_id: &String,
-    role: &String,
+    course_id: String,
+    professor_id: String,
+    role: String,
 ) -> Result<String, (u16, String)> {
-    let query = format!(
-        r#"
-if (select in as in from course:{}<-teaches)[0].in != professor:{} {{
-     RELATE professor:{}->teaches->course:{} set role = "{}";
-     RETURN "created";
-}} else {{
-    return NONE;
-}}
-"#,
-        course_id, teacher_id, teacher_id, course_id, role
-    );
+    let query = r#"
+IF (SELECT in AS in FROM type::thing("course", $course_id)<-teaches)[0].in != type::thing("professor", $professor_id)
+	{{
+		RELATE (type::thing("professor", <int>$professor_id))->teaches->(type::thing("course", $course_id))
+    SET role=$role;
+	}}
+ELSE
+	{{
+		THROW 'Professor aleredy assigned to course';
+	}}
 
-    let mut resp = match DB.query(query).await {
+"#;
+
+    let mut resp = match DB
+        .query(query)
+        .bind(("course_id", course_id))
+        .bind(("professor_id", professor_id))
+        .bind(("role", role))
+        .await
+    {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
 
     match resp.take::<Option<String>>(0) {
-        Ok(r) => match r {
-            Some(_) => Ok(format!(
-                "Teacher {} asigned to course {}",
-                teacher_id, course_id
-            )),
-            None => Err((400, format!("Teacher alredy assigned"))),
-        },
+        Ok(_) => Ok("Teacher assigned".to_string()),
         Err(e) => Err((500, format!("DB parse error: {}", e.to_string()))),
     }
 }

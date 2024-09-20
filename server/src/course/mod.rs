@@ -160,7 +160,13 @@ struct Asign {
 
 #[post("/asign")]
 async fn asign(data: web::Form<Asign>) -> impl Responder {
-    match services::asign_professor(&data.course_id, &data.user_id, &data.role).await {
+    match services::asign_professor(
+        data.course_id.clone(),
+        data.user_id.clone(),
+        data.role.clone(),
+    )
+    .await
+    {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
