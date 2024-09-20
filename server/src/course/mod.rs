@@ -52,16 +52,16 @@ struct Add {
 // General
 
 #[get("")]
-async fn _get(db: web::Data<services::DB>) -> impl Responder {
-    match services::get_all(&db).await {
+async fn _get() -> impl Responder {
+    match services::get_all().await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("/{id}")]
-async fn get(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::get_course(&id, &db).await {
+async fn get(id: web::Path<String>) -> impl Responder {
+    match services::get_course(id.to_string()).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -74,12 +74,8 @@ struct Test {
 }
 
 #[patch("/{id}")]
-async fn update_test(
-    id: web::Path<String>,
-    test: web::Form<Test>,
-    db: web::Data<services::DB>,
-) -> impl Responder {
-    match services::update_test(&id, test.test, test.practice, &db).await {
+async fn update_test(id: web::Path<String>, test: web::Form<Test>) -> impl Responder {
+    match services::update_test(id.clone(), test.test, test.practice).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -87,54 +83,47 @@ async fn update_test(
 
 // Professor
 #[post("/add")]
-async fn add(add: web::Form<Add>, db: web::Data<services::DB>) -> impl Responder {
-    match services::create(&add.name, add.places, &add.school_id, &db).await {
+async fn add(add: web::Form<Add>) -> impl Responder {
+    match services::create(&add.name, add.places, &add.school_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[delete("delete/{id}")]
-async fn delete(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::delete(&id, &db).await {
+async fn delete(id: web::Path<String>) -> impl Responder {
+    match services::delete(&id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("/courses/{school_id}")]
-async fn get_by_school(
-    school_id: web::Path<String>,
-    db: web::Data<services::DB>,
-) -> impl Responder {
-    match services::get_by_school(&school_id, &db).await {
+async fn get_by_school(school_id: web::Path<String>) -> impl Responder {
+    match services::get_by_school(&school_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("/courses")]
-async fn get_by_professor(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+async fn get_by_professor(req: HttpRequest) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
 
-    match services::get_by_professor(&professor_id, &db).await {
+    match services::get_by_professor(professor_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[post("/register/{course_id}")]
-async fn register(
-    course_id: web::Path<String>,
-    req: HttpRequest,
-    db: web::Data<services::DB>,
-) -> impl Responder {
+async fn register(course_id: web::Path<String>, req: HttpRequest) -> impl Responder {
     let student_id = match req.extensions().get::<String>() {
         Some(id) => id.clone(),
         None => return HttpResponse::InternalServerError().body("No Student Id"),
     };
 
-    match services::register(&course_id, &student_id, &db).await {
+    match services::register(&course_id, &student_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -147,16 +136,16 @@ struct Enroll {
 }
 
 #[post("/register")]
-async fn register_by_id(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
-    match services::register(&data.course_id, &data.user_id, &db).await {
+async fn register_by_id(data: web::Form<Enroll>) -> impl Responder {
+    match services::register(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[delete("/register/")]
-async fn unregister(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
-    match services::unregister(&data.course_id, &data.user_id, &db).await {
+async fn unregister(data: web::Form<Enroll>) -> impl Responder {
+    match services::unregister(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -170,26 +159,23 @@ struct Asign {
 }
 
 #[post("/asign")]
-async fn asign(data: web::Form<Asign>, db: web::Data<services::DB>) -> impl Responder {
-    match services::asign_professor(&data.course_id, &data.user_id, &data.role, &db).await {
+async fn asign(data: web::Form<Asign>) -> impl Responder {
+    match services::asign_professor(&data.course_id, &data.user_id, &data.role).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[delete("/asign")]
-async fn unasign(data: web::Form<Enroll>, db: web::Data<services::DB>) -> impl Responder {
-    match services::desasign_professor(&data.course_id, &data.user_id, &db).await {
+async fn unasign(data: web::Form<Enroll>) -> impl Responder {
+    match services::desasign_professor(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 #[get("/professors/{course_id}")]
-async fn get_professors(
-    course_id: web::Path<String>,
-    db: web::Data<services::DB>,
-) -> impl Responder {
-    match services::get_professors(&course_id, &db).await {
+async fn get_professors(course_id: web::Path<String>) -> impl Responder {
+    match services::get_professors(course_id.to_string()).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -197,19 +183,19 @@ async fn get_professors(
 
 // student
 #[get("")]
-async fn get_by_student(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+async fn get_by_student(req: HttpRequest) -> impl Responder {
     let student_id = req.extensions().get::<String>().unwrap().clone();
 
-    match services::get_by_student(&student_id, &db).await {
+    match services::get_by_student(&student_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("/enrolled")]
-async fn get_enrolled(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
+async fn get_enrolled(req: HttpRequest) -> impl Responder {
     let student_id = req.extensions().get::<String>().unwrap().clone();
-    match services::get_enrolled(&student_id, &db).await {
+    match services::get_enrolled(&student_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

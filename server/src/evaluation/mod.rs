@@ -6,7 +6,7 @@ use actix_web::{
     HttpMessage, HttpRequest, HttpResponse, Responder,
 };
 use serde::Deserialize;
-use services::{add_evaluation, DB};
+use services::add_evaluation;
 
 use crate::shared::middlewares::admin::Admin;
 
@@ -31,8 +31,8 @@ struct Data {
 }
 
 #[get("")]
-async fn get(data: web::Form<Data>, db: web::Data<DB>) -> impl Responder {
-    match services::get_evaluations(&data.student_id, &data.course_id, &db).await {
+async fn get(data: web::Form<Data>) -> impl Responder {
+    match services::get_evaluations(&data.student_id, &data.course_id).await {
         Ok(evs) => HttpResponse::Ok().json(evs),
         Err((c, e)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(e),
     }
@@ -48,17 +48,16 @@ struct Evaluation {
 }
 
 #[post("")]
-async fn add(data: web::Form<Evaluation>, req: HttpRequest, db: web::Data<DB>) -> impl Responder {
+async fn add(data: web::Form<Evaluation>, req: HttpRequest) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
 
     match add_evaluation(
-        &professor_id,
-        &data.student_id,
-        &data.course_id,
-        &data.evaluation_type,
+        professor_id.clone(),
+        data.student_id.clone(),
+        data.course_id.clone(),
+        data.evaluation_type.clone(),
         data.score,
         data.number,
-        &db,
     )
     .await
     {
@@ -76,19 +75,14 @@ struct EvaluationUpdate {
 }
 
 #[patch("")]
-async fn update(
-    data: web::Form<EvaluationUpdate>,
-    req: HttpRequest,
-    db: web::Data<DB>,
-) -> impl Responder {
+async fn update(data: web::Form<EvaluationUpdate>, req: HttpRequest) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
     match services::update_evaluation(
-        &data.ev_id,
+        data.ev_id.clone(),
         data.score,
         data.number,
-        &professor_id,
-        &data.course_id,
-        &db,
+        professor_id,
+        data.course_id.clone(),
     )
     .await
     {
@@ -108,15 +102,14 @@ struct EvaluationID {
 }
 
 #[post("/add")]
-async fn add_with_id(data: web::Form<EvaluationID>, db: web::Data<DB>) -> impl Responder {
+async fn add_with_id(data: web::Form<EvaluationID>) -> impl Responder {
     match add_evaluation(
-        &data.professor_id,
-        &data.student_id,
-        &data.course_id,
-        &data.evaluation_type,
+        data.professor_id.clone(),
+        data.student_id.clone(),
+        data.course_id.clone(),
+        data.evaluation_type.clone(),
         data.score,
         data.number,
-        &db,
     )
     .await
     {
@@ -126,8 +119,8 @@ async fn add_with_id(data: web::Form<EvaluationID>, db: web::Data<DB>) -> impl R
 }
 
 #[get("/all/{course_id}")]
-async fn get_all(course_id: web::Path<String>, db: web::Data<DB>) -> impl Responder {
-    match services::get_all_evaluations(&course_id, &db).await {
+async fn get_all(course_id: web::Path<String>) -> impl Responder {
+    match services::get_all_evaluations(course_id.to_string()).await {
         Ok(evs) => HttpResponse::Ok().json(evs),
         Err((c, e)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(e),
     }

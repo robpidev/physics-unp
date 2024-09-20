@@ -17,10 +17,10 @@ impl ToString for FacultyDB {
     }
 }
 
-pub async fn create(name: &String, db: &DB) -> Result<String, (u16, String)> {
+pub async fn create(name: &String) -> Result<String, (u16, String)> {
     let query = format!(r#"CREATE faculty SET name = "{}";"#, name);
 
-    let mut resp = match db.query(&query).await {
+    let mut resp = match DB.query(&query).await {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
@@ -49,10 +49,10 @@ fn parse_error(error: String) -> String {
     }
 }
 
-pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn get() -> Result<impl Serialize, (u16, String)> {
     let query = format!(r#"SELECT id, name FROM faculty;"#);
 
-    let mut resp = match db.query(&query).await {
+    let mut resp = match DB.query(&query).await {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };
@@ -81,8 +81,8 @@ pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
     Ok(faculties)
 }
 
-pub async fn delete(id: &String, db: &DB) -> Result<String, (u16, String)> {
-    let faculty: Option<FacultyDB> = match db.delete(("faculty", id)).await {
+pub async fn delete(id: &String) -> Result<String, (u16, String)> {
+    let faculty: Option<FacultyDB> = match DB.delete(("faculty", id)).await {
         Ok(faculty) => faculty,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };

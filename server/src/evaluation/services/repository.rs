@@ -1,18 +1,17 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use super::DB;
+use crate::shared::repository::db::DB;
 
 pub async fn register_evaluation(
-    course_id: &String,
-    student_id: &String,
-    ev_type: &String,
+    course_id: String,
+    student_id: String,
+    ev_type: String,
     score: f32,
     number: u8,
-    db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
+IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($number)) != [] {
     let $course = type::thing("course", $course_id);
     let $student = type::thing("student", <int>$student_id);
     RELATE $course->evaluated->$student
@@ -27,7 +26,7 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 	}
 ;"#;
 
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
         .bind(("course_id", course_id))
         .bind(("student_id", student_id))
@@ -51,13 +50,12 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 }
 
 pub async fn update_evaluation(
-    ev_id: &String,
+    ev_id: String,
     score: f32,
     number: u8,
-    db: &DB,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($number)) != [] {
+IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($number)) != [] {
     UPDATE type::thing("evaluated", $ev_id) set score = $score;
     RETURN 'Evaluation updated';
 } ELSE {
@@ -65,7 +63,7 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 }
     "#;
 
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
         .bind(("ev_id", ev_id))
         .bind(("score", score))
@@ -87,9 +85,8 @@ IF (SELECT * FROM register_time WHERE to >= time::now() && for=type::string($num
 }
 
 pub async fn teaches_course(
-    professor_id: &String,
-    course_id: &String,
-    db: &DB,
+    professor_id: String,
+    course_id: String,
 ) -> Result<bool, (u16, String)> {
     let query = format!(
         r#"
@@ -98,7 +95,7 @@ where in = type::thing("professor", type::int($professor_id)))[0].role
 "#,
     );
 
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
         .bind(("course_id", course_id))
         .bind(("professor_id", professor_id))
@@ -130,7 +127,6 @@ struct Evaluation {
 pub async fn get_evaluation(
     student_id: &String,
     course_id: &String,
-    db: &DB,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = format!(
         r#"
@@ -144,7 +140,7 @@ WHERE in = course:{};
         student_id, course_id
     );
 
-    let mut resp = match db.query(query).await {
+    let mut resp = match DB.query(query).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
@@ -163,20 +159,20 @@ struct ScoreDB {
     score: f32,
 }
 
-// TODO: Filter in db
-#[derive(Serialize, Deserialize)]
-struct EvaluationDB {
-    id: Thing,
-    name: String,
-    scores: Vec<ScoreDB>,
-}
-
 #[derive(Serialize)]
 struct Score {
     id: String,
     number: u8,
     score: f32,
     ev_type: String,
+}
+
+// TODO: Filter in DB
+#[derive(Serialize, Deserialize)]
+struct EvaluationDB {
+    id: Thing,
+    name: String,
+    scores: Vec<ScoreDB>,
 }
 
 #[derive(Serialize)]
@@ -187,8 +183,7 @@ struct EvaluationsCourse {
 }
 
 pub async fn get_all_evaluations_course(
-    course_id: &String,
-    db: &DB,
+    course_id: String,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = r#"select <-student<-evaluated.*  as scores,
 in.names + ' ' + in.last_name1 + ' ' + in.last_name2 as name,
@@ -197,7 +192,7 @@ omit scores.in, scores.out
 from type::thing("course", $course_id)<-enrolled
 "#;
 
-    let mut resp = match db.query(query).bind(("course_id", course_id)).await {
+    let mut resp = match DB.query(query).bind(("course_id", course_id)).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };

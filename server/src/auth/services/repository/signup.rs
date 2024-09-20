@@ -41,9 +41,9 @@ fn parse_error(error: String) -> String {
     }
 }
 
-pub async fn register_professor(professor: Professor, db: &DB) -> Result<String, (u16, String)> {
+pub async fn register_professor(professor: Professor) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT * FROM register_time WHERE for = "professor" AND from < time::now() AND to > time::now()) != []
+IF (SELECT * FROM register_time WHERE todo = "professor" AND start < time::now() AND end > time::now()) != []
   {
 		RETURN CREATE type::thing('professor', <int>$id) CONTENT {
     names: $names,
@@ -60,7 +60,7 @@ ELSE
 	}
 ;"#;
 
-    let res = db
+    let res = DB
         .query(query)
         .bind(("id", professor.dni.clone()))
         .bind(("names", professor.names.to_string()))
@@ -76,12 +76,11 @@ ELSE
 
 pub async fn register_student(
     student: Student,
-    school_id: &String,
-    db: &DB,
+    school_id: String,
 ) -> Result<String, (u16, String)> {
     let query = r#"
 BEGIN TRANSACTION;
-IF (SELECT * FROM register_time WHERE for = 'student' AND from < time::now() AND to > time::now()) != []
+IF (SELECT * FROM register_time WHERE todo = 'student' AND start < time::now() AND end > time::now()) != []
   {
         let $s = CREATE type::thing('student', <int>$id) CONTENT {
         names: $names,
@@ -102,10 +101,10 @@ ELSE
 COMMIT TRANSACTION;
     "#;
 
-    let res = db
+    let res = DB
         .query(query)
         .bind(("id", student.code.clone()))
-        .bind(("names", student.names.to_string()))
+        .bind(("names", student.names))
         .bind(("last_name1", student.last_name1.to_string()))
         .bind(("last_name2", student.last_name2.to_string()))
         .bind(("code", student.code))
@@ -123,9 +122,9 @@ struct SchoolDB {
     id: Thing,
 }
 
-pub async fn verify_school(school_id: &String, db: &DB) -> Result<(), (u16, String)> {
+pub async fn verify_school(school_id: String) -> Result<(), (u16, String)> {
     let query = "select id from type::thing('school', $id)";
-    let mut resp = match db.query(query).bind(("id", school_id)).await {
+    let mut resp = match DB.query(query).bind(("id", school_id)).await {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB conection error: {}", e.to_string()))),
     };

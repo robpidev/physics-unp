@@ -1,19 +1,21 @@
+use std::sync::LazyLock;
+
 use surrealdb::{
     engine::remote::ws::{Client, Ws},
     opt::auth::Root,
     Surreal,
 };
 
-pub type DB = Surreal<Client>;
+pub static DB: LazyLock<Surreal<Client>> = LazyLock::new(Surreal::init);
 
-pub async fn db_connect(host: String) -> Result<DB, String> {
-    print!("Connecting to database...");
-    let db = match Surreal::new::<Ws>(host).await {
-        Ok(db) => db,
+pub async fn db_connect(host: String) -> Result<(), String> {
+    println!("Connecting to database...");
+    match DB.connect::<Ws>(host).await {
+        Ok(_) => (),
         Err(e) => return Err(format!("DB HOST ERROR: {}", e.to_string())),
     };
 
-    if let Err(e) = db
+    if let Err(e) = DB
         .signin(Root {
             username: "root",
             password: "root",
@@ -23,9 +25,11 @@ pub async fn db_connect(host: String) -> Result<DB, String> {
         return Err(format!("DB AUTH ERROR: {}", e.to_string()));
     }
 
-    if let Err(e) = db.use_ns("test").use_db("test").await {
+    if let Err(e) = DB.use_ns("test").use_db("test").await {
         return Err(format!("DB NAMESPACE ERROR: {}", e.to_string()));
     }
 
-    Ok(db)
+    println!("Database connected!");
+
+    Ok(())
 }

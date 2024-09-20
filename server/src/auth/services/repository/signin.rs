@@ -6,6 +6,7 @@ use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
+//#[derive(Serialize)]
 #[derive(Serialize)]
 struct Claims {
     user: User,
@@ -29,11 +30,10 @@ struct UserToken {
 }
 
 //use crate::shared::entities::{professor::ProfessorDB, student::StudentDB};
-pub async fn sign_in(
+pub async fn sign_in<'a>(
     id: String,
     password: String,
-    user_type: &str,
-    db: &DB,
+    user_type: &'static str,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = "
 (SELECT
@@ -41,20 +41,9 @@ id, names, last_name1, last_name2, role, gender
 FROM type::thing($table, <int>$id)
 WHERE crypto::bcrypt::compare(password, $password))[0];
 ";
-
-    login(query, user_type, &id, password, db).await
-}
-
-async fn login(
-    query: &str,
-    table: &str,
-    id: &String,
-    password: String,
-    db: &DB,
-) -> Result<impl Serialize, (u16, String)> {
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
-        .bind(("table", table))
+        .bind(("table", user_type))
         .bind(("id", id))
         .bind(("password", password))
         .await

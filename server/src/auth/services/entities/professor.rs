@@ -1,6 +1,7 @@
 use super::last_name::LastName;
 use super::names::Names;
 
+#[derive(Clone)]
 pub struct Professor {
     pub names: Names,
     pub last_name1: LastName,
