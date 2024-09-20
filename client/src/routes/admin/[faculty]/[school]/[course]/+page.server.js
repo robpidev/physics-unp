@@ -159,7 +159,6 @@ export const actions = {
     }
 
     if (response.status == 401) {
-      console.log(await response.text())
       throw error(401, "Authorization no valid")
     }
 
@@ -202,6 +201,43 @@ export const actions = {
     if (response.status == 401) {
       throw error(401, "Authorization no valid")
     }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    throw error(500, "Internal error server")
+  },
+
+  // places
+  updatePlaces: async ({ request, cookies, params }) => {
+    const data = await request.formData();
+    const url = host + "/course/professor/update/places";
+    const options = {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: cookies.get("token")
+      },
+      body: JSON.stringify({
+        places: Number(data.get("places")),
+        course_id: params.course
+      })
+    };
+
+
+
+    const response = await fetch(url, options);
+
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
 
     if (response.status == 400) {
       return fail(400, {

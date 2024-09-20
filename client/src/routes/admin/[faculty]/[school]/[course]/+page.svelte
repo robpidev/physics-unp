@@ -3,6 +3,8 @@
 	import DeleteButton from './DeleteButton.svelte';
 	import Details from './Details.svelte';
 	import Ponderate from './Ponderate.svelte';
+	import Info from './Info.svelte';
+
 	let professors = [];
 	async function getProfessors() {
 		const url = '/api/professors';
@@ -38,6 +40,8 @@
 		return Math.round(average * 100) / 100;
 	}
 </script>
+
+<Info course={data.course} total={data.evaluations.length} />
 
 <section>
 	{#if data.professors.length > 0}
