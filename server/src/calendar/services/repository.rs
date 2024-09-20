@@ -51,7 +51,7 @@ pub async fn get_datetimes(db: &DB) -> Result<impl Serialize, (u16, String)> {
         .collect::<Vec<Schedule>>())
 }
 
-pub async fn delete(id: &String, db: &DB) -> Result<(), (u16, String)> {
+pub async fn delete(id: String, db: &DB) -> Result<(), (u16, String)> {
     let query = r#"DELETE type::thing("register_time", <string>$id)"#;
 
     let mut resp = match db.query(query).bind(("id", id)).await {
@@ -65,7 +65,7 @@ pub async fn delete(id: &String, db: &DB) -> Result<(), (u16, String)> {
     }
 }
 
-pub async fn add(todo: &String, end: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn add(todo: String, end: String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
     CREATE register_time
     SET todo = <string>$todo,

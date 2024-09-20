@@ -32,7 +32,7 @@ async fn get(db: web::Data<DB>) -> impl Responder {
 
 #[delete("/{id}")]
 async fn delete(id: web::Path<String>, db: web::Data<DB>) -> impl Responder {
-    match services::delete(&id, &db).await {
+    match services::delete(id.to_string(), &db).await {
         Ok(_) => return HttpResponse::Ok().finish(),
         Err((n, e)) => return HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }
@@ -47,7 +47,7 @@ struct Add {
 
 #[post("")]
 async fn create(add: web::Form<Add>, db: web::Data<DB>) -> impl Responder {
-    match services::add(&add.todo, &add.end, &db).await {
+    match services::add(add.todo.clone(), add.end.clone(), &db).await {
         Ok(s) => return HttpResponse::Ok().json(s),
         Err((n, e)) => return HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }
