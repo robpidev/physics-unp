@@ -145,7 +145,7 @@
 	{/if}
 </div>
 
-<p>
+<p class="error">
 	{form?.error ?? ''}
 </p>
 
@@ -261,5 +261,9 @@
 
 	.cancel:hover {
 		text-decoration: underline;
+	}
+
+	.error {
+		color: red;
 	}
 </style>

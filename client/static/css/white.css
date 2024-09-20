@@ -75,6 +75,7 @@
    border-radius: 6px;
    border: solid 1px var(--border);
    height: 2.3em;
+   padding: 0 10px;
  }
 
  input:focus {

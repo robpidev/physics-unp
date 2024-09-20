@@ -1,13 +1,18 @@
 <script>
 	export let data;
 	import Delete from './Delete.svelte';
+	import Add from './Add.svelte';
+
+	export let form;
+
 	const dateHandle = (dateTime) => {
 		const date = new Date(dateTime);
 
 		return date.toLocaleDateString('es-ES', {
 			year: 'numeric',
 			month: '2-digit',
-			day: '2-digit'
+			day: '2-digit',
+			timeZone: 'America/Lima'
 		});
 	};
 
@@ -23,6 +28,8 @@
 <section>
 	<h2>Horarios de registro</h2>
 	<hr />
+	<Add {form} />
+	<hr />
 	{#if data?.calendar}
 		<ul class="calendar">
 			<li class="row head">
@@ -34,8 +41,8 @@
 			{#each data.calendar as cal}
 				<li class="row">
 					<span class="col">{cal.todo}</span>
-					<span class="col right">{dateHandle(cal.from) + ', ' + timeHandle(cal.from)}</span>
-					<span class="col right">{dateHandle(cal.to) + ', ' + timeHandle(cal.to)}</span>
+					<span class="col right">{dateHandle(cal.start) + ', ' + timeHandle(cal.start)}</span>
+					<span class="col right">{dateHandle(cal.end) + ', ' + timeHandle(cal.end)}</span>
 					<Delete id={cal.id} />
 				</li>
 			{/each}
