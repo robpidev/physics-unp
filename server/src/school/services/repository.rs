@@ -39,6 +39,15 @@ struct School {
     name: String,
 }
 
+impl SchoolDB {
+    fn map(self) -> School {
+        School {
+            id: self.id.id.to_string(),
+            name: self.name,
+        }
+    }
+}
+
 pub async fn get(db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query = format!(r#"SELECT id, name FROM school;"#);
 
@@ -51,10 +60,7 @@ fn parse_school(resp: &mut Response) -> Result<impl Serialize, (u16, String)> {
     match resp.take::<Vec<SchoolDB>>(0) {
         Ok(schools) => Ok(schools
             .into_iter()
-            .map(|s| School {
-                id: s.id.id.to_string(),
-                name: s.name,
-            })
+            .map(|s| s.map())
             .collect::<Vec<School>>()),
         Err(e) => return Err((400, format!("DB search error: {}", e.to_string()))),
     }
@@ -82,7 +88,7 @@ async fn make_petition(query: &String, db: &DB) -> Result<Response, (u16, String
     }
 }
 
-pub async fn get_by_id(id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn get_by_id(id: String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query =
         r#"SELECT out.id AS id, out.name AS name FROM type::thing("faculty", $id)->includes;"#;
 

@@ -49,7 +49,7 @@ async fn school(db: web::Data<services::DB>) -> impl Responder {
 
 #[get("/{id}")]
 async fn get_by_id(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::get_by_id(&id, &db).await {
+    match services::get_by_id(id.to_string(), &db).await {
         Ok(schools) => HttpResponse::Ok().json(schools),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
