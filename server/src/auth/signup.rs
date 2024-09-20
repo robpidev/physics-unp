@@ -1,4 +1,4 @@
-use crate::auth::services::{self, signup::DB};
+use crate::auth::services;
 use actix_web::{
     get,
     http::{header::ContentType, StatusCode},
@@ -42,7 +42,7 @@ async fn hello() -> String {
 }
 
 #[post("/professor")]
-async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> impl Responder {
+async fn professor(professor: web::Form<ProfessorData>) -> impl Responder {
     //return HttpResponse::Ok().json(professor);
     let data = services::signup::register(
         professor.dni.clone(),
@@ -53,7 +53,6 @@ async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> im
         professor.last_name2.clone(),
         professor.gender.clone(),
         "".to_string(),
-        &db,
     )
     .await;
 
@@ -61,7 +60,7 @@ async fn professor(professor: web::Form<ProfessorData>, db: web::Data<DB>) -> im
 }
 
 #[post("/student")]
-async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Responder {
+async fn student(student: web::Form<StudentData>) -> impl Responder {
     let resp = services::signup::register(
         student.code.clone(),
         student.password.clone(),
@@ -71,7 +70,6 @@ async fn student(student: web::Form<StudentData>, db: web::Data<DB>) -> impl Res
         student.last_name2.clone(),
         student.gender,
         student.school_id.clone(),
-        &db,
     )
     .await;
 

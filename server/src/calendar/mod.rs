@@ -7,8 +7,6 @@ use actix_web::{
 };
 use serde::Deserialize;
 
-use services::DB;
-
 use crate::shared::middlewares::admin::Admin;
 mod services;
 
@@ -23,16 +21,16 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 }
 
 #[get("")]
-async fn get(db: web::Data<DB>) -> impl Responder {
-    match services::get_datetimes(&db).await {
+async fn get() -> impl Responder {
+    match services::get_datetimes().await {
         Ok(dt) => return HttpResponse::Ok().json(dt),
         Err((n, e)) => return HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }
 }
 
 #[delete("/{id}")]
-async fn delete(id: web::Path<String>, db: web::Data<DB>) -> impl Responder {
-    match services::delete(id.to_string(), &db).await {
+async fn delete(id: web::Path<String>) -> impl Responder {
+    match services::delete(id.to_string()).await {
         Ok(_) => return HttpResponse::Ok().finish(),
         Err((n, e)) => return HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }
@@ -46,8 +44,8 @@ struct Add {
 }
 
 #[post("")]
-async fn create(add: web::Form<Add>, db: web::Data<DB>) -> impl Responder {
-    match services::add(add.todo.clone(), add.end.clone(), &db).await {
+async fn create(add: web::Form<Add>) -> impl Responder {
+    match services::add(add.todo.clone(), add.end.clone()).await {
         Ok(s) => return HttpResponse::Ok().json(s),
         Err((n, e)) => return HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }

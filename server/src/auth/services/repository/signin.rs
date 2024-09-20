@@ -34,7 +34,6 @@ pub async fn sign_in<'a>(
     id: String,
     password: String,
     user_type: &'static str,
-    db: &DB,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = "
 (SELECT
@@ -42,7 +41,7 @@ id, names, last_name1, last_name2, role, gender
 FROM type::thing($table, <int>$id)
 WHERE crypto::bcrypt::compare(password, $password))[0];
 ";
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
         .bind(("table", user_type))
         .bind(("id", id))

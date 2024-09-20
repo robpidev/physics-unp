@@ -2,9 +2,9 @@ use serde::Serialize;
 
 use crate::shared::entities::student::StudentDB;
 
-use super::DB;
+use crate::shared::repository::db::DB;
 
-pub async fn select_by_course(id_corse: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn select_by_course(id_corse: &String) -> Result<impl Serialize, (u16, String)> {
     let query = format!(
         r#"
     SELECT
@@ -17,7 +17,7 @@ FROM course:{}<-enrolled "#,
         id_corse
     );
 
-    let mut resp = match db.query(query).await {
+    let mut resp = match DB.query(query).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e))),
     };

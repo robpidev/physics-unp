@@ -32,32 +32,32 @@ struct Add {
 }
 
 #[post("/add")]
-async fn add(data: web::Form<Add>, db: web::Data<services::DB>) -> impl Responder {
-    match services::create(&data.name, &data.faculty_id, &db).await {
+async fn add(data: web::Form<Add>) -> impl Responder {
+    match services::create(&data.name, &data.faculty_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("")]
-async fn school(db: web::Data<services::DB>) -> impl Responder {
-    match services::get(&db).await {
+async fn school() -> impl Responder {
+    match services::get().await {
         Ok(schools) => HttpResponse::Ok().json(schools),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[get("/{id}")]
-async fn get_by_id(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::get_by_id(id.to_string(), &db).await {
+async fn get_by_id(id: web::Path<String>) -> impl Responder {
+    match services::get_by_id(id.to_string()).await {
         Ok(schools) => HttpResponse::Ok().json(schools),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
 
 #[delete("/delete/{id}")]
-async fn delete(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::delete(&id, &db).await {
+async fn delete(id: web::Path<String>) -> impl Responder {
+    match services::delete(&id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

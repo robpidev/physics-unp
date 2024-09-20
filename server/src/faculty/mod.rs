@@ -21,16 +21,16 @@ struct Faculty {
 }
 
 #[get("")]
-async fn faculty(db: web::Data<services::DB>) -> impl Responder {
-    match services::get(&db).await {
+async fn faculty() -> impl Responder {
+    match services::get().await {
         Ok(resp) => HttpResponse::Ok().json(resp),
         Err(e) => HttpResponse::build(StatusCode::from_u16(e.0).unwrap()).body(e.1),
     }
 }
 
 #[post("/add")]
-async fn add(fac: web::Form<Faculty>, db: web::Data<services::DB>) -> impl Responder {
-    match services::create(&fac.name, &db).await {
+async fn add(fac: web::Form<Faculty>) -> impl Responder {
+    match services::create(&fac.name).await {
         Ok(resp) => HttpResponse::Ok().body(resp),
         Err(e) => HttpResponse::build(StatusCode::from_u16(e.0).unwrap()).body(e.1),
     }
@@ -38,8 +38,8 @@ async fn add(fac: web::Form<Faculty>, db: web::Data<services::DB>) -> impl Respo
 
 // NOTE: Path says "name" but it's uses id
 #[delete("/delete/{name}")]
-async fn delete(fac: web::Path<Faculty>, db: web::Data<services::DB>) -> impl Responder {
-    match services::delete(&fac.name, &db).await {
+async fn delete(fac: web::Path<Faculty>) -> impl Responder {
+    match services::delete(&fac.name).await {
         Ok(resp) => HttpResponse::Ok().body(resp),
         Err(e) => HttpResponse::build(StatusCode::from_u16(e.0).unwrap()).body(e.1),
     }

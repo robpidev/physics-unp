@@ -1,6 +1,8 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
+use crate::shared::repository::db::DB;
+
 use crate::shared::entities::user::User;
 
 #[derive(Deserialize)]
@@ -13,9 +15,9 @@ pub struct ProfessorDB {
     role: String,
 }
 
-pub async fn get_all(db: &super::DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn get_all() -> Result<impl Serialize, (u16, String)> {
     let query = format!("SELECT * FROM professor;");
-    let mut resp = match db.query(query).await {
+    let mut resp = match DB.query(query).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };

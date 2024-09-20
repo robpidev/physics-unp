@@ -1,9 +1,7 @@
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
-use crate::shared::repository::db;
-
-pub type DB = db::DB;
+use crate::shared::repository::db::DB;
 
 #[derive(Deserialize)]
 struct ScheduleDB {
@@ -32,10 +30,10 @@ impl ScheduleDB {
     }
 }
 
-pub async fn get_datetimes(db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn get_datetimes() -> Result<impl Serialize, (u16, String)> {
     let query = "SELECT todo, start, end, id FROM register_time;";
 
-    let mut result = match db.query(query).await {
+    let mut result = match DB.query(query).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB contion error: {}", e.to_string()))),
     };
@@ -51,10 +49,10 @@ pub async fn get_datetimes(db: &DB) -> Result<impl Serialize, (u16, String)> {
         .collect::<Vec<Schedule>>())
 }
 
-pub async fn delete(id: String, db: &DB) -> Result<(), (u16, String)> {
+pub async fn delete(id: String) -> Result<(), (u16, String)> {
     let query = r#"DELETE type::thing("register_time", <string>$id)"#;
 
-    let mut resp = match db.query(query).bind(("id", id)).await {
+    let mut resp = match DB.query(query).bind(("id", id)).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB contion error: {}", e.to_string()))),
     };
@@ -65,14 +63,14 @@ pub async fn delete(id: String, db: &DB) -> Result<(), (u16, String)> {
     }
 }
 
-pub async fn add(todo: String, end: String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn add(todo: String, end: String) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
     CREATE register_time
     SET todo = <string>$todo,
     end = <datetime>$end;
     "#;
 
-    let mut resp = match db
+    let mut resp = match DB
         .query(query)
         .bind(("todo", todo))
         .bind(("end", end))
