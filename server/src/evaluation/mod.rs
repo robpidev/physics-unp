@@ -52,10 +52,10 @@ async fn add(data: web::Form<Evaluation>, req: HttpRequest, db: web::Data<DB>) -
     let professor_id = req.extensions().get::<String>().unwrap().clone();
 
     match add_evaluation(
-        &professor_id,
-        &data.student_id,
-        &data.course_id,
-        &data.evaluation_type,
+        professor_id.clone(),
+        data.student_id.clone(),
+        data.course_id.clone(),
+        data.evaluation_type.clone(),
         data.score,
         data.number,
         &db,
@@ -83,11 +83,11 @@ async fn update(
 ) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
     match services::update_evaluation(
-        &data.ev_id,
+        data.ev_id.clone(),
         data.score,
         data.number,
-        &professor_id,
-        &data.course_id,
+        professor_id,
+        data.course_id.clone(),
         &db,
     )
     .await
@@ -110,10 +110,10 @@ struct EvaluationID {
 #[post("/add")]
 async fn add_with_id(data: web::Form<EvaluationID>, db: web::Data<DB>) -> impl Responder {
     match add_evaluation(
-        &data.professor_id,
-        &data.student_id,
-        &data.course_id,
-        &data.evaluation_type,
+        data.professor_id.clone(),
+        data.student_id.clone(),
+        data.course_id.clone(),
+        data.evaluation_type.clone(),
         data.score,
         data.number,
         &db,
@@ -127,7 +127,7 @@ async fn add_with_id(data: web::Form<EvaluationID>, db: web::Data<DB>) -> impl R
 
 #[get("/all/{course_id}")]
 async fn get_all(course_id: web::Path<String>, db: web::Data<DB>) -> impl Responder {
-    match services::get_all_evaluations(&course_id, &db).await {
+    match services::get_all_evaluations(course_id.to_string(), &db).await {
         Ok(evs) => HttpResponse::Ok().json(evs),
         Err((c, e)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(e),
     }

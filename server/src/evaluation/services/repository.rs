@@ -4,9 +4,9 @@ use surrealdb::sql::Thing;
 use super::DB;
 
 pub async fn register_evaluation(
-    course_id: &String,
-    student_id: &String,
-    ev_type: &String,
+    course_id: String,
+    student_id: String,
+    ev_type: String,
     score: f32,
     number: u8,
     db: &DB,
@@ -51,7 +51,7 @@ IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($n
 }
 
 pub async fn update_evaluation(
-    ev_id: &String,
+    ev_id: String,
     score: f32,
     number: u8,
     db: &DB,
@@ -87,8 +87,8 @@ IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($n
 }
 
 pub async fn teaches_course(
-    professor_id: &String,
-    course_id: &String,
+    professor_id: String,
+    course_id: String,
     db: &DB,
 ) -> Result<bool, (u16, String)> {
     let query = format!(
@@ -163,20 +163,20 @@ struct ScoreDB {
     score: f32,
 }
 
-// TODO: Filter in db
-#[derive(Serialize, Deserialize)]
-struct EvaluationDB {
-    id: Thing,
-    name: String,
-    scores: Vec<ScoreDB>,
-}
-
 #[derive(Serialize)]
 struct Score {
     id: String,
     number: u8,
     score: f32,
     ev_type: String,
+}
+
+// TODO: Filter in db
+#[derive(Serialize, Deserialize)]
+struct EvaluationDB {
+    id: Thing,
+    name: String,
+    scores: Vec<ScoreDB>,
 }
 
 #[derive(Serialize)]
@@ -187,7 +187,7 @@ struct EvaluationsCourse {
 }
 
 pub async fn get_all_evaluations_course(
-    course_id: &String,
+    course_id: String,
     db: &DB,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = r#"select <-student<-evaluated.*  as scores,
