@@ -9,6 +9,10 @@
 	action="?/remove"
 	use:enhance={() => {
 		disabled = true;
+		return async ({ update }) => {
+			await update();
+			disabled = false;
+		};
 	}}
 >
 	<input type="hidden" name="id" value={id} />
