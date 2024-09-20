@@ -12,6 +12,16 @@ struct CourseDB {
     name: String,
 }
 
+impl CourseDB {
+    fn map(self) -> Course {
+        Course {
+            id: self.id.id.to_string(),
+            name: self.name,
+            places: self.places,
+        }
+    }
+}
+
 pub async fn create(
     name: &String,
     places: u16,
@@ -82,14 +92,7 @@ pub async fn get_all(db: &DB) -> Result<impl Serialize, (u16, String)> {
     };
 
     match resp.take::<Vec<CourseDB>>(0) {
-        Ok(resp) => Ok(resp
-            .into_iter()
-            .map(|c| Course {
-                id: c.id.id.to_string(),
-                name: c.name,
-                places: c.places,
-            })
-            .collect::<Vec<Course>>()),
+        Ok(resp) => Ok(resp.into_iter().map(|c| c.map()).collect::<Vec<Course>>()),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
 }
@@ -110,17 +113,11 @@ FROM school:{}->offers
     };
 
     match resp.take::<Vec<CourseDB>>(0) {
-        Ok(resp) => Ok(resp
-            .into_iter()
-            .map(|c| Course {
-                id: c.id.id.to_string(),
-                name: c.name,
-                places: c.places,
-            })
-            .collect::<Vec<Course>>()),
+        Ok(resp) => Ok(resp.into_iter().map(|c| c.map()).collect::<Vec<Course>>()),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
 }
+
 #[derive(Serialize, Deserialize)]
 struct Test {
     name: String,
@@ -133,10 +130,10 @@ pub struct CourseTest {
     tests: Vec<Test>,
 }
 
-pub async fn get_course(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+pub async fn get_course(course_id: String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query = r#"SELECT * FROM type::thing("course", $course_id)"#;
 
-    let mut resp = match db.query(query).bind(("course_id", course_id)).await {
+    let mut resp = match db.query(query).bind(("course_id", course_id.clone())).await {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB conection Error: {}", e.to_string()))),
     };
@@ -153,7 +150,7 @@ pub async fn get_course(course_id: &String, db: &DB) -> Result<impl Serialize, (
 }
 
 pub async fn update_test(
-    course_id: &String,
+    course_id: String,
     test: u8,
     weight: u8,
     db: &DB,
@@ -201,8 +198,18 @@ pub struct School {
     school: String,
 }
 
+impl SchoolDB {
+    fn map(self) -> School {
+        School {
+            id: self.id.id.to_string(),
+            name: self.name,
+            school: self.school,
+        }
+    }
+}
+
 pub async fn get_by_professor(
-    professor_id: &String,
+    professor_id: String,
     db: &DB,
 ) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
@@ -220,11 +227,7 @@ FROM type::thing("professor", <int>$professor_id)->teaches;
     match resp.take::<Vec<SchoolDB>>(0) {
         Ok(schools) => Ok(schools
             .into_iter()
-            .map(|s| School {
-                id: s.id.id.to_string(),
-                name: s.name,
-                school: s.school,
-            })
+            .map(|s| s.map())
             .collect::<Vec<School>>()),
 
         Err(e) => Err((500, format!("DB error to parse: {}", e.to_string()))),
@@ -379,11 +382,7 @@ pub async fn get_by_student(id: &String, db: &DB) -> Result<Vec<Course>, (u16, S
 
     Ok(courses
         .into_iter()
-        .map(|c| Course {
-            id: c.id.id.to_string(),
-            name: c.name,
-            places: c.places,
-        })
+        .map(|c| c.map())
         .collect::<Vec<Course>>())
 }
 
@@ -405,11 +404,7 @@ pub async fn get_enrolled(id: &String, db: &DB) -> Result<impl Serialize, (u16, 
     };
 
     match course {
-        Some(c) => Ok(Course {
-            id: c.id.id.to_string(),
-            name: c.name,
-            places: c.places,
-        }),
+        Some(c) => Ok(c.map()),
         None => Err((204, format!("Not enrolled: {}", id))),
     }
 }
@@ -424,7 +419,20 @@ pub struct UserDB {
     pub role: String,
 }
 
-pub async fn get_professors(course_id: &String, db: &DB) -> Result<impl Serialize, (u16, String)> {
+impl UserDB {
+    pub fn map(self) -> User {
+        User {
+            id: self.id.id.to_string(),
+            names: self.names,
+            last_name1: self.last_name1,
+            last_name2: self.last_name2,
+            gender: self.gender,
+            role: self.role,
+        }
+    }
+}
+
+pub async fn get_professors(course_id: String, db: &DB) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
 SELECT
 in.id AS id,
@@ -448,13 +456,6 @@ FROM type::thing("course", $id)<-teaches
 
     Ok(professors
         .into_iter()
-        .map(|p| User {
-            id: p.id.id.to_string(),
-            names: p.names,
-            last_name1: p.last_name1,
-            last_name2: p.last_name2,
-            gender: p.gender,
-            role: p.role,
-        })
+        .map(|p| p.map())
         .collect::<Vec<User>>())
 }

@@ -61,7 +61,7 @@ async fn _get(db: web::Data<services::DB>) -> impl Responder {
 
 #[get("/{id}")]
 async fn get(id: web::Path<String>, db: web::Data<services::DB>) -> impl Responder {
-    match services::get_course(&id, &db).await {
+    match services::get_course(id.to_string(), &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -79,7 +79,7 @@ async fn update_test(
     test: web::Form<Test>,
     db: web::Data<services::DB>,
 ) -> impl Responder {
-    match services::update_test(&id, test.test, test.practice, &db).await {
+    match services::update_test(id.clone(), test.test, test.practice, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -117,7 +117,7 @@ async fn get_by_school(
 async fn get_by_professor(db: web::Data<services::DB>, req: HttpRequest) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
 
-    match services::get_by_professor(&professor_id, &db).await {
+    match services::get_by_professor(professor_id, &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -189,7 +189,7 @@ async fn get_professors(
     course_id: web::Path<String>,
     db: web::Data<services::DB>,
 ) -> impl Responder {
-    match services::get_professors(&course_id, &db).await {
+    match services::get_professors(course_id.to_string(), &db).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
