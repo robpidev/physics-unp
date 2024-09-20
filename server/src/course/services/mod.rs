@@ -23,19 +23,19 @@ pub async fn get_by_school(id: &String) -> Result<impl Serialize, (u16, String)>
 }
 
 pub async fn get_by_professor(professor_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::get_by_professor(professor_id).await
+    repository::professor::courses(professor_id).await
 }
 
 pub async fn register(course_id: &String, student_id: &String) -> Result<String, (u16, String)> {
-    if !repository::check_id(course_id).await? {
+    if !repository::exists(course_id).await? {
         return Err((400, format!("Course dont exists: {}", course_id)));
     }
 
-    repository::enroll(student_id, course_id).await
+    repository::enroll::new(student_id, course_id).await
 }
 
 pub async fn unregister(course_id: &String, student_id: &String) -> Result<String, (u16, String)> {
-    repository::unregister(student_id, course_id).await
+    repository::enroll::unregister(student_id, course_id).await
 }
 
 pub async fn asign_professor(
@@ -43,30 +43,30 @@ pub async fn asign_professor(
     professor_id: &String,
     role: &String,
 ) -> Result<String, (u16, String)> {
-    repository::asign_professor(course_id, professor_id, role).await
+    repository::professor::asign(course_id, professor_id, role).await
 }
 
 pub async fn desasign_professor(
     course_id: &String,
     professor_id: &String,
 ) -> Result<String, (u16, String)> {
-    repository::desasign_professor(course_id, professor_id).await
+    repository::professor::desasign(course_id, professor_id).await
 }
 
 pub async fn get_by_student(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::get_by_student(student_id).await
+    repository::student::courses(student_id).await
 }
 
 pub async fn get_enrolled(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::get_enrolled(student_id).await
+    repository::enroll::students(student_id).await
 }
 
 pub async fn get_professors(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::get_professors(course_id).await
+    repository::professor::course_professors(course_id).await
 }
 
 pub async fn get_course(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::get_course(course_id).await
+    repository::info(course_id).await
 }
 
 pub async fn update_test(
@@ -74,5 +74,5 @@ pub async fn update_test(
     test: u8,
     weight: u8,
 ) -> Result<impl Serialize, (u16, String)> {
-    repository::update_test(course_id, test, weight).await
+    repository::test::update(course_id, test, weight).await
 }
