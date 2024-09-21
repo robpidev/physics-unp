@@ -2,7 +2,7 @@ import { error, fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
-  let url = host + '/course/professor/professors/' + params.course;
+  let url = host + '/course/admin/' + params.course;
   const options = {
     method: 'GET',
     headers: {
@@ -12,10 +12,11 @@ export async function load({ params, cookies }) {
 
   let response = await fetch(url, options);
 
-  let professors;
+  let course;
   if (response.status == 200) {
-    professors = await response.json();
+    course = await response.json();
   }
+
 
   if (response.status == 401) {
     throw error(401, "Authorization no valid")
@@ -23,25 +24,12 @@ export async function load({ params, cookies }) {
 
   url = host + "/evaluation/all/" + params.course;
 
-
-  response = await fetch(url, options);
-  let evaluations;
-  if (response.status == 200) {
-    evaluations = await response.json();
-  }
-
-  if (response.status == 401) {
-    throw error(401, "Authorization no valid")
-  }
-
-  url = host + "/course/professor/" + params.course;
   response = await fetch(url, options);
   if (response.status == 200) {
-    const course = await response.json();
+    const evaluations = await response.json();
     return {
       course,
       evaluations,
-      professors,
     }
   }
 
@@ -58,7 +46,7 @@ export const actions = {
 
     let data = await request.formData()
 
-    const url = host + "/course/professor/asign";
+    const url = host + "/course/admin/asign";
     const options = {
       method: 'POST',
       headers: {
@@ -82,7 +70,7 @@ export const actions = {
   unassign: async ({ request, cookies, params }) => {
     let data = await request.formData()
 
-    const url = host + "/course/professor/asign";
+    const url = host + "/course/admin/asign";
     const options = {
       method: 'DELETE',
       headers: {
@@ -159,7 +147,6 @@ export const actions = {
     }
 
     if (response.status == 401) {
-      console.log(await response.text())
       throw error(401, "Authorization no valid")
     }
 
@@ -202,6 +189,43 @@ export const actions = {
     if (response.status == 401) {
       throw error(401, "Authorization no valid")
     }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    throw error(500, "Internal error server")
+  },
+
+  // places
+  updatePlaces: async ({ request, cookies, params }) => {
+    const data = await request.formData();
+    const url = host + "/course/admin/places";
+    const options = {
+      method: 'PATCH',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: cookies.get("token")
+      },
+      body: JSON.stringify({
+        places: Number(data.get("places")),
+        course_id: params.course
+      })
+    };
+
+
+
+    const response = await fetch(url, options);
+
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
 
     if (response.status == 400) {
       return fail(400, {
