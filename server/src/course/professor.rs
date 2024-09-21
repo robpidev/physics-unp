@@ -7,18 +7,21 @@ use serde::Deserialize;
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/professor")
+            .wrap(Professor)
             .service(courses)
             .service(update_test),
     );
 }
 
-use super::services;
+use crate::shared::middlewares::professor::Professor;
+
+use super::services::{self, professor};
 
 #[get("")]
 async fn courses(req: HttpRequest) -> impl Responder {
     let professor_id = req.extensions().get::<String>().unwrap().clone();
 
-    match services::get_by_professor(professor_id).await {
+    match professor::courses(professor_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

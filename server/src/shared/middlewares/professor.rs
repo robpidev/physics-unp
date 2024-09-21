@@ -1,8 +1,4 @@
-pub mod admin;
-pub mod professor;
-pub mod student;
-pub mod user;
-
+use actix_web::HttpMessage;
 use dotenv::dotenv;
 use std::env;
 use std::future::{ready, Ready};
@@ -18,17 +14,17 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
-use super::entities::professor::ProfessorDB;
+use crate::shared::entities::user::User;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
 // 2. Middleware's call method gets called with normal request.
-pub struct Example;
+pub struct Professor;
 
 // Middleware factory is `Transform` trait
 // `S` - type of the next service
 // `B` - type of response's body
-impl<S, B> Transform<S, ServiceRequest> for Example
+impl<S, B> Transform<S, ServiceRequest> for Professor
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -37,19 +33,19 @@ where
     type Response = ServiceResponse<B>;
     type Error = Error;
     type InitError = ();
-    type Transform = SayHiMiddleware<S>;
+    type Transform = ProfessorMiddleaware<S>;
     type Future = Ready<Result<Self::Transform, Self::InitError>>;
 
     fn new_transform(&self, service: S) -> Self::Future {
-        ready(Ok(SayHiMiddleware { service }))
+        ready(Ok(ProfessorMiddleaware { service }))
     }
 }
 
-pub struct SayHiMiddleware<S> {
+pub struct ProfessorMiddleaware<S> {
     service: S,
 }
 
-impl<S, B> Service<ServiceRequest> for SayHiMiddleware<S>
+impl<S, B> Service<ServiceRequest> for ProfessorMiddleaware<S>
 where
     S: Service<ServiceRequest, Response = ServiceResponse<B>, Error = Error>,
     S::Future: 'static,
@@ -83,10 +79,21 @@ where
         //    let err = error::ErrorUnauthorized("Invalid token").into();
         //    return Box::pin(async { Err(err) });
         //}
-        if let Err(e) = check_token(token) {
-            let err = error::ErrorUnauthorized(e.1).into();
+
+        let user = match check_token(token) {
+            Ok(p) => p,
+            Err(e) => {
+                let err = error::ErrorUnauthorized(e.1).into();
+                return Box::pin(async { Err(err) });
+            }
+        };
+
+        if !(user.role == "professor" || user.role == "admin") {
+            let err = error::ErrorUnauthorized("You are not a professor").into();
             return Box::pin(async { Err(err) });
         }
+
+        req.extensions_mut().insert(user.id);
 
         let fut = self.service.call(req);
         Box::pin(async move { fut.await })
@@ -95,11 +102,11 @@ where
 
 #[derive(Serialize, Deserialize)]
 struct Claims {
-    user: ProfessorDB,
+    user: User,
     exp: usize,
 }
 
-fn check_token(token: &str) -> Result<String, (u16, String)> {
+fn check_token(token: &str) -> Result<User, (u16, String)> {
     dotenv().ok();
     let secret = match env::var("SEED_JWT") {
         Ok(v) => v,
@@ -109,13 +116,11 @@ fn check_token(token: &str) -> Result<String, (u16, String)> {
     let mut validate = Validation::default();
     validate.validate_exp = false;
 
-    let decode =
+    let professor =
         match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate) {
-            Ok(t) => format!("Decoded: {:?}", t.claims.user.to_string()),
-            Err(e) => return Err((500, format!("Error to decode: {}", e.to_string()))),
+            Ok(t) => t.claims.user,
+            Err(e) => return Err((500, format!("Error Professor Token: {}", e.to_string()))),
         };
 
-    println!("Decoded: {:?}", decode);
-
-    return Ok(format!("{:?}", decode));
+    Ok(professor)
 }

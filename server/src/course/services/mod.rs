@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 pub mod admin;
+pub mod professor;
 mod repository;
 
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
