@@ -28,7 +28,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
                     .service(get_by_professor)
                     .service(get_professors)
                     .service(get)
-                    .service(update_test),
+                    .service(update_test)
+                    .service(update_places),
             )
             .service(
                 web::scope("")
@@ -77,6 +78,20 @@ struct Test {
 async fn update_test(id: web::Path<String>, test: web::Form<Test>) -> impl Responder {
     match services::update_test(id.clone(), test.test, test.practice).await {
         Ok(s) => HttpResponse::Ok().json(s),
+        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
+    }
+}
+
+#[derive(Deserialize)]
+struct UpdatePlaces {
+    course_id: String,
+    places: u16,
+}
+
+#[patch("/update/places")]
+async fn update_places(course: web::Json<UpdatePlaces>) -> impl Responder {
+    match services::update_places(course.course_id.clone(), course.places).await {
+        Ok(s) => HttpResponse::Ok().body(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }

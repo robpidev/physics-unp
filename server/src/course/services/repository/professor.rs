@@ -77,7 +77,7 @@ pub async fn asign(
     role: String,
 ) -> Result<String, (u16, String)> {
     let query = r#"
-IF (SELECT in AS in FROM type::thing("course", $course_id)<-teaches)[0].in != type::thing("professor", $professor_id)
+IF (SELECT in AS in FROM type::thing("course", $course_id)<-teaches)[0].in != type::thing("professor", <int>$professor_id)
 	{{
 		RELATE (type::thing("professor", <int>$professor_id))->teaches->(type::thing("course", $course_id))
     SET role=$role;

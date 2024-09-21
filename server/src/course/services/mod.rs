@@ -76,3 +76,7 @@ pub async fn update_test(
 ) -> Result<impl Serialize, (u16, String)> {
     repository::test::update(course_id, test, weight).await
 }
+
+pub async fn update_places(id: String, places: u16) -> Result<String, (u16, String)> {
+    repository::update_places(id, places).await
+}
