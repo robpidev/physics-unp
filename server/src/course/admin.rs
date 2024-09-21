@@ -1,9 +1,10 @@
-use super::services;
 use actix_web::{delete, get, patch, post, web};
 use actix_web::{http::StatusCode, HttpResponse, Responder};
 use serde::Deserialize;
 
 use crate::shared::middlewares::admin::Admin;
+
+use super::services::{self, admin};
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
@@ -15,7 +16,9 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(delete)
             .service(enroll)
             .service(unenroll)
-            .service(course_info),
+            .service(course_info)
+            .service(asign)
+            .service(unasign),
     );
 }
 
@@ -34,7 +37,7 @@ struct UpdatePlaces {
 
 #[get("/{id}")]
 async fn course_info(id: web::Path<String>) -> impl Responder {
-    match services::admin::course(&id).await {
+    match admin::course(&id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -42,7 +45,7 @@ async fn course_info(id: web::Path<String>) -> impl Responder {
 
 #[post("")]
 async fn create(add: web::Form<NewCourse>) -> impl Responder {
-    match services::create(&add.name, add.places, &add.school_id).await {
+    match admin::create(&add.name, add.places, &add.school_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -82,7 +85,7 @@ struct Asign {
 // professor
 #[post("/asign")]
 async fn asign(data: web::Form<Asign>) -> impl Responder {
-    match services::asign_professor(
+    match admin::asign_professor(
         data.course_id.clone(),
         data.user_id.clone(),
         data.role.clone(),
@@ -102,7 +105,7 @@ struct DesasingInfo {
 
 #[delete("/asign")]
 async fn unasign(data: web::Form<DesasingInfo>) -> impl Responder {
-    match services::desasign_professor(&data.course_id, &data.user_id).await {
+    match admin::desasign_professor(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -125,7 +128,7 @@ async fn enroll(data: web::Form<Enroll>) -> impl Responder {
     }
 }
 
-#[delete("/enroll/")]
+#[delete("/enroll")]
 async fn unenroll(data: web::Form<Enroll>) -> impl Responder {
     match services::unregister(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),

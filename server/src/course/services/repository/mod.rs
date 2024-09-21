@@ -57,7 +57,7 @@ pub async fn create(
         r#"
 BEGIN TRANSACTION;
 IF (SELECT * FROM school:{}) != [] THEN
-	(SELECT out.id AS id, out.name AS name, out.places AS places FROM
+	(SELECT out.id AS id, out.name AS name, out.places AS places, 0 AS enrolled FROM
   (RELATE school:{} -> offers -> (CREATE course CONTENT {{
 		name: "{}",
 		places: {},
@@ -174,7 +174,7 @@ pub async fn exists(id: &String) -> Result<bool, (u16, String)> {
 pub async fn update_places(id: String, places: u16) -> Result<String, (u16, String)> {
     let query = r#"update type::thing("course", $id) set places=<int>$places"#;
 
-    let mut resp = match DB
+    let resp = match DB
         .query(query)
         .bind(("places", places))
         .bind(("id", id))
@@ -184,7 +184,7 @@ pub async fn update_places(id: String, places: u16) -> Result<String, (u16, Stri
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
 
-    match resp.take::<Option<CourseDB>>(0) {
+    match resp.check() {
         Ok(_) => Ok(format!("Course updated")),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
