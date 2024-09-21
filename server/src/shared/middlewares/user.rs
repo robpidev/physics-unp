@@ -111,7 +111,7 @@ fn get_user(token: &str) -> Result<User, (u16, String)> {
     let user = match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate)
     {
         Ok(t) => t.claims.user,
-        Err(e) => return Err((500, format!("Token Student Error: {}", e.to_string()))),
+        Err(e) => return Err((500, format!("User token error: {}", e.to_string()))),
     };
 
     Ok(user)
