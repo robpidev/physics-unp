@@ -2,7 +2,7 @@ import { fail, error } from "@sveltejs/kit";
 import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
-  const url = host + '/course/professor/courses/' + params.school;
+  const url = host + '/course/admin/school/' + params.school;
   const options = {
     method: 'GET',
     headers: {
@@ -27,7 +27,7 @@ export const actions = {
   add: async ({ request, cookies, params }) => {
     const data = await request.formData();
 
-    const url = host + '/course/professor/add';
+    const url = host + '/course/admin';
     const options = {
       method: 'POST',
       headers: {
@@ -36,7 +36,7 @@ export const actions = {
       },
       body: new URLSearchParams({
         name: data.get("course").trim(),
-        places: '100',
+        places: Number(data.get("places")),
         school_id: params.school
       })
     };
@@ -78,9 +78,7 @@ export const actions = {
     try {
       const response = await fetch(url, options);
       const data = await response.json();
-      console.log(data);
     } catch (error) {
-      console.error(error);
     }
   }
 }

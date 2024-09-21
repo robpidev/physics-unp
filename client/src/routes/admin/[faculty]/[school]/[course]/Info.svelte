@@ -1,15 +1,13 @@
 <script>
 	import { enhance } from '$app/forms';
 	export let course;
-	export let total;
 	let disabled = false;
 </script>
 
 <div class="course">
 	<div>
 		<span class="name">
-			{course.name}
-			{disabled}
+			{course?.name}
 		</span>
 	</div>
 
@@ -27,9 +25,9 @@
 					};
 				}}
 			>
-				<label
-					>{total}/
-					<input type="number" name="places" value={course.places} required min="0" max="256" />
+				<label>
+					{course?.enrolled}/
+					<input type="number" name="places" value={course?.places} required min="0" max="256" />
 				</label>
 				<button type="submit" {disabled}>Actualizar</button>
 			</form>

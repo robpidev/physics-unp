@@ -50,7 +50,6 @@ export const actions = {
       }
     };
 
-
     const response = await fetch(url, options);
 
     if (response.status === 200) {
