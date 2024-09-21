@@ -1,5 +1,6 @@
 use serde::Serialize;
 
+pub mod admin;
 mod repository;
 
 pub async fn create(

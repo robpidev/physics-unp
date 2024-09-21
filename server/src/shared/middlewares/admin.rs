@@ -88,13 +88,7 @@ where
             }
         };
 
-        if (req.path().contains("/add")
-            || req.path().contains("/delete")
-            || req.path().contains("/unregister")
-            || req.path().contains("/asign")
-            || req.path().contains("/update"))
-            && !(user.role == "admin")
-        {
+        if !(user.role == "admin") {
             let err = error::ErrorUnauthorized("Not admin").into();
             return Box::pin(async { Err(err) });
         }
