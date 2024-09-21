@@ -80,7 +80,7 @@ pub async fn register_student(
 ) -> Result<String, (u16, String)> {
     let query = r#"
 BEGIN TRANSACTION;
-IF (SELECT * FROM register_time WHERE todo = 'student' AND start < time::now() AND end > time::now()) != []
+RETURN IF (SELECT * FROM register_time WHERE todo = 'student' AND start < time::now() AND end > time::now()) != []
   {
         let $s = CREATE type::thing('student', <int>$id) CONTENT {
         names: $names,
@@ -91,7 +91,7 @@ IF (SELECT * FROM register_time WHERE todo = 'student' AND start < time::now() A
         gender: $gender,
         };
 		RELATE (select * from type::thing('school', $school_id)) -> has -> $s;
-        RETURN $s;
+    $s;
 	}
 ELSE
   {
@@ -104,7 +104,7 @@ COMMIT TRANSACTION;
     let res = DB
         .query(query)
         .bind(("id", student.code.clone()))
-        .bind(("names", student.names))
+        .bind(("names", student.names.to_string()))
         .bind(("last_name1", student.last_name1.to_string()))
         .bind(("last_name2", student.last_name2.to_string()))
         .bind(("code", student.code))
