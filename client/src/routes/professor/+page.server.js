@@ -1,6 +1,6 @@
 import { host } from "$lib/config";
 export async function load({ cookies }) {
-  const url = host + '/course/professor/courses';
+  const url = host + '/course/professor';
   const options = {
     method: 'GET',
     headers: {

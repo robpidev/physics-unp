@@ -37,7 +37,7 @@
 		margin-right: 0.5em;
 	}
 	input {
-		width: 2.5em;
+		width: 3em;
 		border: none;
 		background: var(--bg);
 		height: min-content;
