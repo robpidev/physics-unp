@@ -49,7 +49,6 @@
 	}
 
 	.school {
-		width: 100%;
 		border-radius: 8px;
 	}
 
@@ -62,6 +61,10 @@
 	}
 
 	a {
+		display: block;
+		background: var(--bg);
 		font-weight: 600;
+		border-radius: 5px;
+		padding: 0.3em 1em;
 	}
 </style>
