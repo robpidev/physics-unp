@@ -6,6 +6,7 @@ use surrealdb::sql::Thing;
 struct CourseDB {
     role: String,
     name: String,
+    school: String,
     id: Thing,
 }
 
@@ -13,6 +14,7 @@ struct CourseDB {
 struct Course {
     role: String,
     name: String,
+    school: String,
     id: String,
 }
 
@@ -21,6 +23,7 @@ impl CourseDB {
         Course {
             role: self.role,
             name: self.name,
+            school: self.school,
             id: self.id.id.to_string(),
         }
     }
@@ -28,7 +31,8 @@ impl CourseDB {
 
 pub async fn courses(professor_id: String) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
-SELECT role, out.name AS name, out.id AS id
+SELECT role, out.name AS name, out.id AS id,
+(->course<-offers<-school.name)[0] as school 
 FROM type::thing("professor", <int>$professor_id)->teaches;
     "#;
 

@@ -16,10 +16,6 @@ pub async fn get_by_school(id: &String) -> Result<impl Serialize, (u16, String)>
     repository::get_by_school(id).await
 }
 
-pub async fn get_by_professor(professor_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::professor::courses(professor_id).await
-}
-
 pub async fn register(course_id: &String, student_id: &String) -> Result<String, (u16, String)> {
     if !repository::exists(course_id).await? {
         return Err((400, format!("Course dont exists: {}", course_id)));
