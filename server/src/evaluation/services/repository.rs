@@ -19,7 +19,6 @@ IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($n
     ev_type = $ev_type,
     number = $number,
     score = $score;
-    RETURN 'Evaluation registered';
 	
 } ELSE {
 		THROW 'Register no avilable';
@@ -40,11 +39,7 @@ IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($n
     };
 
     match resp.take::<Option<String>>(0) {
-        Ok(r) => match r {
-            Some(_) => Ok("Evaluation registered".to_string()),
-            None => return Err((500, format!("DB response none"))),
-        },
-
+        Ok(_) => Ok("Evaluated".to_string()),
         Err(e) => return Err((400, format!("DB error: {}", e.to_string()))),
     }
 }
@@ -57,7 +52,6 @@ pub async fn update_evaluation(
     let query = r#"
 IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($number)) != [] {
     UPDATE type::thing("evaluated", $ev_id) set score = $score;
-    RETURN 'Evaluation updated';
 } ELSE {
         THROW 'Update no avilable';
 }
@@ -75,11 +69,7 @@ IF (SELECT * FROM register_time WHERE end >= time::now() && todo=type::string($n
     };
 
     match resp.take::<Option<String>>(0) {
-        Ok(r) => match r {
-            Some(m) => Ok(m),
-            None => Err((500, format!("DB response none"))),
-        },
-
+        Ok(_) => Ok("Evaluation updated".to_string()),
         Err(e) => Err((400, format!("DB response error: {}", e.to_string()))),
     }
 }

@@ -2,6 +2,7 @@ use crate::shared::repository::db::DB;
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
 
+pub mod admin;
 pub mod enroll;
 pub mod professor;
 pub mod student;
@@ -12,6 +13,7 @@ struct CourseDB {
     id: Thing,
     places: u16,
     name: String,
+    enrolled: u16,
 }
 
 #[derive(Serialize)]
@@ -19,6 +21,18 @@ struct Course {
     id: String,
     name: String,
     places: u16,
+    enrolled: u16,
+}
+
+impl CourseDB {
+    fn map(self) -> Course {
+        Course {
+            id: self.id.id.to_string(),
+            name: self.name,
+            places: self.places,
+            enrolled: self.enrolled,
+        }
+    }
 }
 
 #[derive(Serialize, Deserialize)]
@@ -34,16 +48,6 @@ struct Test {
     weight: u8,
 }
 
-impl CourseDB {
-    fn map(self) -> Course {
-        Course {
-            id: self.id.id.to_string(),
-            name: self.name,
-            places: self.places,
-        }
-    }
-}
-
 pub async fn create(
     name: &String,
     places: u16,
@@ -53,7 +57,7 @@ pub async fn create(
         r#"
 BEGIN TRANSACTION;
 IF (SELECT * FROM school:{}) != [] THEN
-	(SELECT out.id AS id, out.name AS name, out.places AS places FROM
+	(SELECT out.id AS id, out.name AS name, out.places AS places, 0 AS enrolled FROM
   (RELATE school:{} -> offers -> (CREATE course CONTENT {{
 		name: "{}",
 		places: {},
@@ -78,11 +82,7 @@ COMMIT TRANSACTION;
     };
 
     match course {
-        Some(c) => Ok(Course {
-            id: c.id.id.to_string(),
-            name: c.name,
-            places: c.places,
-        }),
+        Some(c) => Ok(c.map()),
         None => Err((400, format!("School id don't exist: {}", name))),
     }
 }
@@ -138,16 +138,12 @@ pub async fn get_all() -> Result<impl Serialize, (u16, String)> {
 }
 
 pub async fn get_by_school(school_id: &String) -> Result<impl Serialize, (u16, String)> {
-    let query = format!(
-        r#"
-SELECT
-out.id as id, out.name as name, out.places as places
-FROM school:{}->offers
-        "#,
-        school_id,
-    );
+    let query = r#"
+SELECT name, places, id, count(<-enrolled) AS enrolled
+FROM type::thing("school", $school_id)->offers->course;
+    "#;
 
-    let mut resp = match DB.query(query).await {
+    let mut resp = match DB.query(query).bind(("school_id", school_id.clone())).await {
         Ok(resp) => resp,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
@@ -172,5 +168,24 @@ pub async fn exists(id: &String) -> Result<bool, (u16, String)> {
             None => Ok(false),
         },
         Err(e) => Err((500, format!("Incorrect course ID: {}", e.to_string()))),
+    }
+}
+
+pub async fn update_places(id: String, places: u16) -> Result<String, (u16, String)> {
+    let query = r#"update type::thing("course", $id) set places=<int>$places"#;
+
+    let resp = match DB
+        .query(query)
+        .bind(("places", places))
+        .bind(("id", id))
+        .await
+    {
+        Ok(resp) => resp,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    match resp.check() {
+        Ok(_) => Ok(format!("Course updated")),
+        Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
     }
 }
