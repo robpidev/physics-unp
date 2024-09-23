@@ -46,7 +46,7 @@
 {/if}
 
 <section>
-	{#if data.evaluations.length > 0}
+	{#if data?.evaluations.length > 0}
 		<h2>Evaluaciones</h2>
 		<Ponderate tests={data.course.tests} />
 

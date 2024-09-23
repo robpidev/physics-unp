@@ -5,8 +5,8 @@
 	export let form;
 	export let data;
 	let search;
-
 	let student;
+
 	onMount(() => {
 		console.log(data);
 	});
@@ -48,7 +48,11 @@
 
 {#if student != null}
 	<section>
-		<Details student={data.evaluations[student]} {form} />
+		<Details
+			student={data.evaluations[student]}
+			{form}
+			available={data.course.role == 'practice'}
+		/>
 	</section>
 {/if}
 

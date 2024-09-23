@@ -20,6 +20,7 @@ export async function load({ params, cookies }) {
   }
 
   if (response.status == 401) {
+    console.log(await response.text())
     throw error(401, "Authorization no valid")
   }
 
@@ -107,8 +108,15 @@ export const actions = {
     }
 
     if (response.status == 400) {
+      const error = await response.text();
+      if (error.includes("Update no avilable")) {
+        return fail(400, {
+          error: "No está abilitada la actualización de esta nota"
+        })
+      }
+
       return fail(400, {
-        error: await response.text(),
+        error
       })
     }
 
@@ -141,13 +149,23 @@ export const actions = {
       }
     }
 
+
     if (response.status == 401) {
       throw error(401, "Authorization no valid")
     }
 
     if (response.status == 400) {
+
+      const error = await response.text();
+
+      if (error.includes("Register no avilable")) {
+        return fail(400, {
+          error: "El registro para esta nota no está abilitado"
+        })
+      }
+
       return fail(400, {
-        error: await response.text(),
+        error
       })
     }
 

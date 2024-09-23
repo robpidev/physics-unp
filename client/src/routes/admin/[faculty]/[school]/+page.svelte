@@ -2,6 +2,7 @@
 	export let data;
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
+	import { breadcrum } from '$lib/stores.js';
 	let course = '';
 </script>
 
@@ -30,6 +31,9 @@
 			<li class="course">
 				<a
 					data-sveltekit-preload-data="false"
+					on:click={() => {
+						breadcrum.update((path) => [...path, { name: course.name, url: course.id }]);
+					}}
 					href="/admin/{$page.params.faculty}/{$page.params.school}/{course.id}">{course.name}</a
 				>
 

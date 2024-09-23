@@ -1,4 +1,5 @@
 import { host } from "$lib/config";
+import { error } from '@sveltejs/kit';
 export async function load({ cookies }) {
   const url = host + '/course/professor';
   const options = {
@@ -19,13 +20,13 @@ export async function load({ cookies }) {
   }
 
   if (response.ok) {
-    const data = await response.json();
+    const courses = await response.json();
     return {
-      courses: data
+      courses
     }
   }
 
-  throw error(500, '  Internal error server');
+  throw error(500, 'Internal error server');
 
 }
 

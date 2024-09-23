@@ -2,6 +2,10 @@
 	import { enhance } from '$app/forms';
 	export let student;
 	export let form;
+
+	// Se puede mejorar
+	export let available;
+
 	let newScore = '';
 	let id;
 	let ev_type = '';
@@ -20,6 +24,8 @@
 		<span class="data">{student.name}</span>
 	</div>
 </div>
+
+<p>{available}</p>
 
 <hr />
 <div class="details">
@@ -50,104 +56,109 @@
 	{/each}
 </div>
 
-<hr />
-<div class="scores">
-	{#if id != null}
-		<form
-			method="post"
-			action="?/update_score"
-			use:enhance={() => {
-				updating = true;
-				return async ({ update }) => {
-					await update();
-					updating = false;
-					id = null;
-					number = null;
-					ev_type = null;
-					newScore = null;
-				};
-			}}
-		>
-			<label>
-				Nota:
-				<input type="number" name="score" bind:value={newScore} />
-			</label>
-			<input type="text" name="ev_id" hidden bind:value={id} />
-			<input type="number" name="number" hidden bind:value={number} />
-			{#if updating}
-				<input type="submit" value="Actualizando..." disabled />
-			{:else}
-				<input
-					type="submit"
-					value="Actualizar"
-					disabled={newScore < 0 || newScore > 20 || newScore == undefined}
-				/>
-				<button
-					class="cancel"
-					on:click={() => {
-						newScore = '';
+{#if available}
+	<hr />
+
+	<div class="scores">
+		{#if id != null}
+			<form
+				method="post"
+				action="?/update_score"
+				use:enhance={() => {
+					updating = true;
+					return async ({ update }) => {
+						await update();
+						updating = false;
 						id = null;
 						number = null;
-					}}>Nueva Nota</button
-				>
-			{/if}
-		</form>
-	{:else}
-		<form
-			method="post"
-			class="new_score"
-			action="?/add_score"
-			use:enhance={() => {
-				updating = true;
-				return async ({ update }) => {
-					await update();
-					updating = false;
-					number = null;
-					ev_type = null;
-					newScore = null;
-				};
-			}}
-		>
-			<label>
-				Nota: <input type="number" name="score" bind:value={newScore} required />
-			</label>
-			<label>
-				Práctica: <input type="number" name="number" bind:value={number} required />
-			</label>
-			<label>
-				<input type="radio" name="ev_type" bind:group={ev_type} value="test" required />
-				Entrada
-			</label>
-			<label>
-				<input type="radio" name="ev_type" bind:group={ev_type} value="practice" required />
-				Informes
-			</label>
-			<input type="number" name="student_id" hidden bind:value={student.id} />
-			{#if updating}
-				<input type="submit" value="Actualizando..." disabled />
-			{:else}
-				<input
-					type="submit"
-					value="Agregar"
-					disabled={student.scores.some((s) => {
-						if (s.number == number && s.ev_type == ev_type) {
-							return true;
-						}
-						return false;
-					}) ||
-						newScore < 0 ||
-						newScore > 20 ||
-						newScore == undefined ||
-						number == undefined}
-				/>
-			{/if}
-		</form>
-	{/if}
-</div>
+						ev_type = null;
+						newScore = null;
+					};
+				}}
+			>
+				<label>
+					Nota:
+					<input type="number" name="score" bind:value={newScore} />
+				</label>
+				<input type="text" name="ev_id" hidden bind:value={id} />
+				<input type="number" name="number" hidden bind:value={number} />
+				{#if updating}
+					<input type="submit" value="Actualizando..." disabled />
+				{:else}
+					<input
+						type="submit"
+						value="Actualizar"
+						disabled={newScore < 0 || newScore > 20 || newScore == undefined}
+					/>
+					<button
+						class="cancel"
+						on:click={() => {
+							newScore = '';
+							id = null;
+							number = null;
+						}}>Nueva Nota</button
+					>
+				{/if}
+			</form>
+		{:else}
+			<form
+				method="post"
+				class="new_score"
+				action="?/add_score"
+				use:enhance={() => {
+					updating = true;
+					return async ({ update }) => {
+						await update();
+						updating = false;
+						number = null;
+						ev_type = null;
+						newScore = null;
+					};
+				}}
+			>
+				<label>
+					Nota: <input type="number" name="score" bind:value={newScore} required />
+				</label>
+				<label>
+					Práctica: <input type="number" name="number" bind:value={number} required />
+				</label>
+				<label>
+					<input type="radio" name="ev_type" bind:group={ev_type} value="test" required />
+					Entrada
+				</label>
+				<label>
+					<input type="radio" name="ev_type" bind:group={ev_type} value="practice" required />
+					Informes
+				</label>
+				<input type="number" name="student_id" hidden bind:value={student.id} />
+				{#if updating}
+					<input type="submit" value="Actualizando..." disabled />
+				{:else}
+					<input
+						type="submit"
+						value="Agregar"
+						disabled={student.scores.some((s) => {
+							if (s.number == number && s.ev_type == ev_type) {
+								return true;
+							}
+							return false;
+						}) ||
+							newScore < 0 ||
+							newScore > 20 ||
+							newScore == undefined ||
+							number == undefined}
+					/>
+				{/if}
+			</form>
+		{/if}
+	</div>
 
-<p>
-	{form?.error ?? ''}
-</p>
+	<p class="error">
+		{form?.error ?? ''}
+	</p>
+
+	<!-- content here -->
+{/if}
 
 <style>
 	.new_score {
@@ -261,5 +272,9 @@
 
 	.cancel:hover {
 		text-decoration: underline;
+	}
+
+	.error {
+		color: red;
 	}
 </style>

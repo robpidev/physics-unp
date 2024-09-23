@@ -1,9 +1,15 @@
 <script>
 	import { enhance } from '$app/forms';
+	import { breadcrum } from '$lib/stores.js';
+	import { onMount } from 'svelte';
 
 	export let data;
 	let facultyName = '';
 	let error = '';
+
+	onMount(() => {
+		breadcrum.update(() => []);
+	});
 </script>
 
 <section>
@@ -25,7 +31,10 @@
 	<ul class="faculties">
 		{#each data?.faculties as f}
 			<li class="faculty">
-				<a href={`/admin/${f.id}`}>{f.name}</a>
+				<a
+					on:click={() => breadcrum.update(() => [{ name: f.name, url: f.id }])}
+					href={`/admin/${f.id}`}>{f.name}</a
+				>
 			</li>
 		{/each}
 	</ul>

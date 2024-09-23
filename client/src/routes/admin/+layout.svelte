@@ -1,6 +1,10 @@
+<script>
+	import { breadcrum } from '$lib/stores';
+</script>
+
 <div class="page">
-	<nav>
-		<ul class="breadcrumb">
+	<nav class="nav">
+		<ul class="menu-item">
 			<li>
 				<a href="/admin">facultades</a>
 			</li>
@@ -9,6 +13,27 @@
 			</li>
 		</ul>
 	</nav>
+
+	{#if $breadcrum != []}
+		<nav class="breadcrumb">
+			<ul class="items">
+				{#each $breadcrum as path, i}
+					<li class="item">
+						<a
+							href="/admin/{$breadcrum
+								.slice(0, i + 1)
+								.map((s) => s.url)
+								.join('/')}"
+							on:click={() => breadcrum.update((path) => path.slice(0, i + 1))}
+						>
+							{path.name}
+						</a>
+					</li>
+				{/each}
+			</ul>
+		</nav>
+	{/if}
+
 	<slot></slot>
 </div>
 
@@ -23,7 +48,7 @@
 		gap: 1em;
 	}
 
-	.breadcrumb {
+	.menu-item {
 		display: flex;
 		list-style: none;
 		padding: 0;
@@ -31,10 +56,52 @@
 		gap: 1em;
 	}
 
-	nav {
-		margin: 10px;
+	.nav {
 		padding: 6px;
-		border: solid 1px var(--border);
-		border-radius: 8px;
+		border-bottom: solid 1px var(--border);
+	}
+
+	.nav a {
+		color: var(--primary);
+		font-weight: 600;
+	}
+
+	.items {
+		display: flex;
+		list-style: none;
+		padding: 0;
+		margin: 0;
+		gap: 5px;
+	}
+
+	.items li {
+		color: white;
+		background: var(--primary);
+		position: relative;
+		border: solid 1px;
+	}
+
+	.item a {
+		padding: 0 0.5em;
+		color: white;
+	}
+
+	.items li:nth-child(1) {
+		border-radius: 10px 0 0 10px;
+	}
+
+	.items a::after {
+		content: '>';
+		right: -10px;
+		bottom: -3px;
+		color: var(--primary);
+		width: 10px;
+		border-radius: 0 10px 10px 0;
+		position: absolute;
+		background: var(--primary);
+		border-right: solid 3px var(--bg);
+		border-top: solid 3px var(--bg);
+		border-bottom: solid 3px var(--bg);
+		z-index: 1;
 	}
 </style>
