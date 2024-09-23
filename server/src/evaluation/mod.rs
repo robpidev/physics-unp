@@ -8,14 +8,14 @@ use actix_web::{
 use serde::Deserialize;
 use services::add_evaluation;
 
-use crate::shared::middlewares::admin::Admin;
+use crate::shared::middlewares::professor::Professor;
 
 mod services;
 
 pub fn routes(cfg: &mut web::ServiceConfig) {
     cfg.service(
         web::scope("/evaluation")
-            .wrap(Admin)
+            .wrap(Professor)
             .service(get)
             .service(get_all)
             .service(add)
