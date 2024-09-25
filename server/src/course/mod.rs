@@ -16,12 +16,11 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/course")
             .configure(admin::routes)
             .configure(student::routes)
-            .configure(professor::routes)
-            .service(
-                web::scope("/professor")
-                    //.service(get)
-                    .service(get),
-            ),
+            .configure(professor::routes), //.service(
+                                           //    web::scope("/professor")
+                                           //        //.service(get)
+                                           //        .service(get_info),
+                                           //),
     );
 }
 
@@ -30,14 +29,6 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 #[get("")]
 async fn _get() -> impl Responder {
     match services::get_all().await {
-        Ok(s) => HttpResponse::Ok().json(s),
-        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
-    }
-}
-
-#[get("/{id}")]
-async fn get(id: web::Path<String>) -> impl Responder {
-    match services::get_course(id.to_string()).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

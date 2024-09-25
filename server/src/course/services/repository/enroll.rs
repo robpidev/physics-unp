@@ -1,6 +1,5 @@
-use super::CourseDB;
 use crate::shared::repository::db::DB;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use surrealdb::sql::Thing;
 
 #[derive(Deserialize)]
@@ -48,28 +47,5 @@ DELETE enrolled where in=student:{} && out=course:{} return before
             student_id, course_id
         )),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
-    }
-}
-
-pub async fn students(id: &String) -> Result<impl Serialize, (u16, String)> {
-    let query = format!(
-        r#"
-(select out.* as course from student:{id}->enrolled)[0].course
-"#,
-    );
-
-    let mut resp = match DB.query(query).await {
-        Ok(r) => r,
-        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
-    };
-
-    let course = match resp.take::<Option<CourseDB>>(0) {
-        Ok(c) => c,
-        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
-    };
-
-    match course {
-        Some(c) => Ok(c.map()),
-        None => Err((204, format!("Not enrolled: {}", id))),
     }
 }

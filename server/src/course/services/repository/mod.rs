@@ -87,25 +87,6 @@ COMMIT TRANSACTION;
     }
 }
 
-pub async fn info(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    let query = r#"SELECT * FROM type::thing("course", $course_id)"#;
-
-    let mut resp = match DB.query(query).bind(("course_id", course_id.clone())).await {
-        Ok(r) => r,
-        Err(e) => return Err((500, format!("DB conection Error: {}", e.to_string()))),
-    };
-
-    let course = match resp.take::<Option<CourseTest>>(0) {
-        Ok(c) => c,
-        Err(e) => return Err((500, format!("DB Error parse: {}", e.to_string()))),
-    };
-
-    match course {
-        Some(c) => Ok(c),
-        None => Err((400, format!("Course dont exists: {}", course_id))),
-    }
-}
-
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
     let query = format!("DELETE course:{}  RETURN BEFORE;", id);
 

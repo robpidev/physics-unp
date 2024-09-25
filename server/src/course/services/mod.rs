@@ -2,6 +2,8 @@ use serde::Serialize;
 
 pub mod admin;
 pub mod professor;
+pub mod student;
+
 mod repository;
 
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
@@ -29,15 +31,7 @@ pub async fn unregister(course_id: &String, student_id: &String) -> Result<Strin
 }
 
 pub async fn get_by_student(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::student::courses(student_id).await
-}
-
-pub async fn get_enrolled(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::enroll::students(student_id).await
-}
-
-pub async fn get_course(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::info(course_id).await
+    repository::student::enrolled(student_id.to_string()).await
 }
 
 pub async fn update_test(
