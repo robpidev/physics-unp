@@ -3,7 +3,8 @@ import { error } from '@sveltejs/kit';
 
 export async function load({ cookies }) {
 
-  const url = host + "/course/enrolled"
+
+  const url = host + "/course/student/enrolled";
   const options = {
     method: 'GET',
     headers: {
@@ -13,10 +14,12 @@ export async function load({ cookies }) {
 
   const response = await fetch(url, options);
 
+  console.log(response.status)
+
   if (response.status === 200) {
     const data = await response.json();
     return {
-      course: data
+      courses: data
     };
   }
 
@@ -34,6 +37,10 @@ export async function load({ cookies }) {
 
   if (response.status === 400) {
     throw error(400, 'Authorization header not found');
+  }
+
+  if (response.status === 404) {
+    throw error(404, 'Api Not found');
   }
 
   throw error(500, 'Internal error server')

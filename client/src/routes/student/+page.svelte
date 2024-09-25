@@ -2,17 +2,18 @@
 	import { onMount } from 'svelte';
 	import { enhance } from '$app/forms';
 	let usr;
+
+	export let data;
 	onMount(() => {
 		usr = JSON.parse(localStorage.getItem('user'));
 	});
 	//const user_suscribe = user.subscribe((u) => (usr = u));
 	//onDestroy(user_suscribe);
-	export let data;
 	let courses = null;
 </script>
 
 <div class="page">
-	<div class="student">
+	<div class="info">
 		<span class="name">
 			{usr?.names}
 			{usr?.last_name1}
@@ -20,10 +21,20 @@
 		</span>
 		<span class="code">{usr?.id}</span>
 	</div>
-	<div class="course">
-		{#if data.course != null}
-			<span>Curso matriculado: </span>
-			<span>{data.course?.name}</span>
+
+	<section>
+		<h2>Cursos matrículados</h2>
+		<hr />
+
+		{#if data?.courses != null}
+			<ul class="courses">
+				{#each data?.courses as course}
+					<li class="course">
+						<span class="course-name">{course?.name}</span>
+						<button>Ver notas</button>
+					</li>
+				{/each}
+			</ul>
 		{:else if courses === null}
 			<span>No hay curso matriculado</span>
 			<form
@@ -54,16 +65,24 @@
 				{/if}
 			</form>
 		{/if}
-	</div>
+	</section>
 </div>
 
 <style>
-	.page {
-		margin: 1em;
+	.info {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 20px;
-		/*background: #f9f;*/
+		width: 100%;
+		align-items: center;
+		justify-content: space-between;
+	}
+	section {
+		width: 100%;
+		padding: 1em;
+	}
+
+	.page {
+		width: 100%;
+		max-width: 1000px;
 	}
 
 	.name {
@@ -71,20 +90,22 @@
 		font-weight: 700;
 	}
 
-	.student,
-	.course {
-		height: min-content;
-		border: solid 1px var(--border);
-		box-shadow:
-			0 4px 6px -1px rgb(0 0 0 / 0.1),
-			0 2px 4px -2px rgb(0 0 0 / 0.1);
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
 		display: flex;
-		padding: 1em;
-		border-radius: 12px;
-		flex-grow: 1;
 		flex-direction: column;
-		min-width: 240px;
 		gap: 1em;
+	}
+
+	.course {
+		display: flex;
+		background: var(--bg);
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 0.5em;
+		border-radius: 5px;
 	}
 
 	.courses {
@@ -100,7 +121,15 @@
 	}
 
 	button {
-		max-width: min-content;
-		margin: 1em auto;
+		background: inherit;
+		color: var(--primary);
+	}
+
+	button:hover {
+		color: var(--color-600);
+	}
+
+	button:active {
+		color: var(--color-700);
 	}
 </style>
