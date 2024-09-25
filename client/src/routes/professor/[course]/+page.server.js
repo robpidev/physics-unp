@@ -4,7 +4,7 @@ import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
 
-  let url = host + "/evaluation/all/" + params.course;
+  let url = host + "/evaluation/professor/all/" + params.course;
 
   const options = {
     method: 'GET',
@@ -76,7 +76,7 @@ export const actions = {
 
   update_score: async ({ request, cookies, params }) => {
     let data = await request.formData();
-    let url = host + "/evaluation";
+    let url = host + "/evaluation/professor";
 
     const options = {
       method: 'PATCH',
@@ -125,7 +125,7 @@ export const actions = {
 
   add_score: async ({ request, cookies, params }) => {
     const data = await request.formData();
-    const url = host + "/evaluation";
+    const url = host + "/evaluation/professor";
     const options = {
       method: 'POST',
       headers: {
