@@ -22,7 +22,11 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
-  url = host + "/evaluation/all/" + params.course;
+  if (response.status == 404) {
+    throw error(404, "Course not found")
+  }
+
+  url = host + "/evaluation/professor/all/" + params.course;
 
   response = await fetch(url, options);
   if (response.status == 200) {
@@ -35,6 +39,10 @@ export async function load({ params, cookies }) {
 
   if (response.status == 401) {
     throw error(401, "Authorization no valid")
+  }
+
+  if (response.status == 404) {
+    throw error(404, "Api resource not found")
   }
 
   throw error(500, "Internal error server")
@@ -85,6 +93,10 @@ export const actions = {
       return { ok: true }
     }
 
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
     throw error(500, "Internal error server")
   },
 
@@ -115,12 +127,16 @@ export const actions = {
       throw error(401, "Authorization no valid")
     }
 
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
     throw error(500, "Internal error server")
   },
 
   update_score: async ({ request, cookies, params }) => {
     let data = await request.formData();
-    let url = host + "/evaluation";
+    let url = host + "/evaluation/professor";
 
     const options = {
       method: 'PATCH',
@@ -150,6 +166,10 @@ export const actions = {
       throw error(401, "Authorization no valid")
     }
 
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
     if (response.status == 400) {
       return fail(400, {
         error: await response.text(),
@@ -162,7 +182,7 @@ export const actions = {
   add_score: async ({ request, cookies, params }) => {
     const data = await request.formData();
 
-    const url = host + "/evaluation";
+    const url = host + "/evaluation/professor";
     const options = {
       method: 'POST',
       headers: {
@@ -194,6 +214,10 @@ export const actions = {
       return fail(400, {
         error: await response.text(),
       })
+    }
+
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
     }
 
     throw error(500, "Internal error server")
@@ -231,6 +255,10 @@ export const actions = {
       return fail(400, {
         error: await response.text(),
       })
+    }
+
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
     }
 
     throw error(500, "Internal error server")
