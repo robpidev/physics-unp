@@ -1,15 +1,15 @@
 <script>
 	import { onMount } from 'svelte';
-	import { enhance } from '$app/forms';
+	import Courses from './Courses.svelte';
 	let usr;
 
 	export let data;
 	onMount(() => {
+		console.log(data?.courses.length);
 		usr = JSON.parse(localStorage.getItem('user'));
 	});
 	//const user_suscribe = user.subscribe((u) => (usr = u));
 	//onDestroy(user_suscribe);
-	let courses = null;
 </script>
 
 <div class="page">
@@ -26,7 +26,7 @@
 		<h2>Cursos matrículados</h2>
 		<hr />
 
-		{#if data?.courses != null}
+		{#if data?.courses.length > 0}
 			<ul class="courses">
 				{#each data?.courses as course}
 					<li class="course">
@@ -35,35 +35,8 @@
 					</li>
 				{/each}
 			</ul>
-		{:else if courses === null}
-			<span>No hay curso matriculado</span>
-			<form
-				method="POST"
-				action="?/courses"
-				use:enhance={() => {
-					return async ({ result }) => {
-						courses = result.data.courses;
-					};
-				}}
-			>
-				<button>Inscribirme</button>
-			</form>
 		{:else}
-			<span class="title">Escoge un curso</span>
-			<form class="courses" action="?/enroll" method="POST" use:enhance>
-				{#each courses as course, id}
-					<label>
-						<input type="radio" name="course_id" value={courses[id].id} required />
-						<span>{course.name}</span>
-					</label>
-				{/each}
-
-				{#if courses.length === 0}
-					<span>No hay cursos disponibles</span>
-				{:else}
-					<button type="submit" disabled={courses.length === 0}>Inscribirme</button>
-				{/if}
-			</form>
+			<Courses />
 		{/if}
 	</section>
 </div>
@@ -74,6 +47,7 @@
 		width: 100%;
 		align-items: center;
 		justify-content: space-between;
+		margin: 0em 0 1em 0;
 	}
 	section {
 		width: 100%;
@@ -113,11 +87,6 @@
 		flex-direction: column;
 		gap: 1em;
 		position: relative;
-	}
-
-	.title {
-		color: var(--primary);
-		font-weight: 700;
 	}
 
 	button {
