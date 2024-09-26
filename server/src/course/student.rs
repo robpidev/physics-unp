@@ -21,7 +21,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 async fn avilables(req: HttpRequest) -> impl Responder {
     let student_id = req.extensions().get::<String>().unwrap().clone();
 
-    match services::get_by_student(&student_id).await {
+    match services::student::avilables(student_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
