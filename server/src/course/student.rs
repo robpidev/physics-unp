@@ -34,7 +34,7 @@ async fn enroll(course_id: web::Path<String>, req: HttpRequest) -> impl Responde
         None => return HttpResponse::InternalServerError().body("No Student Id"),
     };
 
-    match services::register(&course_id, &student_id).await {
+    match student::enroll(student_id, course_id.clone()).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
