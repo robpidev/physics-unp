@@ -30,10 +30,6 @@ pub async fn unregister(course_id: &String, student_id: &String) -> Result<Strin
     repository::enroll::unregister(student_id, course_id).await
 }
 
-pub async fn get_by_student(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::student::enrolled(student_id.to_string()).await
-}
-
 pub async fn update_test(
     course_id: String,
     test: u8,
