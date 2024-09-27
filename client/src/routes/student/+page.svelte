@@ -1,15 +1,21 @@
 <script>
 	import { onMount } from 'svelte';
 	import Courses from './Courses.svelte';
+	import Evaluations from './Evaluations.svelte';
+	import { enhance } from '$app/forms';
+
+	let disabled = false;
+	let selected = null;
+
 	let usr;
 
 	export let data;
 	onMount(() => {
-		console.log(data?.courses.length);
 		usr = JSON.parse(localStorage.getItem('user'));
 	});
 	//const user_suscribe = user.subscribe((u) => (usr = u));
 	//onDestroy(user_suscribe);
+	export let form;
 </script>
 
 <div class="page">
@@ -31,14 +37,44 @@
 				{#each data?.courses as course}
 					<li class="course">
 						<span class="course-name">{course?.name}</span>
-						<button>Ver notas</button>
+						{#if selected != course.id}
+							<form
+								action="?/scores"
+								method="post"
+								use:enhance={() => {
+									disabled = true;
+									return async ({ update }) => {
+										await update();
+										selected = course.id;
+										disabled = false;
+									};
+								}}
+							>
+								<input
+									hidden
+									on:submit|preventDefault
+									type="text"
+									name="course_id"
+									value={course?.id}
+								/>
+								<button type="submit" {disabled}>Ver notas</button>
+							</form>
+						{/if}
 					</li>
+					<!-- content here -->
 				{/each}
 			</ul>
 		{:else}
 			<Courses />
 		{/if}
 	</section>
+
+	{#if form?.evaluations}
+		<!-- content here -->
+		<section>
+			<Evaluations evaluations={form.evaluations} />
+		</section>
+	{/if}
 </div>
 
 <style>
@@ -55,6 +91,9 @@
 	}
 
 	.page {
+		display: flex;
+		gap: 1em;
+		flex-direction: column;
 		width: 100%;
 		max-width: 1000px;
 	}
@@ -80,6 +119,7 @@
 		align-items: center;
 		padding: 0 0.5em;
 		border-radius: 5px;
+		height: 2em;
 	}
 
 	.courses {
@@ -100,5 +140,9 @@
 
 	button:active {
 		color: var(--color-700);
+	}
+
+	button:disabled {
+		color: var(--color-300);
 	}
 </style>

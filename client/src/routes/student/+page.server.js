@@ -99,6 +99,27 @@ export const actions = {
     }
 
     throw error(500, 'Internal error server: ' + await response.text())
+  },
+
+  scores: async ({ request, cookies }) => {
+    const data = await request.formData();
+    const url = host + '/evaluation/student/' + data.get("course_id");
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: cookies.get('token')
+      }
+    }
+
+    const response = await fetch(url, options);
+
+    if (response.status === 200) {
+      return {
+        evaluations: await response.json()
+      }
+    }
+
+    throw error(500, "Internal server error: " + await response.text())
   }
 }
 
