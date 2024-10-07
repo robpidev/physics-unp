@@ -2,6 +2,8 @@ use actix_web::{
     get, http::StatusCode, post, web, HttpMessage, HttpRequest, HttpResponse, Responder,
 };
 
+use serde::Deserialize;
+
 use super::services::{self, student};
 
 use crate::shared::middlewares::student::StudentAuth;
@@ -27,14 +29,26 @@ async fn avilables(req: HttpRequest) -> impl Responder {
     }
 }
 
-#[post("/enroll/{course_id}")]
-async fn enroll(course_id: web::Path<String>, req: HttpRequest) -> impl Responder {
+#[derive(Deserialize)]
+struct Enroll {
+    course_id: String,
+    ocupated_groups: Vec<u8>,
+}
+
+#[post("/enroll")]
+async fn enroll(data: web::Json<Enroll>, req: HttpRequest) -> impl Responder {
     let student_id = match req.extensions().get::<String>() {
         Some(id) => id.clone(),
         None => return HttpResponse::InternalServerError().body("No Student Id"),
     };
 
-    match student::enroll(student_id, course_id.clone()).await {
+    match student::enroll(
+        student_id,
+        data.course_id.clone(),
+        data.ocupated_groups.clone(),
+    )
+    .await
+    {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
