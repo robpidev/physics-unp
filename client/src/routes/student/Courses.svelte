@@ -1,6 +1,8 @@
 <script>
 	import { enhance } from '$app/forms';
+	import Groups from './Groups.svelte';
 	let courses;
+	let selected = [];
 
 	async function coursesAvilables() {
 		const resp = await fetch('/student/avilables');
@@ -19,6 +21,7 @@
 						<input
 							type="radio"
 							name="course_id"
+							required
 							value={course.id}
 							disabled={course.enrolled == course.places}
 						/>
@@ -34,7 +37,10 @@
 				<p>No hay cursos disponibles</p>
 			{/if}
 		</ul>
-		<button type="submit">Inscribirme</button>
+
+		<input type="text" name="ocupated_groups" bind:value={selected} hidden />
+		<Groups bind:selected />
+		<button disabled={selected.length == 0} type="submit">Inscribirme</button>
 	</form>
 {:else}
 	<!-- else content here -->
