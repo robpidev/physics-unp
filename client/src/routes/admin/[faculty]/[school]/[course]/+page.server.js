@@ -49,6 +49,8 @@ export async function load({ params, cookies }) {
 
 }
 
+/** @type {import('./$types').Actions}
+   */
 export const actions = {
   assign: async ({ request, cookies, params }) => {
 
@@ -262,5 +264,27 @@ export const actions = {
     }
 
     throw error(500, "Internal error server")
+  },
+
+  students_info: async ({ cookies, params }) => {
+
+    const url = host + "/course/admin/students/" + params.course;
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: cookies.get("token")
+      }
+    };
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      const students = await response.json();
+      return {
+        students
+      }
+    }
+
   }
 }
+
