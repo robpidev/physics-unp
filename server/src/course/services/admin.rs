@@ -27,3 +27,7 @@ pub async fn create(
 ) -> Result<impl Serialize, (u16, String)> {
     repository::create(name, places, school_id).await
 }
+
+pub async fn students_info(course_id: String) -> Result<impl Serialize, (u16, String)> {
+    admin::students_info(course_id).await
+}
