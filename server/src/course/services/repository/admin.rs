@@ -158,7 +158,7 @@ struct StudentInfo {
     id: String,
     name: String,
     email: String,
-    ocupated: bool,
+    ocupated: Vec<u8>,
 }
 
 impl StudentInfoDB {
@@ -167,7 +167,7 @@ impl StudentInfoDB {
             id: self.id.id.to_string(),
             name: self.name,
             email: format!("{}@alumnos.unp.edu.pe", self.id.id),
-            ocupated: self.ocupated[0] == 1,
+            ocupated: self.ocupated,
         }
     }
 }
