@@ -18,8 +18,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(unenroll)
             .service(course_info)
             .service(asign)
-            .service(unasign)
-            .service(students_info),
+            .service(unasign),
     );
 }
 
@@ -133,14 +132,6 @@ async fn enroll(data: web::Form<Enroll>) -> impl Responder {
 async fn unenroll(data: web::Form<Enroll>) -> impl Responder {
     match services::unregister(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
-        Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
-    }
-}
-
-#[get("/students/{course_id}")]
-async fn students_info(course_id: web::Path<String>) -> impl Responder {
-    match admin::students_info(course_id.clone()).await {
-        Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
 }
