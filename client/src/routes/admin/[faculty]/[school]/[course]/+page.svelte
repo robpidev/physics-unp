@@ -3,7 +3,6 @@
 	import Ponderate from './Ponderate.svelte';
 	import Info from './Info.svelte';
 	import Professors from './Professors.svelte';
-	import StudentsInfo from './StudentsInfo.svelte';
 
 	let search;
 	let student = null;
@@ -78,10 +77,6 @@
 			{/each}
 		</div>
 	{/if}
-</section>
-
-<section>
-	<StudentsInfo students={form?.students} />
 </section>
 
 <style>

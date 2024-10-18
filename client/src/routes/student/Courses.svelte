@@ -4,6 +4,7 @@
 
 	async function coursesAvilables() {
 		const resp = await fetch('/student/avilables');
+		console.log(resp.status);
 		courses = await resp.json();
 	}
 </script>
