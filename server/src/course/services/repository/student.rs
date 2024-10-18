@@ -107,13 +107,8 @@ FROM type::thing("student", <int>$student_id)<-has<-school->offers->course;
         .collect::<Vec<CourseAvilable>>())
 }
 
-pub async fn enroll(
-    student_id: String,
-    course_id: String,
-    ocupated_groups: Vec<u8>,
-) -> Result<String, (u16, String)> {
+pub async fn enroll(student_id: String, course_id: String) -> Result<String, (u16, String)> {
     let query = r#"
-BEGIN TRANSACTION;
 IF (
     SELECT count(<-enrolled) < places AS places
     FROM ONLY type::thing("course", $course_id)).places 
@@ -121,25 +116,19 @@ IF (
 	RELATE 
     (type::thing('student', <int> $student_id)) 
     -> enrolled -> 
-    (type::thing('course', $course_id));
-
-    CREATE groups CONTENT {
-			ocupated: $ocupated_groups,
-			student: type::thing('student', <int> $student_id)
-		};
+    (type::thing('course', $course_id))
+    ;
 }
 ELSE
 {
 	THROW 'All places are ocupades or course don\'t exist';
 };
-COMMIT TRANSACTION;
 "#;
 
     let resp = match DB
         .query(query)
         .bind(("course_id", course_id))
         .bind(("student_id", student_id))
-        .bind(("ocupated_groups", ocupated_groups))
         .await
     {
         Ok(r) => r,
