@@ -78,20 +78,12 @@ export const actions = {
 
   enroll: async ({ request, cookies }) => {
     const data = await request.formData();
-
-    console.log(data.get(""))
-
-    const url = host + '/course/student/enroll';
+    const url = host + '/course/student/enroll/' + data.get('course_id');
     const options = {
       method: 'POST',
       headers: {
-        'content-type': 'application/json',
         Authorization: cookies.get('token')
-      },
-      body: JSON.stringify({
-        course_id: data.get('course_id'),
-        ocupated_groups: data.get('ocupated_groups').split(",").map(x => parseInt(x))
-      })
+      }
     };
 
     const response = await fetch(url, options);
@@ -103,7 +95,7 @@ export const actions = {
     }
 
     if (response.status === 400) {
-      throw error(400, "Todas las vacantes ocupadas" + await response.text())
+      throw error(400, "Todas las vacantes ocupadas")
     }
 
     throw error(500, 'Internal error server: ' + await response.text())
