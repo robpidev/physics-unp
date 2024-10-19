@@ -13,8 +13,22 @@ async fn hello() -> impl Responder {
 async fn main() -> std::io::Result<()> {
     // Load db
     dotenv().ok();
-    let db_host = env::var("DB_HOST").unwrap();
-    let host = env::var("HOST").unwrap();
+
+    let db_host = match env::var("DB_HOST") {
+        Ok(host) => host,
+        Err(_) => {
+            println!("DB_HOST not set, using 0.0.0.0:8000");
+            String::from("0.0.0.0:8000")
+        }
+    };
+
+    let host = match env::var("HOST") {
+        Ok(host) => host,
+        Err(_) => {
+            println!("HOST not set, using 0.0.0.0:8080");
+            String::from("0.0.0.0:8080")
+        }
+    };
 
     server::shared::repository::db::db_connect(db_host)
         .await
