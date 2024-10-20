@@ -5,7 +5,7 @@ use serde::{Deserialize, Serialize};
 struct Evaluation {
     ev_type: String,
     number: u16,
-    score: u8,
+    score: f32,
 }
 
 #[derive(Serialize, Deserialize)]
