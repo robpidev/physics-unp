@@ -4,7 +4,7 @@
 	import { page } from '$app/stores';
 	import { breadcrum } from '$lib/stores.js';
 	let course = '';
-
+	let deleting = false;
 	let course_delete = '';
 	let delete_id = -1;
 </script>
@@ -54,7 +54,7 @@
 		{/each}
 	</ul>
 
-	{#if delete_id >= 0}
+	{#if delete_id >= 0 && deleting == false}
 		<hr />
 		<div>
 			<form
@@ -62,9 +62,12 @@
 				class="delete"
 				action="?/delete"
 				use:enhance={() => {
+					deleting = true;
 					return async ({ update }) => {
 						await update();
 						delete_id = -1;
+						course_delete = '';
+						deleting = false;
 					};
 				}}
 			>
@@ -78,12 +81,17 @@
 				<button
 					class="btn-delete"
 					type="submit"
-					disabled={data.courses[delete_id].name != course_delete}
+					disabled={data.courses[delete_id]?.name != course_delete}
 				>
 					Eliminar
 				</button>
 			</form>
 		</div>
+	{/if}
+	{#if deleting}
+		<hr />
+		<!-- content here -->
+		<p class="deleting">Eliminando...</p>
 	{/if}
 </section>
 
@@ -175,5 +183,9 @@
 
 	.course-info button:hover {
 		text-decoration: underline;
+	}
+
+	.deleting {
+		color: red;
 	}
 </style>
