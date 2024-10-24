@@ -13,10 +13,20 @@
 		<span>O</span>
 		<a href="/signup">Registrate</a>
 	{/if}
+
+	<hr />
+	<span class="advice">Las clases inician lunes 28 de octubre.</span>
 </div>
 
 <style>
 	a {
 		font-weight: 600;
+	}
+
+	.advice {
+		display: block;
+		color: green;
+		font-weight: bold;
+		font-size: 1.5rem;
 	}
 </style>
