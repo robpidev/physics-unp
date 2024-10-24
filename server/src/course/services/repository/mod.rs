@@ -87,6 +87,11 @@ COMMIT TRANSACTION;
     }
 }
 
+#[derive(Deserialize)]
+struct CourseDeleted {
+    name: String,
+}
+
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
     let query = format!("DELETE course:{}  RETURN BEFORE;", id);
 
@@ -95,7 +100,7 @@ pub async fn delete(id: &String) -> Result<String, (u16, String)> {
         Err(e) => return Err((500, format!("DB id Error: {}", e.to_string()))),
     };
 
-    let course = match resp.take::<Option<CourseDB>>(0) {
+    let course = match resp.take::<Option<CourseDeleted>>(0) {
         Ok(c) => c,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };

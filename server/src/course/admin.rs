@@ -51,7 +51,7 @@ async fn create(add: web::Form<NewCourse>) -> impl Responder {
     }
 }
 
-#[delete("delete/{id}")]
+#[delete("/{id}")]
 async fn delete(id: web::Path<String>) -> impl Responder {
     match services::delete(&id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
