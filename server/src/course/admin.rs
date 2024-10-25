@@ -114,7 +114,7 @@ async fn unasign(data: web::Form<DesasingInfo>) -> impl Responder {
 #[derive(Deserialize)]
 struct Enroll {
     course_id: String,
-    user_id: String,
+    student_id: String,
 }
 
 // Test
@@ -122,7 +122,7 @@ struct Enroll {
 // Enroll
 #[post("/enroll")]
 async fn enroll(data: web::Form<Enroll>) -> impl Responder {
-    match services::register(&data.course_id, &data.user_id).await {
+    match services::enroll::enroll(data.student_id.clone(), data.course_id.clone()).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }
@@ -130,7 +130,7 @@ async fn enroll(data: web::Form<Enroll>) -> impl Responder {
 
 #[delete("/enroll")]
 async fn unenroll(data: web::Form<Enroll>) -> impl Responder {
-    match services::unregister(&data.course_id, &data.user_id).await {
+    match services::unregister(&data.course_id, &data.student_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

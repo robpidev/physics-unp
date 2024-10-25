@@ -140,23 +140,6 @@ FROM type::thing("school", $school_id)->offers->course;
     }
 }
 
-pub async fn exists(id: &String) -> Result<bool, (u16, String)> {
-    let query = format!("SELECT * FROM ONLY course:{};", id);
-
-    let mut resp = match DB.query(query).await {
-        Ok(resp) => resp,
-        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
-    };
-
-    match resp.take::<Option<CourseDB>>(0) {
-        Ok(c) => match c {
-            Some(_) => Ok(true),
-            None => Ok(false),
-        },
-        Err(e) => Err((500, format!("Incorrect course ID: {}", e.to_string()))),
-    }
-}
-
 pub async fn update_places(id: String, places: u16) -> Result<String, (u16, String)> {
     let query = r#"update type::thing("course", $id) set places=<int>$places"#;
 
