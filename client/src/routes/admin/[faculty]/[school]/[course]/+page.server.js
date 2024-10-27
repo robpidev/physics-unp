@@ -107,6 +107,14 @@ export const actions = {
 
     let data = await request.formData()
 
+
+    const test = Number(data.get("test"))
+    const practice = Number(data.get("practice"))
+
+    if (test + practice > 100 || test + practice < 0 || test < 0 || practice < 0) {
+      throw error(400, "Invalid ponderation")
+    }
+
     const url = host + "/course/professor/" + params.course;
     const options = {
       method: 'PATCH',
@@ -116,8 +124,8 @@ export const actions = {
       },
       body: new URLSearchParams(
         {
-          test: data.get("test"),
-          practice: data.get("practice")
+          test: Number(data.get("test")),
+          practice: Number(data.get("practice")),
         })
     };
 
@@ -134,7 +142,7 @@ export const actions = {
       throw error(404, "Api resource not found")
     }
 
-    throw error(500, "Internal error server")
+    throw error(500, "Internal error server" + response.status + " " + await response.text())
   },
 
   update_score: async ({ request, cookies, params }) => {
