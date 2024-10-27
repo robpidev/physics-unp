@@ -28,6 +28,7 @@ FROM course:{}<-enrolled "#,
     }
 }
 
+// TODO: Return student only becomes a the school
 pub async fn info(student_id: String) -> Result<impl Serialize, (u16, String)> {
     let query = r#"SELECT * omit password FROM type::thing('student', <int>$student_id)"#;
 

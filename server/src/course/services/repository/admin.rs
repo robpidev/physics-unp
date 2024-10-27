@@ -95,14 +95,20 @@ FROM only type::thing("course", $course_id);
 }
 
 pub async fn desasign(course_id: &String, teacher_id: &String) -> Result<String, (u16, String)> {
-    let query = format!(
-        r#"
-DELETE teaches where in=professor:{} && out=course:{} return before
-"#,
-        teacher_id, course_id
-    );
+    let query = r#"
+DELETE teaches
+WHERE
+in = type::thing('professor', <int> $teacher_id)
+AND
+out = type::thing('course', $course_id) RETURN BEFORE;
+"#;
 
-    match DB.query(query).await {
+    match DB
+        .query(query)
+        .bind(("course_id", course_id.to_string()))
+        .bind(("teacher_id", teacher_id.to_string()))
+        .await
+    {
         Ok(_) => Ok(format!(
             "Teacher {} desasigned from course {}",
             teacher_id, course_id

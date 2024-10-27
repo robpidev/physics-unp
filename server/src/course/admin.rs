@@ -83,7 +83,7 @@ struct Asign {
 }
 
 // professor
-#[post("/asign")]
+#[post("professor/asign")]
 async fn asign(data: web::Form<Asign>) -> impl Responder {
     match admin::asign_professor(
         data.course_id.clone(),
@@ -103,7 +103,7 @@ struct DesasingInfo {
     user_id: String,
 }
 
-#[delete("/asign")]
+#[delete("/professor/asign")]
 async fn unasign(data: web::Form<DesasingInfo>) -> impl Responder {
     match admin::desasign_professor(&data.course_id, &data.user_id).await {
         Ok(msg) => HttpResponse::Ok().body(msg),
