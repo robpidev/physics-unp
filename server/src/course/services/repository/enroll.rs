@@ -25,9 +25,9 @@ DELETE enrolled where in=student:{} && out=course:{} return before
     }
 }
 
-// TODO: Add enroll only in his school
 pub async fn enroll(student_id: String, course_id: String) -> Result<String, (u16, String)> {
     let query = r#"
+IF(((select (<-has<-school)[0] as id from only type::thing('student', <int> $student_id)).id = (select (<-offers<-school)[0] as id from only type::thing('course', $course_id)).id)) {
 IF (
     SELECT count(<-enrolled) < places AS places
     FROM ONLY type::thing('course', $course_id)
@@ -44,7 +44,10 @@ IF (
                 THROW 'Already enrolled';
             };
 	} ELSE {
-		THROW 'All places ocupateds o course dont\' exists';
+		THROW 'All places ocupateds o course don\'t exists';
+}}
+ElSE {
+    THROW "Course dont exist or isnt offers for you school"
 }
 ;
 "#;
