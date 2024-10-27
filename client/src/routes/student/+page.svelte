@@ -19,15 +19,16 @@
 </script>
 
 <div class="page">
-	<div class="info">
-		<span class="name">
-			{usr?.names}
-			{usr?.last_name1}
-			{usr?.last_name2}
-		</span>
-		<span class="code">{usr?.id}</span>
-	</div>
-
+	<section>
+		<div class="info">
+			<span class="name">
+				{usr?.names}
+				{usr?.last_name1}
+				{usr?.last_name2}
+			</span>
+			<span class="code">{(usr?.id).toString().length == 10 ? '' : '0'}{usr?.id}</span>
+		</div>
+	</section>
 	<section>
 		<h2>Cursos matrículados</h2>
 		<hr />
@@ -78,12 +79,14 @@
 </div>
 
 <style>
+	section:nth-child(1) {
+		background: initial;
+	}
 	.info {
 		display: flex;
 		width: 100%;
 		align-items: center;
 		justify-content: space-between;
-		margin: 0em 0 1em 0;
 	}
 	section {
 		width: 100%;

@@ -34,11 +34,12 @@
 </div>
 <hr />
 <div class="details">
+	<span class="head">Prácticas</span>
 	<span class="entry">Entrada ({evaluations.tests[0].weight}%)</span>
 	<span class="prac">Informes ({evaluations.tests[1].weight}%)</span>
 	<div></div>
 	{#each [1, 2, 3, 4, 5] as i}
-		<span class="p{i} head">Práctica {i}</span>
+		<span class="p{i} head" style="grid-area: p{i};">{i}</span>
 	{/each}
 
 	{#each evaluations.evaluations as score}
@@ -71,9 +72,8 @@
 		margin-top: 1em;
 	}
 
-	.type {
-		justify-self: start;
-		font-weight: 600;
+	.head:nth-child(1) {
+		background: var(--color-100);
 	}
 	.entry,
 	.prac {
@@ -100,7 +100,7 @@
 		justify-content: right;
 		padding: 0 0.5em;
 		width: 100%;
-		background: var(--bg);
+		/*background: var(--bg);*/
 		border-radius: 3px;
 		user-select: none;
 	}
