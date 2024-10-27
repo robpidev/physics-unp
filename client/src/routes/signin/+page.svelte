@@ -7,7 +7,8 @@
 	export let form;
 	onMount(async () => {
 		await fetch('/?/logout');
-		user.update(() => null);
+		user.set(null);
+		localStorage.removeItem('user');
 	});
 </script>
 
@@ -21,7 +22,6 @@
 				if (result.status === 200) {
 					const u = result.data.user;
 					user.update(() => result.data.user);
-					document.cookie = `token=${result.data.token}; path=/;`;
 					localStorage.setItem('user', JSON.stringify(result.data.user));
 					if (u.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');

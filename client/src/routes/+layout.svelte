@@ -9,8 +9,8 @@
 	});
 
 	function signout() {
-		user.set(null);
-		localStorage.removeItem('user');
+		//user.set(null);
+		//localStorage.removeItem('user');
 		//goto('/');
 	}
 </script>

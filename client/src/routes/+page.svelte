@@ -15,12 +15,16 @@
 	{/if}
 
 	<hr />
-	<span class="advice">Las clases inician lunes 28 de octubre.</span>
+	<span class="advice">Las clases inician lunes 4 de noviembre.</span>
 </div>
 
 <style>
 	a {
 		font-weight: 600;
+	}
+
+	div {
+		padding: 1em;
 	}
 
 	.advice {
