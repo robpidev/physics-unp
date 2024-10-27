@@ -10,6 +10,8 @@
 		user.set(null);
 		localStorage.removeItem('user');
 	});
+
+	let loading = false;
 </script>
 
 <div class="content">
@@ -18,6 +20,7 @@
 		method="POST"
 		action="?/signin"
 		use:enhance={() => {
+			loading = true;
 			return async ({ result }) => {
 				if (result.status === 200) {
 					const u = result.data.user;
@@ -27,8 +30,8 @@
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
 				}
-
 				form = result.data;
+				loading = false;
 			};
 		}}
 	>
@@ -40,18 +43,22 @@
 			<span>Contraseña: </span>
 			<input name="password" type="password" required />
 		</label>
-		<button type="submit">Iniciar Sesión</button>
+		<button disabled={loading} type="submit">Iniciar Sesión</button>
 	</form>
 
 	{#if form?.error}
 		<p class="error">{form.error}</p>
 	{/if}
 
-	<span
-		>¿No tienes cuenta?
+	{#if loading}
+		<p class="loading">Iniciando sesión...</p>
+	{:else}
+		<span
+			>¿No tienes cuenta?
 
-		<a href="/signup">Registrate</a>
-	</span>
+			<a href="/signup">Registrate</a>
+		</span>
+	{/if}
 </div>
 
 <style>
@@ -100,5 +107,9 @@
 
 	.error {
 		color: red;
+	}
+
+	.loading {
+		color: green;
 	}
 </style>
