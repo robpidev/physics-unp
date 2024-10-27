@@ -1,6 +1,5 @@
 import { error, fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
-import { request } from "@playwright/test";
 
 export async function load({ params, cookies }) {
   let url = host + '/course/admin/' + params.course;
@@ -56,7 +55,7 @@ export const actions = {
 
     let data = await request.formData()
 
-    const url = host + "/course/admin/asign";
+    const url = host + "/course/admin/professor/asign";
     const options = {
       method: 'POST',
       headers: {
@@ -80,7 +79,8 @@ export const actions = {
   unassign: async ({ request, cookies, params }) => {
     let data = await request.formData()
 
-    const url = host + "/course/admin/asign";
+
+    const url = host + "/course/admin/professor/asign";
     const options = {
       method: 'DELETE',
       headers: {
@@ -91,6 +91,7 @@ export const actions = {
     };
 
     const response = await fetch(url, options);
+
     if (response.status == 200) {
       return { ok: true }
     }
@@ -99,7 +100,7 @@ export const actions = {
       throw error(404, "Api resource not found")
     }
 
-    throw error(500, "Internal error server")
+    throw error(500, "Internal error server: " + response.status + " " + await response.text())
   },
 
   updateponderation: async ({ request, cookies, params }) => {

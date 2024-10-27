@@ -11,8 +11,12 @@
 <style>
 	button {
 		background: initial;
-		border: solid 1px;
 		border-color: red;
 		color: red;
+	}
+
+	button:hover {
+		color: #e60000;
+		text-decoration: underline;
 	}
 </style>

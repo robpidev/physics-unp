@@ -64,11 +64,13 @@
 		gap: 1em;
 		display: flex;
 		justify-content: space-between;
-		border: solid 1px var(--border);
-		padding: 0.5em 1em;
+		align-items: center;
+		/*border: solid 1px var(--border);*/
+		background: var(--bg);
+		padding: 0em 1em;
 		margin: 5px;
 		align-items: center;
-		border-radius: 8px;
+		border-radius: 5px;
 		flex-wrap: wrap;
 	}
 
