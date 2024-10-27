@@ -40,7 +40,6 @@
 					goto('/newuser');
 				} else {
 					server_msg = result.data.message;
-
 					loading = false;
 				}
 			};

@@ -1,5 +1,6 @@
 import { error, fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
+import { request } from "@playwright/test";
 
 export async function load({ params, cookies }) {
   let url = host + '/course/admin/' + params.course;
@@ -49,6 +50,7 @@ export async function load({ params, cookies }) {
 
 }
 
+//** @satisfies {import('./$types').Actions} */
 export const actions = {
   assign: async ({ request, cookies, params }) => {
 
@@ -262,5 +264,86 @@ export const actions = {
     }
 
     throw error(500, "Internal error server")
+  },
+
+  studentInfo: async ({ request, cookies }) => {
+    const data = await request.formData();
+    const url = host + "/student/" + data.get("student_id");
+    const options = {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: cookies.get("token")
+      },
+    }
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      const student = await response.json();
+      return {
+        student
+      }
+    }
+
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    if (response.status == 404) {
+      return fail(404, {
+        error: await response.text(),
+      })
+    }
+
+    const msj = await response.text();
+
+    if (msj.includes("Expected")) {
+      return fail(400, {
+        error: "Code no valid"
+      })
+    }
+
+    throw error(500, "Internal error server: " + response.status + await response.text())
+  },
+
+  enroll: async ({ request, cookies, params }) => {
+    const data = await request.formData();
+    const url = host + "/course/admin/enroll";
+    const options = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: cookies.get("token")
+      },
+      body: new URLSearchParams({
+        student_id: data.get("student_id"),
+        course_id: params.course
+      })
+    }
+
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    throw error(500, "Internal error server: " + response.status + await response.text())
   }
 }
