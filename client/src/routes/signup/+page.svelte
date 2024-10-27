@@ -91,11 +91,11 @@
 			<span>Género:</span>
 			<label>
 				<input type="radio" name="gender" value="true" required />
-				Hombre
+				Masculino
 			</label>
 			<label>
 				<input type="radio" name="gender" value="false" required />
-				Mujer
+				Femenino
 			</label>
 		</div>
 
@@ -167,7 +167,21 @@
 		color: red;
 	}
 	.gender {
+		width: 100%;
 		max-width: 237px;
+	}
+
+	.gender label {
+		display: flex;
+		align-items: center;
+	}
+
+	.gender input {
+		height: min-content;
+	}
+
+	.gender input:focus {
+		border: 0;
 	}
 
 	form > label > input,
@@ -183,7 +197,8 @@
 		/*outline: none;*/
 	}
 	button {
-		margin: 1em 0 0.5em 0;
+		/*margin: 1em 0 0.5em 0;*/
+		width: 100%;
 	}
 
 	button:disabled {
