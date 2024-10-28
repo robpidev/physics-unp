@@ -21,9 +21,7 @@
 		action="?/signin"
 		use:enhance={() => {
 			loading = true;
-			return async ({ update, result }) => {
-				await update();
-
+			return async ({ result }) => {
 				if (result.status === 200) {
 					const u = result.data.user;
 					user.update(() => result.data.user);
