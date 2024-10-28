@@ -6,7 +6,6 @@
 
 	export let form;
 	onMount(async () => {
-		await fetch('/?/logout');
 		user.set(null);
 		localStorage.removeItem('user');
 	});
@@ -21,7 +20,8 @@
 		action="?/signin"
 		use:enhance={() => {
 			loading = true;
-			return async ({ result }) => {
+			return async ({ result, update }) => {
+				await update();
 				if (result.status === 200) {
 					const u = result.data.user;
 					user.update(() => result.data.user);
