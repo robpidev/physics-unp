@@ -1,17 +1,13 @@
 import { fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
 
-// TODO: Add loadin page and evit this
+// TODO: Delete cookie
 export function load({ cookies }) {
-  if (cookies.get('new_token')) {
-    cookies.delete('new_token', { path: '/' });
-  } else {
-    cookies.delete('token', { path: '/' });
-  }
+  cookies.delete('token', { path: '/' });
 }
 
 export const actions = {
-  signin: async ({ request, cookies }) => {
+  signin: async ({ request }) => {
     const data = await request.formData();
 
     const url = host + '/auth/signin';
@@ -37,9 +33,7 @@ export const actions = {
 
     if (response.ok) {
       let data = await response.json();
-      cookies.set('token', data.token, { path: '/', maxAge: 30 * 24 * 60 * 60 });
-      cookies.set('new_token', data.token, { path: '/', maxAge: 30 * 24 * 60 * 60 });
-      return { user: data.user };
+      return { user: data.user, token: data.token };
     }
 
     return fail(500, {
