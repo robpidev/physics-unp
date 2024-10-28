@@ -29,7 +29,6 @@
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
 					// cookie set for 30 days
-					document.cookie = `token=${JSON.stringify(result.data.token)}; max-age=2592000`;
 					if (u.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
