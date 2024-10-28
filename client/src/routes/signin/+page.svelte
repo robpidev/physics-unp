@@ -21,7 +21,9 @@
 		action="?/signin"
 		use:enhance={() => {
 			loading = true;
-			return async ({ result }) => {
+			return async ({ update, result }) => {
+				await update();
+
 				if (result.status === 200) {
 					const u = result.data.user;
 					user.update(() => result.data.user);
@@ -30,6 +32,7 @@
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
 				}
+
 				form = result.data;
 				loading = false;
 			};

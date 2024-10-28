@@ -1,9 +1,13 @@
 import { fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
 
-
+// TODO: Add loadin page and evit this
 export function load({ cookies }) {
-  cookies.delete('token', { path: '/' });
+  if (cookies.get('new_token')) {
+    cookies.delete('new_token', { path: '/' });
+  } else {
+    cookies.delete('token', { path: '/' });
+  }
 }
 
 export const actions = {
@@ -34,6 +38,7 @@ export const actions = {
     if (response.ok) {
       let data = await response.json();
       cookies.set('token', data.token, { path: '/', maxAge: 30 * 24 * 60 * 60 });
+      cookies.set('new_token', data.token, { path: '/', maxAge: 30 * 24 * 60 * 60 });
       return { user: data.user };
     }
 
@@ -41,5 +46,5 @@ export const actions = {
       error: "Error de servidor"
     })
 
-  }
+  },
 }
