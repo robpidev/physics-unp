@@ -5,7 +5,7 @@
 	import { onMount } from 'svelte';
 
 	export let form;
-	onMount(async () => {
+	onMount(() => {
 		user.set(null);
 		localStorage.removeItem('user');
 	});
@@ -26,7 +26,7 @@
 					const u = result.data.user;
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
-					// cookie set for 30 days
+					document.cookie = `token=${result.data.token}; Max-Age=${30 * 24 * 60 * 60 * 1000};path=/;`;
 					if (u.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
