@@ -15,6 +15,9 @@ export async function load({ params, cookies }) {
 
   let response = await fetch(url, options);
   let evaluations;
+
+
+
   if (response.status == 200) {
     evaluations = await response.json();
   }
@@ -24,6 +27,9 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
+  if (response.status == 404) {
+    throw error(500, "Api resource not found")
+  }
 
   url = host + "/course/professor/" + params.course;
   response = await fetch(url, options);
@@ -39,7 +45,11 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
-  throw error(500, "Internal error server")
+  if (response.status == 404) {
+    throw error(500, response.status + " Api Course not found")
+  }
+
+  throw error(500, "Internal error server: " + response.status)
 
 }
 

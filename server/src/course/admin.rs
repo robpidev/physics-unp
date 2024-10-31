@@ -35,9 +35,9 @@ struct UpdatePlaces {
     places: u16,
 }
 
-#[get("/{id}")]
-async fn course_info(id: web::Path<String>) -> impl Responder {
-    match admin::course(&id).await {
+#[get("/{course_id}")]
+async fn course_info(course_id: web::Path<String>) -> impl Responder {
+    match admin::course(&course_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

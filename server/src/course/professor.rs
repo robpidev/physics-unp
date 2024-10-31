@@ -29,8 +29,9 @@ async fn courses(req: HttpRequest) -> impl Responder {
 }
 
 #[get("/{course_id}")]
-async fn info(course_id: web::Path<String>) -> impl Responder {
-    match professor::info(course_id.clone()).await {
+async fn info(course_id: web::Path<String>, req: HttpRequest) -> impl Responder {
+    let professor_id = req.extensions().get::<String>().unwrap().clone();
+    match professor::course_info(course_id.clone(), professor_id).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((code, msg)) => HttpResponse::build(StatusCode::from_u16(code).unwrap()).body(msg),
     }

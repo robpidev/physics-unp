@@ -63,7 +63,10 @@ struct Test {
     weight: u16,
 }
 
-pub async fn info(course_id: String) -> Result<impl Serialize, (u16, String)> {
+pub async fn course_info(
+    course_id: String,
+    professor_id: String,
+) -> Result<impl Serialize, (u16, String)> {
     let query = r#"
 SELECT
 name,
@@ -71,12 +74,17 @@ tests,
 (SELECT
     role
     FROM <-teaches
-    WHERE in = professor:87654321)[0].role
+    WHERE in = type::thing("professor", <int>$professor_id))[0].role
     AS role
-FROM ONLY course:kp7n2n27oedkvphduv29;
+FROM ONLY type::thing("course", $course_id);
     "#;
 
-    let mut resp = match DB.query(query).bind(("course_id", course_id)).await {
+    let mut resp = match DB
+        .query(query)
+        .bind(("professor_id", professor_id))
+        .bind(("course_id", course_id))
+        .await
+    {
         Ok(r) => r,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
