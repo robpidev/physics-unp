@@ -5,8 +5,8 @@
 <section>
 	<h1>Cursos</h1>
 	<div>
+		<!-- TODO: No course not found -->
 		{#if data.courses}
-			<!-- content here -->
 			<ul class="courses">
 				{#each data.courses as course}
 					<li>

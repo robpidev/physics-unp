@@ -29,5 +29,3 @@ export async function load({ cookies }) {
   throw error(500, 'Internal error server');
 
 }
-
-
