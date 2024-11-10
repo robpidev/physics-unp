@@ -2,6 +2,7 @@
 	import { onMount } from 'svelte';
 	import Ponderate from './Ponderate.svelte';
 	import Details from './Details.svelte';
+	import Download from './Download.svelte';
 	export let form;
 	export let data;
 	let search;
@@ -56,18 +57,20 @@
 	</section>
 {/if}
 
-<section>
+<section class="evaluations">
 	{#if data.evaluations.length > 0}
 		<h2>Evaluaciones</h2>
 		<Ponderate tests={data.course.tests} />
 
 		<hr />
 
-		<label>
-			Buscar:
-			<input bind:value={search} type="text" placeholder="Código o nombre" />
-		</label>
-
+		<div class="options">
+			<label>
+				Buscar:
+				<input bind:value={search} type="text" placeholder="Código o nombre" />
+			</label>
+			<Download data={data?.evaluations} />
+		</div>
 		<hr />
 		<div class="table">
 			<span class="head">Código</span>
@@ -158,5 +161,14 @@
 		display: flex;
 		gap: 1em;
 		padding: 1em;
+	}
+
+	.options {
+		display: flex;
+		justify-content: space-between;
+	}
+
+	.evaluations {
+		overflow-x: auto;
 	}
 </style>
