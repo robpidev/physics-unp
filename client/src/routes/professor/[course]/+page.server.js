@@ -4,7 +4,7 @@ import { host } from "$lib/config";
 
 export async function load({ params, cookies }) {
 
-  let url = host + "/evaluation/all/" + params.course;
+  let url = host + "/evaluation/professor/all/" + params.course;
 
   const options = {
     method: 'GET',
@@ -15,14 +15,21 @@ export async function load({ params, cookies }) {
 
   let response = await fetch(url, options);
   let evaluations;
+
+
+
   if (response.status == 200) {
     evaluations = await response.json();
   }
 
   if (response.status == 401) {
+    console.log(await response.text())
     throw error(401, "Authorization no valid")
   }
 
+  if (response.status == 404) {
+    throw error(500, "Api resource not found")
+  }
 
   url = host + "/course/professor/" + params.course;
   response = await fetch(url, options);
@@ -38,7 +45,11 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
-  throw error(500, "Internal error server")
+  if (response.status == 404) {
+    throw error(500, response.status + " Api Course not found")
+  }
+
+  throw error(500, "Internal error server: " + response.status)
 
 }
 
@@ -46,6 +57,14 @@ export const actions = {
   updateponderation: async ({ request, cookies, params }) => {
 
     let data = await request.formData()
+
+
+    const test = Number(data.get("test"))
+    const practice = Number(data.get("practice"))
+
+    if (test + practice > 100 || test + practice < 0 || test < 0 || practice < 0) {
+      throw error(400, "Invalid ponderation")
+    }
 
     const url = host + "/course/professor/" + params.course;
     const options = {
@@ -56,8 +75,8 @@ export const actions = {
       },
       body: new URLSearchParams(
         {
-          test: data.get("test"),
-          practice: data.get("practice")
+          test: Number(data.get("test")),
+          practice: Number(data.get("practice")),
         })
     };
 
@@ -70,12 +89,16 @@ export const actions = {
       throw error(401, "Authorization no valid")
     }
 
-    throw error(500, "Internal error server")
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
+    throw error(500, "Internal error server" + response.status + " " + await response.text())
   },
 
   update_score: async ({ request, cookies, params }) => {
     let data = await request.formData();
-    let url = host + "/evaluation";
+    let url = host + "/evaluation/professor";
 
     const options = {
       method: 'PATCH',
@@ -107,8 +130,15 @@ export const actions = {
     }
 
     if (response.status == 400) {
+      const error = await response.text();
+      if (error.includes("Update no avilable")) {
+        return fail(400, {
+          error: "No está abilitada la actualización de esta nota"
+        })
+      }
+
       return fail(400, {
-        error: await response.text(),
+        error
       })
     }
 
@@ -117,7 +147,7 @@ export const actions = {
 
   add_score: async ({ request, cookies, params }) => {
     const data = await request.formData();
-    const url = host + "/evaluation";
+    const url = host + "/evaluation/professor";
     const options = {
       method: 'POST',
       headers: {
@@ -141,13 +171,23 @@ export const actions = {
       }
     }
 
+
     if (response.status == 401) {
       throw error(401, "Authorization no valid")
     }
 
     if (response.status == 400) {
+
+      const error = await response.text();
+
+      if (error.includes("Register no avilable")) {
+        return fail(400, {
+          error: "El registro para esta nota no está abilitado"
+        })
+      }
+
       return fail(400, {
-        error: await response.text(),
+        error
       })
     }
 

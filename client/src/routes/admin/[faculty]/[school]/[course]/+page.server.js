@@ -22,7 +22,11 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
-  url = host + "/evaluation/all/" + params.course;
+  if (response.status == 404) {
+    throw error(404, "Course not found")
+  }
+
+  url = host + "/evaluation/professor/all/" + params.course;
 
   response = await fetch(url, options);
   if (response.status == 200) {
@@ -37,16 +41,21 @@ export async function load({ params, cookies }) {
     throw error(401, "Authorization no valid")
   }
 
+  if (response.status == 404) {
+    throw error(404, "Api resource not found")
+  }
+
   throw error(500, "Internal error server")
 
 }
 
+//** @satisfies {import('./$types').Actions} */
 export const actions = {
   assign: async ({ request, cookies, params }) => {
 
     let data = await request.formData()
 
-    const url = host + "/course/admin/asign";
+    const url = host + "/course/admin/professor/asign";
     const options = {
       method: 'POST',
       headers: {
@@ -70,7 +79,8 @@ export const actions = {
   unassign: async ({ request, cookies, params }) => {
     let data = await request.formData()
 
-    const url = host + "/course/admin/asign";
+
+    const url = host + "/course/admin/professor/asign";
     const options = {
       method: 'DELETE',
       headers: {
@@ -81,16 +91,29 @@ export const actions = {
     };
 
     const response = await fetch(url, options);
+
     if (response.status == 200) {
       return { ok: true }
     }
 
-    throw error(500, "Internal error server")
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
+    throw error(500, "Internal error server: " + response.status + " " + await response.text())
   },
 
   updateponderation: async ({ request, cookies, params }) => {
 
     let data = await request.formData()
+
+
+    const test = Number(data.get("test"))
+    const practice = Number(data.get("practice"))
+
+    if (test + practice > 100 || test + practice < 0 || test < 0 || practice < 0) {
+      throw error(400, "Invalid ponderation")
+    }
 
     const url = host + "/course/professor/" + params.course;
     const options = {
@@ -101,8 +124,8 @@ export const actions = {
       },
       body: new URLSearchParams(
         {
-          test: data.get("test"),
-          practice: data.get("practice")
+          test: Number(data.get("test")),
+          practice: Number(data.get("practice")),
         })
     };
 
@@ -115,12 +138,16 @@ export const actions = {
       throw error(401, "Authorization no valid")
     }
 
-    throw error(500, "Internal error server")
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
+    throw error(500, "Internal error server" + response.status + " " + await response.text())
   },
 
   update_score: async ({ request, cookies, params }) => {
     let data = await request.formData();
-    let url = host + "/evaluation";
+    let url = host + "/evaluation/professor";
 
     const options = {
       method: 'PATCH',
@@ -150,6 +177,10 @@ export const actions = {
       throw error(401, "Authorization no valid")
     }
 
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
     if (response.status == 400) {
       return fail(400, {
         error: await response.text(),
@@ -162,7 +193,7 @@ export const actions = {
   add_score: async ({ request, cookies, params }) => {
     const data = await request.formData();
 
-    const url = host + "/evaluation";
+    const url = host + "/evaluation/professor";
     const options = {
       method: 'POST',
       headers: {
@@ -194,6 +225,10 @@ export const actions = {
       return fail(400, {
         error: await response.text(),
       })
+    }
+
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
     }
 
     throw error(500, "Internal error server")
@@ -233,6 +268,91 @@ export const actions = {
       })
     }
 
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
     throw error(500, "Internal error server")
+  },
+
+  studentInfo: async ({ request, cookies }) => {
+    const data = await request.formData();
+    const url = host + "/student/" + data.get("student_id");
+    const options = {
+      method: 'GET',
+      headers: {
+        'content-type': 'application/json',
+        Authorization: cookies.get("token")
+      },
+    }
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      const student = await response.json();
+      return {
+        student
+      }
+    }
+
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    if (response.status == 404) {
+      return fail(404, {
+        error: await response.text(),
+      })
+    }
+
+    const msj = await response.text();
+
+    if (msj.includes("Expected")) {
+      return fail(400, {
+        error: "Code no valid"
+      })
+    }
+
+    throw error(500, "Internal error server: " + response.status + await response.text())
+  },
+
+  enroll: async ({ request, cookies, params }) => {
+    const data = await request.formData();
+    const url = host + "/course/admin/enroll";
+    const options = {
+      method: 'POST',
+      headers: {
+        'content-type': 'application/x-www-form-urlencoded',
+        Authorization: cookies.get("token")
+      },
+      body: new URLSearchParams({
+        student_id: data.get("student_id"),
+        course_id: params.course
+      })
+    }
+
+
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
+    }
+
+    if (response.status == 404) {
+      throw error(404, "Api resource not found")
+    }
+
+    if (response.status == 400) {
+      return fail(400, {
+        error: await response.text(),
+      })
+    }
+
+    throw error(500, "Internal error server: " + response.status + await response.text())
   }
 }

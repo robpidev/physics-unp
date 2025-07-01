@@ -87,23 +87,9 @@ COMMIT TRANSACTION;
     }
 }
 
-pub async fn info(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    let query = r#"SELECT * FROM type::thing("course", $course_id)"#;
-
-    let mut resp = match DB.query(query).bind(("course_id", course_id.clone())).await {
-        Ok(r) => r,
-        Err(e) => return Err((500, format!("DB conection Error: {}", e.to_string()))),
-    };
-
-    let course = match resp.take::<Option<CourseTest>>(0) {
-        Ok(c) => c,
-        Err(e) => return Err((500, format!("DB Error parse: {}", e.to_string()))),
-    };
-
-    match course {
-        Some(c) => Ok(c),
-        None => Err((400, format!("Course dont exists: {}", course_id))),
-    }
+#[derive(Deserialize)]
+struct CourseDeleted {
+    name: String,
 }
 
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
@@ -114,7 +100,7 @@ pub async fn delete(id: &String) -> Result<String, (u16, String)> {
         Err(e) => return Err((500, format!("DB id Error: {}", e.to_string()))),
     };
 
-    let course = match resp.take::<Option<CourseDB>>(0) {
+    let course = match resp.take::<Option<CourseDeleted>>(0) {
         Ok(c) => c,
         Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
     };
@@ -151,23 +137,6 @@ FROM type::thing("school", $school_id)->offers->course;
     match resp.take::<Vec<CourseDB>>(0) {
         Ok(resp) => Ok(resp.into_iter().map(|c| c.map()).collect::<Vec<Course>>()),
         Err(e) => Err((500, format!("DB Error: {}", e.to_string()))),
-    }
-}
-
-pub async fn exists(id: &String) -> Result<bool, (u16, String)> {
-    let query = format!("SELECT * FROM ONLY course:{};", id);
-
-    let mut resp = match DB.query(query).await {
-        Ok(resp) => resp,
-        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
-    };
-
-    match resp.take::<Option<CourseDB>>(0) {
-        Ok(c) => match c {
-            Some(_) => Ok(true),
-            None => Ok(false),
-        },
-        Err(e) => Err((500, format!("Incorrect course ID: {}", e.to_string()))),
     }
 }
 

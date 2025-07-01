@@ -7,6 +7,7 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
         web::scope("/student")
             .wrap(Admin)
             .service(get_by_school)
+            .service(info)
             .service(get_by_course),
     );
 }
@@ -19,6 +20,14 @@ async fn get_by_school(_data: web::Path<String>) -> impl Responder {
 #[get("/course/{course}")]
 async fn get_by_course(course_id: web::Path<String>) -> impl Responder {
     match services::students_by_course(&course_id).await {
+        Ok(s) => HttpResponse::Ok().json(s),
+        Err((n, e)) => HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
+    }
+}
+
+#[get("/{id}")]
+async fn info(id: web::Path<String>) -> impl Responder {
+    match services::info(id.clone()).await {
         Ok(s) => HttpResponse::Ok().json(s),
         Err((n, e)) => HttpResponse::build(StatusCode::from_u16(n).unwrap()).body(e),
     }

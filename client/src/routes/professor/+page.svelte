@@ -4,24 +4,24 @@
 
 <section>
 	<h1>Cursos</h1>
-	<div class="legend">
-		<div class="box-t">Teoría</div>
-		<div class="box-p">Práctica</div>
-	</div>
 	<div>
-		<ul class="courses">
-			{#each data.courses as course}
-				<li>
-					<a href="/professor/{course.id}" data-sveltekit-preload-data="false">
-						<span class="name">{course.name}</span>
-						<div class="info">
-							<span class={course.role}>{course.role == 'theory' ? 'Teoría' : 'Práctica'}</span>
-							<span class="school">{course.school}</span>
-						</div>
-					</a>
-				</li>
-			{/each}
-		</ul>
+		<!-- TODO: No course not found -->
+		{#if data.courses}
+			<ul class="courses">
+				{#each data.courses as course}
+					<li>
+						<a href="/professor/{course.id}" data-sveltekit-preload-data="false">
+							<span class="name">{course.name}</span>
+							<div class="info">
+								<span class={course.role}>{course.role == 'theory' ? 'Teoría' : 'Práctica'}</span>
+								<span class="school">{course.school}</span>
+							</div>
+						</a>
+					</li>
+				{/each}
+			</ul>
+		{:else}
+			<p>No se a asignado ningún curso.</p>{/if}
 	</div>
 </section>
 

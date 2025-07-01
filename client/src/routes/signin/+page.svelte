@@ -5,10 +5,12 @@
 	import { onMount } from 'svelte';
 
 	export let form;
-	onMount(async () => {
-		await fetch('/?/logout');
-		user.update(() => null);
+	onMount(() => {
+		user.set(null);
+		localStorage.removeItem('user');
 	});
+
+	let loading = false;
 </script>
 
 <div class="content">
@@ -17,17 +19,21 @@
 		method="POST"
 		action="?/signin"
 		use:enhance={() => {
-			return async ({ result }) => {
+			loading = true;
+			return async ({ result, update }) => {
+				await update();
 				if (result.status === 200) {
 					const u = result.data.user;
 					user.update(() => result.data.user);
 					localStorage.setItem('user', JSON.stringify(result.data.user));
+					document.cookie = `token=${result.data.token}; Max-Age=${30 * 24 * 60 * 60 * 1000};path=/;`;
 					if (u.role === 'professor') goto('/professor');
 					else if (u.role === 'student') goto('/student');
 					else if (u.role === 'admin') goto('/admin');
 				}
 
 				form = result.data;
+				loading = false;
 			};
 		}}
 	>
@@ -39,18 +45,22 @@
 			<span>Contraseña: </span>
 			<input name="password" type="password" required />
 		</label>
-		<button type="submit">Iniciar Sesión</button>
+		<button disabled={loading} type="submit">Iniciar Sesión</button>
 	</form>
 
 	{#if form?.error}
 		<p class="error">{form.error}</p>
 	{/if}
 
-	<span
-		>¿No tienes cuenta?
+	{#if loading}
+		<p class="loading">Iniciando sesión...</p>
+	{:else}
+		<span
+			>¿No tienes cuenta?
 
-		<a href="/signup">Registrate</a>
-	</span>
+			<a href="/signup">Registrate</a>
+		</span>
+	{/if}
 </div>
 
 <style>
@@ -99,5 +109,9 @@
 
 	.error {
 		color: red;
+	}
+
+	.loading {
+		color: green;
 	}
 </style>

@@ -3,6 +3,8 @@ use surrealdb::sql::Thing;
 
 use crate::shared::repository::db::DB;
 
+pub mod student;
+
 pub async fn register_evaluation(
     course_id: String,
     student_id: String,

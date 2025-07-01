@@ -29,7 +29,8 @@
 		{#each data.data as school}
 			<li class="school">
 				<a
-					on:click={() => breadcrum.update((url) => url.push({ path: '/otro', name: '/hola' }))}
+					on:click={() =>
+						breadcrum.update((path) => [...path, { name: school.name, url: school.id }])}
 					href="{$page.params.faculty}/{school.id}">{school.name}</a
 				>
 			</li>
@@ -49,7 +50,6 @@
 	}
 
 	.school {
-		width: 100%;
 		border-radius: 8px;
 	}
 
@@ -62,6 +62,10 @@
 	}
 
 	a {
+		display: block;
+		background: var(--bg);
 		font-weight: 600;
+		border-radius: 5px;
+		padding: 0.3em 1em;
 	}
 </style>

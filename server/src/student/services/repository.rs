@@ -27,3 +27,23 @@ FROM course:{}<-enrolled "#,
         Err(e) => return Err((500, format!("DB parse error: {}", e))),
     }
 }
+
+// TODO: Return student only becomes a the school
+pub async fn info(student_id: String) -> Result<impl Serialize, (u16, String)> {
+    let query = r#"SELECT * omit password FROM type::thing('student', <int>$student_id)"#;
+
+    let mut resp = match DB.query(query).bind(("student_id", student_id)).await {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let student: Option<StudentDB> = match resp.take(0) {
+        Ok(s) => s,
+        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
+    };
+
+    match student {
+        Some(s) => Ok(s),
+        None => Err((404, "Student not found".to_string())),
+    }
+}

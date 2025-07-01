@@ -23,6 +23,8 @@
 			cod_msg = 'Código incorrecto';
 		}
 	}
+
+	let loading = false;
 </script>
 
 <div class="content">
@@ -31,12 +33,14 @@
 		method="POST"
 		action="?/signup"
 		use:enhance={() => {
+			loading = true;
 			return async ({ result }) => {
 				if (result.status === 200) {
 					user.update(() => result.data.user);
 					goto('/newuser');
 				} else {
 					server_msg = result.data.message;
+					loading = false;
 				}
 			};
 		}}
@@ -91,11 +95,11 @@
 			<span>Género:</span>
 			<label>
 				<input type="radio" name="gender" value="true" required />
-				Hombre
+				Masculino
 			</label>
 			<label>
 				<input type="radio" name="gender" value="false" required />
-				Mujer
+				Femenino
 			</label>
 		</div>
 
@@ -110,17 +114,21 @@
 			</label>
 		{/if}
 
-		<button type="submit" disabled={cod_msg != '' || pass != pass1}>Registrarse</button>
+		<button type="submit" disabled={cod_msg != '' || pass != pass1 || loading}>Registrarse</button>
 	</form>
 
 	{#if server_msg != ''}
 		<p class="error_server">{server_msg}</p>
 	{/if}
 
-	<p>
-		¿Ya tienes una cuenta?
-		<a href="/signin">Inicia sesión</a>
-	</p>
+	{#if loading}
+		<p class="loading">Registrando...</p>
+	{:else}
+		<p>
+			¿Ya tienes una cuenta?
+			<a href="/signin">Inicia sesión</a>
+		</p>
+	{/if}
 </div>
 
 <style>
@@ -167,7 +175,21 @@
 		color: red;
 	}
 	.gender {
+		width: 100%;
 		max-width: 237px;
+	}
+
+	.gender label {
+		display: flex;
+		align-items: center;
+	}
+
+	.gender input {
+		height: min-content;
+	}
+
+	.gender input:focus {
+		border: 0;
 	}
 
 	form > label > input,
@@ -183,7 +205,8 @@
 		/*outline: none;*/
 	}
 	button {
-		margin: 1em 0 0.5em 0;
+		/*margin: 1em 0 0.5em 0;*/
+		width: 100%;
 	}
 
 	button:disabled {
@@ -202,5 +225,8 @@
 
 	a:active {
 		color: var(--active);
+	}
+	.loading {
+		color: green;
 	}
 </style>

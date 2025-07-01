@@ -23,7 +23,16 @@ impl Names {
             .split_whitespace()
             .map(|name| {
                 if name.chars().all(|c| c.is_alphabetic()) {
-                    Ok(name[0..1].to_uppercase() + name[1..].to_lowercase().as_str())
+                    let mut chars = name.chars();
+
+                    let first_char = match chars.next() {
+                        Some(c) => c.to_uppercase().collect::<String>(),
+                        None => {
+                            return Err("Names must only contain alphabetic characters".to_string())
+                        }
+                    };
+
+                    Ok(first_char + &chars.as_str().to_lowercase())
                 } else {
                     return Err("Names must only contain alphabetic characters".to_string());
                 }
@@ -50,4 +59,7 @@ fn test_names() {
 
     let names = Names::new("dAnieala   ElizaBeth   FErnandez  ".to_string());
     assert_eq!(names.unwrap().names, "Danieala Elizabeth Fernandez");
+
+    let names = Names::new("Ánieala   ElizaBeth   FErnandez  ".to_string());
+    assert_eq!(names.unwrap().names, "Ánieala Elizabeth Fernandez");
 }

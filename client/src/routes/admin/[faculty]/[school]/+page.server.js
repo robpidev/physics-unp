@@ -65,7 +65,8 @@ export const actions = {
   },
 
   delete: async ({ request, cookies }) => {
-    const url = host + '/course/professor/delete/enyy3yfalin7iq2wj0yc';
+    const data = await request.formData();
+    const url = host + '/course/admin/' + data.get('course_id');
     const options = {
       method: 'DELETE',
       headers: {
@@ -75,10 +76,30 @@ export const actions = {
       body: new URLSearchParams({ name: 'Lab. Física III' })
     };
 
-    try {
-      const response = await fetch(url, options);
-      const data = await response.json();
-    } catch (error) {
+    const response = await fetch(url, options);
+
+    if (response.status == 200) {
+      return {
+        ok: true
+      }
     }
+
+    if (response.status == 400) {
+      const error = await response.text()
+      return fail(400, {
+        msg: "Curso no existe"
+      })
+    }
+
+    if (response.status == 401) {
+      throw error(401, 'Unauthorized');
+    }
+
+    if (response.status == 404) {
+      throw error(404, 'Api resource not found');
+    }
+
+
+    throw error(500, "Internal error server")
   }
 }

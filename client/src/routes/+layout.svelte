@@ -9,8 +9,8 @@
 	});
 
 	function signout() {
-		user.set(null);
-		localStorage.removeItem('user');
+		//user.set(null);
+		//localStorage.removeItem('user');
 		//goto('/');
 	}
 </script>
@@ -116,9 +116,15 @@
 	}
 
 	main {
-		margin: 1em;
+		/*margin: 1em;*/
 		display: flex;
 		align-items: center;
 		flex-direction: column;
+	}
+
+	@media (min-width: 768px) {
+		main {
+			margin: 1em auto;
+		}
 	}
 </style>

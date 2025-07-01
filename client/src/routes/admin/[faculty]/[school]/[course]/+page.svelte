@@ -3,6 +3,7 @@
 	import Ponderate from './Ponderate.svelte';
 	import Info from './Info.svelte';
 	import Professors from './Professors.svelte';
+	import AddStudent from './AddStudent.svelte';
 
 	let search;
 	let student = null;
@@ -46,7 +47,7 @@
 {/if}
 
 <section>
-	{#if data.evaluations.length > 0}
+	{#if data?.evaluations.length > 0}
 		<h2>Evaluaciones</h2>
 		<Ponderate tests={data.course.tests} />
 
@@ -76,7 +77,11 @@
 				{/if}
 			{/each}
 		</div>
+	{:else}
+		<p>No hay alumnos registrados</p>
 	{/if}
+	<hr />
+	<AddStudent {form} />
 </section>
 
 <style>

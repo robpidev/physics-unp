@@ -49,3 +49,53 @@ FROM type::thing("professor", <int>$professor_id)->teaches;
         Err(e) => return Err((500, format!("DB error to parse: {}", e.to_string()))),
     }
 }
+
+#[derive(Deserialize, Serialize)]
+struct CourseInfo {
+    name: String,
+    role: String,
+    tests: Vec<Test>,
+}
+
+#[derive(Deserialize, Serialize)]
+struct Test {
+    name: String,
+    weight: u16,
+}
+
+pub async fn course_info(
+    course_id: String,
+    professor_id: String,
+) -> Result<impl Serialize, (u16, String)> {
+    let query = r#"
+SELECT
+name,
+tests,
+(SELECT
+    role
+    FROM <-teaches
+    WHERE in = type::thing("professor", <int>$professor_id))[0].role
+    AS role
+FROM ONLY type::thing("course", $course_id);
+    "#;
+
+    let mut resp = match DB
+        .query(query)
+        .bind(("professor_id", professor_id))
+        .bind(("course_id", course_id))
+        .await
+    {
+        Ok(r) => r,
+        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+    };
+
+    let course = match resp.take::<Option<CourseInfo>>(0) {
+        Ok(c) => c,
+        Err(e) => return Err((500, format!("DB error to parse: {}", e.to_string()))),
+    };
+
+    match course {
+        Some(course) => Ok(course),
+        None => Err((404, "Course not found".to_string())),
+    }
+}

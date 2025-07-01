@@ -17,3 +17,16 @@
 	<input type="text" name="role" hidden value={role} />
 	<button disabled={creating} type="send"><slot /></button>
 </form>
+
+<style>
+	button {
+		height: min-content;
+		background: inherit;
+		color: var(--primary);
+	}
+
+	button:hover {
+		text-decoration: underline;
+		color: var(--color-600);
+	}
+</style>

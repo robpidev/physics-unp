@@ -1,7 +1,10 @@
 use serde::Serialize;
 
 pub mod admin;
+pub mod enroll;
 pub mod professor;
+pub mod student;
+
 mod repository;
 
 pub async fn delete(id: &String) -> Result<String, (u16, String)> {
@@ -16,28 +19,8 @@ pub async fn get_by_school(id: &String) -> Result<impl Serialize, (u16, String)>
     repository::get_by_school(id).await
 }
 
-pub async fn register(course_id: &String, student_id: &String) -> Result<String, (u16, String)> {
-    if !repository::exists(course_id).await? {
-        return Err((400, format!("Course dont exists: {}", course_id)));
-    }
-
-    repository::enroll::new(student_id, course_id).await
-}
-
 pub async fn unregister(course_id: &String, student_id: &String) -> Result<String, (u16, String)> {
     repository::enroll::unregister(student_id, course_id).await
-}
-
-pub async fn get_by_student(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::student::courses(student_id).await
-}
-
-pub async fn get_enrolled(student_id: &String) -> Result<impl Serialize, (u16, String)> {
-    repository::enroll::students(student_id).await
-}
-
-pub async fn get_course(course_id: String) -> Result<impl Serialize, (u16, String)> {
-    repository::info(course_id).await
 }
 
 pub async fn update_test(

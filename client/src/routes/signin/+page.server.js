@@ -1,12 +1,13 @@
 import { fail } from "@sveltejs/kit";
 import { host } from "$lib/config";
 
+// TODO: Delete cookie not found
 export function load({ cookies }) {
   cookies.delete('token', { path: '/' });
 }
 
 export const actions = {
-  signin: async ({ request, cookies }) => {
+  signin: async ({ request }) => {
     const data = await request.formData();
 
     const url = host + '/auth/signin';
@@ -32,13 +33,13 @@ export const actions = {
 
     if (response.ok) {
       let data = await response.json();
-      cookies.set('token', data.token, { path: '/' });
-      return { user: data.user };
+      //cookies.set('token', data.token, { path: '/' });
+      return { user: data.user, token: data.token };
     }
 
     return fail(500, {
       error: "Error de servidor"
     })
 
-  }
+  },
 }

@@ -33,17 +33,17 @@
 	{#if data?.calendar}
 		<ul class="calendar">
 			<li class="row head">
-				<span>Para</span>
-				<span>Desde</span>
-				<span>Hasta</span>
-				<div>Eliminar</div>
+				<span class="col">Para</span>
+				<span class="col">Desde</span>
+				<span class="col">Hasta</span>
+				<div class="col">Eliminar</div>
 			</li>
 			{#each data.calendar as cal}
-				<li class="row">
-					<span class="col">{cal.todo}</span>
+				<li class="row info">
+					<span class="col todo">{cal.todo}</span>
 					<span class="col right">{dateHandle(cal.start) + ', ' + timeHandle(cal.start)}</span>
 					<span class="col right">{dateHandle(cal.end) + ', ' + timeHandle(cal.end)}</span>
-					<Delete id={cal.id} />
+					<Delete class="col" id={cal.id} />
 				</li>
 			{/each}
 			<li></li>
@@ -66,10 +66,10 @@
 	}
 
 	.row {
-		border-radius: 4px;
 		display: flex;
 		justify-content: space-between;
-		padding: 5px;
+		align-items: center;
+		padding: 0 5px;
 		flex-wrap: wrap;
 	}
 
@@ -77,7 +77,22 @@
 		width: 5em;
 	}
 
+	ul .info {
+		border-radius: 4px;
+		background: var(--bg);
+	}
+
 	.head {
-		border: solid 1px;
+		border-bottom: solid 1px var(--border);
+		margin-bottom: 2px;
+	}
+
+	.col {
+		min-width: 150px;
+		flex-grow: 1;
+	}
+
+	.todo {
+		background: var(--green);
 	}
 </style>

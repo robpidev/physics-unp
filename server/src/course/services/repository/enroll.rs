@@ -1,37 +1,11 @@
-use super::CourseDB;
 use crate::shared::repository::db::DB;
-use serde::{Deserialize, Serialize};
+use serde::Deserialize;
 use surrealdb::sql::Thing;
 
 #[derive(Deserialize)]
 pub struct Enroll {
     #[allow(dead_code)]
     id: Thing,
-}
-
-pub async fn new(student_id: &String, course_id: &String) -> Result<String, (u16, String)> {
-    let query = format!(
-        r#"
-select id from RELATE student:{}->enrolled->course:{};
-"#,
-        student_id, course_id
-    );
-
-    let mut resp = match DB.query(query).await {
-        Ok(r) => r,
-        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
-    };
-
-    match resp.take::<Option<Enroll>>(0) {
-        Ok(c) => match c {
-            Some(_) => Ok(format!(
-                "Student {} enrolled in course {}",
-                student_id, course_id
-            )),
-            None => Err((400, format!("DB resp None"))),
-        },
-        Err(e) => Err((400, format!("Student already enrolled: {}", e.to_string()))),
-    }
 }
 
 pub async fn unregister(student_id: &String, course_id: &String) -> Result<String, (u16, String)> {
@@ -51,25 +25,45 @@ DELETE enrolled where in=student:{} && out=course:{} return before
     }
 }
 
-pub async fn students(id: &String) -> Result<impl Serialize, (u16, String)> {
-    let query = format!(
-        r#"
-(select out.* as course from student:{id}->enrolled)[0].course
-"#,
-    );
+pub async fn enroll(student_id: String, course_id: String) -> Result<String, (u16, String)> {
+    let query = r#"
+IF(((select (<-has<-school)[0] as id from only type::thing('student', <int> $student_id)).id = (select (<-offers<-school)[0] as id from only type::thing('course', $course_id)).id)) {
+IF (
+    SELECT count(<-enrolled) < places AS places
+    FROM ONLY type::thing('course', $course_id)
+).places {
+	IF count(
+        SELECT id FROM enrolled
+                WHERE out = type::thing('course', $course_id)
+                AND in = type::thing('student', <int> $student_id)
+            ) == 0 {
+                RELATE (type::thing('student', <int> $student_id))
+                -> enrolled ->
+                (type::thing('course', $course_id));
+			} else {
+                THROW 'Already enrolled';
+            };
+	} ELSE {
+		THROW 'All places ocupateds o course don\'t exists';
+}}
+ElSE {
+    THROW "Course dont exist or isnt offers for you school"
+}
+;
+"#;
 
-    let mut resp = match DB.query(query).await {
+    let resp = match DB
+        .query(query)
+        .bind(("course_id", course_id))
+        .bind(("student_id", student_id))
+        .await
+    {
         Ok(r) => r,
-        Err(e) => return Err((500, format!("DB Error: {}", e.to_string()))),
+        Err(e) => return Err((500, format!("DB Connect Error: {}", e.to_string()))),
     };
 
-    let course = match resp.take::<Option<CourseDB>>(0) {
-        Ok(c) => c,
-        Err(e) => return Err((500, format!("DB parse error: {}", e.to_string()))),
-    };
-
-    match course {
-        Some(c) => Ok(c.map()),
-        None => Err((204, format!("Not enrolled: {}", id))),
+    match resp.check() {
+        Ok(_) => return Ok(format!("Course enrolled")),
+        Err(e) => return Err((400, format!("DB relate error: {}", e.to_string()))),
     }
 }

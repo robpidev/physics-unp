@@ -1,69 +1,104 @@
 <script>
 	import { onMount } from 'svelte';
+	import Courses from './Courses.svelte';
+	import Evaluations from './Evaluations.svelte';
 	import { enhance } from '$app/forms';
+
+	let disabled = false;
+	let selected = null;
+
 	let usr;
+
+	export let data;
 	onMount(() => {
 		usr = JSON.parse(localStorage.getItem('user'));
 	});
 	//const user_suscribe = user.subscribe((u) => (usr = u));
 	//onDestroy(user_suscribe);
-	export let data;
-	let courses = null;
+	export let form;
 </script>
 
 <div class="page">
-	<div class="student">
-		<span class="name">
-			{usr?.names}
-			{usr?.last_name1}
-			{usr?.last_name2}
-		</span>
-		<span class="code">{usr?.id}</span>
-	</div>
-	<div class="course">
-		{#if data.course != null}
-			<span>Curso matriculado: </span>
-			<span>{data.course?.name}</span>
-		{:else if courses === null}
-			<span>No hay curso matriculado</span>
-			<form
-				method="POST"
-				action="?/courses"
-				use:enhance={() => {
-					return async ({ result }) => {
-						courses = result.data.courses;
-					};
-				}}
-			>
-				<button>Inscribirme</button>
-			</form>
-		{:else}
-			<span class="title">Escoge un curso</span>
-			<form class="courses" action="?/enroll" method="POST" use:enhance>
-				{#each courses as course, id}
-					<label>
-						<input type="radio" name="course_id" value={courses[id].id} required />
-						<span>{course.name}</span>
-					</label>
-				{/each}
+	<section>
+		<div class="info">
+			<span class="name">
+				{usr?.names}
+				{usr?.last_name1}
+				{usr?.last_name2}
+			</span>
+			<span class="code">{(usr?.id).toString().length == 10 ? '' : '0'}{usr?.id}</span>
+		</div>
+	</section>
+	<section>
+		<h2>Cursos matrículados</h2>
+		<hr />
 
-				{#if courses.length === 0}
-					<span>No hay cursos disponibles</span>
-				{:else}
-					<button type="submit" disabled={courses.length === 0}>Inscribirme</button>
-				{/if}
-			</form>
+		{#if data?.courses.length > 0}
+			<ul class="courses">
+				{#each data?.courses as course}
+					<li class="course">
+						<span class="course-name">{course?.name}</span>
+						{#if selected != course.id}
+							<form
+								action="?/scores"
+								method="post"
+								use:enhance={() => {
+									disabled = true;
+									return async ({ update }) => {
+										await update();
+										selected = course.id;
+										disabled = false;
+									};
+								}}
+							>
+								<input
+									hidden
+									on:submit|preventDefault
+									type="text"
+									name="course_id"
+									value={course?.id}
+								/>
+								<button type="submit" {disabled}>Ver notas</button>
+							</form>
+						{/if}
+					</li>
+					<!-- content here -->
+				{/each}
+			</ul>
+		{:else}
+			<Courses />
 		{/if}
-	</div>
+	</section>
+
+	{#if form?.evaluations}
+		<!-- content here -->
+		<section>
+			<Evaluations evaluations={form.evaluations} />
+		</section>
+	{/if}
 </div>
 
 <style>
-	.page {
-		margin: 1em;
+	section:nth-child(1) {
+		background: initial;
+	}
+	.info {
 		display: flex;
-		flex-wrap: wrap;
-		gap: 20px;
-		/*background: #f9f;*/
+		width: 100%;
+		align-items: center;
+		justify-content: space-between;
+	}
+	section {
+		width: 100%;
+		padding: 1em;
+	}
+
+	.page {
+		display: flex;
+		gap: 1em;
+		flex-direction: column;
+		width: 100%;
+		max-width: 1000px;
 	}
 
 	.name {
@@ -71,20 +106,23 @@
 		font-weight: 700;
 	}
 
-	.student,
-	.course {
-		height: min-content;
-		border: solid 1px var(--border);
-		box-shadow:
-			0 4px 6px -1px rgb(0 0 0 / 0.1),
-			0 2px 4px -2px rgb(0 0 0 / 0.1);
+	ul {
+		list-style: none;
+		padding: 0;
+		margin: 0;
 		display: flex;
-		padding: 1em;
-		border-radius: 12px;
-		flex-grow: 1;
 		flex-direction: column;
-		min-width: 240px;
 		gap: 1em;
+	}
+
+	.course {
+		display: flex;
+		background: var(--bg);
+		justify-content: space-between;
+		align-items: center;
+		padding: 0 0.5em;
+		border-radius: 5px;
+		height: 2em;
 	}
 
 	.courses {
@@ -94,13 +132,20 @@
 		position: relative;
 	}
 
-	.title {
+	button {
+		background: inherit;
 		color: var(--primary);
-		font-weight: 700;
 	}
 
-	button {
-		max-width: min-content;
-		margin: 1em auto;
+	button:hover {
+		color: var(--color-600);
+	}
+
+	button:active {
+		color: var(--color-700);
+	}
+
+	button:disabled {
+		color: var(--color-300);
 	}
 </style>

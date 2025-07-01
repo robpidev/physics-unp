@@ -3,7 +3,8 @@ import { error } from '@sveltejs/kit';
 
 export async function load({ cookies }) {
 
-  const url = host + "/course/enrolled"
+
+  const url = host + "/course/student/enrolled";
   const options = {
     method: 'GET',
     headers: {
@@ -16,7 +17,7 @@ export async function load({ cookies }) {
   if (response.status === 200) {
     const data = await response.json();
     return {
-      course: data
+      courses: data
     };
   }
 
@@ -36,13 +37,17 @@ export async function load({ cookies }) {
     throw error(400, 'Authorization header not found');
   }
 
+  if (response.status === 404) {
+    throw error(404, 'Api Not found');
+  }
+
   throw error(500, 'Internal error server')
 
 }
 
 export const actions = {
   courses: async ({ cookies }) => {
-    const url = host + "/course"
+    const url = host + "/course/student/avilables"
     const options = {
       method: 'GET',
       headers: {
@@ -73,7 +78,7 @@ export const actions = {
 
   enroll: async ({ request, cookies }) => {
     const data = await request.formData();
-    const url = host + '/course/register/' + data.get('course_id');
+    const url = host + '/course/student/enroll/' + data.get('course_id');
     const options = {
       method: 'POST',
       headers: {
@@ -81,16 +86,40 @@ export const actions = {
       }
     };
 
-    try {
-      const response = await fetch(url, options);
-      const data = await response.text();
+    const response = await fetch(url, options);
+
+    if (response.status === 200) {
       return {
-        msj: data,
-        ok: true,
+        msj: await response.text()
       }
-    } catch (error) {
-      throw error(500, 'Internal error server')
     }
+
+    if (response.status === 400) {
+      throw error(400, "Todas las vacantes ocupadas")
+    }
+
+    throw error(500, 'Internal error server: ' + await response.text())
+  },
+
+  scores: async ({ request, cookies }) => {
+    const data = await request.formData();
+    const url = host + '/evaluation/student/' + data.get("course_id");
+    const options = {
+      method: 'GET',
+      headers: {
+        Authorization: cookies.get('token')
+      }
+    }
+
+    const response = await fetch(url, options);
+
+    if (response.status === 200) {
+      return {
+        evaluations: await response.json()
+      }
+    }
+
+    throw error(500, "Internal server error: " + await response.text())
   }
 }
 

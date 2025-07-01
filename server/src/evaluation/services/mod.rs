@@ -1,6 +1,7 @@
 use serde::Serialize;
 
 mod repository;
+pub mod student;
 
 pub async fn add_evaluation(
     professor_id: String,
@@ -40,6 +41,21 @@ pub async fn get_evaluations(
     repository::get_evaluation(student_id, course_id).await
 }
 
+/// This function returns all the evaluations of a course:
+/// ```
+/// evaluations: [
+///     {
+///         name: studet_name,
+///         id: student_id,
+///         scores: [
+///          id: score_id,
+///          number: practice_number,
+///          score: evaluation_puntuation,
+///          ev_type: type_evaluation
+///         ]
+///     }
+/// ]
+/// ```
 pub async fn get_all_evaluations(course_id: String) -> Result<impl Serialize, (u16, String)> {
     repository::get_all_evaluations_course(course_id).await
 }
