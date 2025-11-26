@@ -8,4 +8,4 @@
 * **Password**: La encriptación y comprobación está controlada por la base de datos
 pero el formato esta controlado por el server.  
 
-* **Accesos unicos** Está determinado por la base de dato
+* **Accesos unicos** Está determinado por la base de datos.

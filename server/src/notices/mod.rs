@@ -1,4 +1,4 @@
-use actix_web::{get, http::StatusCode, post, web, HttpResponse, Responder};
+use actix_web::{delete, get, http::StatusCode, post, web, HttpResponse, Responder};
 use serde::Deserialize;
 
 mod services;
@@ -9,7 +9,8 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
             .service(
                 web::scope("/admin")
                     .wrap(crate::shared::middlewares::admin::Admin)
-                    .service(create_notice),
+                    .service(create_notice)
+                    .service(delete_notice),
             )
             .service(get_notices),
     );
@@ -17,7 +18,10 @@ pub fn routes(cfg: &mut web::ServiceConfig) {
 
 #[get("")]
 async fn get_notices() -> impl Responder {
-    "Hello from notices"
+    match services::NoticeService::get_all().await {
+        Ok(n) => HttpResponse::Ok().json(n),
+        Err((c, m)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(m),
+    }
 }
 
 #[derive(Deserialize)]
@@ -29,6 +33,14 @@ struct Notice {
 async fn create_notice(data: web::Form<Notice>) -> impl Responder {
     match services::NoticeService::create(data.note.clone()).await {
         Ok(n) => HttpResponse::Ok().json(n),
+        Err((c, m)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(m),
+    }
+}
+
+#[delete("/{id}")]
+async fn delete_notice(id: web::Path<String>) -> impl Responder {
+    match services::NoticeService::delete(id.clone()).await {
+        Ok(_) => HttpResponse::Ok().json("Deleted"),
         Err((c, m)) => HttpResponse::build(StatusCode::from_u16(c).unwrap()).body(m),
     }
 }

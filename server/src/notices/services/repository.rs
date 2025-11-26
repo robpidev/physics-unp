@@ -55,4 +55,27 @@ impl NoticeRepository {
             None => Err((500, "DB response error".to_string())),
         }
     }
+
+    pub async fn delete(id: String) -> Result<(), (u16, String)> {
+        let query = "DELETE type::thing(notice, $id)";
+
+        let _notices: Vec<NoticeDB> =
+            Self::process_response(DB.query(query).bind(("id", id)).await)?;
+
+        Ok(())
+    }
+
+    pub async fn get_all() -> Result<Vec<Notice>, (u16, String)> {
+        let query = "SELECT * FROM notice";
+        let notices: Vec<NoticeDB> = Self::process_response(DB.query(query).await)?;
+
+        Ok(notices
+            .into_iter()
+            .map(|n| Notice {
+                id: n.id.id.to_string(),
+                note: n.note,
+                datetime: n.datetime,
+            })
+            .collect())
+    }
 }
