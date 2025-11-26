@@ -1,17 +1,13 @@
 <script lang="ts">
-	interface Notice {
-		id: string;
-		note: string;
-		datetime: Date;
-	}
+	import type { Notice } from '$lib/types/notice';
+	import Delete from '$lib/components/Delete.svelte';
+	import Add from './Add.svelte';
 
 	interface Data {
 		notices: Notice[];
 	}
-	import { user } from '$lib/stores';
-	let { data }: { data: Data } = $props();
-	console.table(data);
 
+	let { data }: { data: Data } = $props();
 	function parseDate(date: Date) {
 		let day = date.toLocaleString('es-PE').split('T')[0].split('-').reverse().join('/');
 		let hour = date.toLocaleString('es-PE').split('T')[1].split('.')[0].slice(0, -3);
@@ -20,22 +16,11 @@
 	}
 </script>
 
-<div>
-	<h1>Laboratorio de Física</h1>
-	{#if $user}
-		Pudes ingresar a
-		<a href="/{$user?.role}">Cursos</a>
-	{:else}
-		Puedes
-		<a href="/signin">Iniciar sesión</a>
-		<span>O</span>
-		<a href="/signup">Registrate</a>
-	{/if}
-
-	<hr />
-
+<section>
 	<div class="notices">
 		<h2>Avisos</h2>
+		<Add />
+		<hr />
 		<ul>
 			{#each data.notices as notice}
 				<li class="notice">
@@ -50,21 +35,15 @@
 							{parseDate(notice.datetime)[1]}
 						</span>
 					</div>
+
+					<Delete id={notice.id} />
 				</li>
 			{/each}
 		</ul>
 	</div>
-</div>
+</section>
 
 <style>
-	a {
-		font-weight: 600;
-	}
-
-	div {
-		padding: 1em;
-	}
-
 	.notices {
 		padding: 0;
 	}
@@ -83,8 +62,10 @@
 		margin: 5px;
 		align-items: center;
 		border-radius: 5px;
-		border: solid 1px var(--border);
+		/* border: solid 1px var(--border); */
 		padding: 0em 1em;
+		position: relative;
+		margin-top: 1.5rem;
 	}
 
 	li:hover {
@@ -93,15 +74,19 @@
 
 	.datetime {
 		/* position: absolute; */
-		display: flex;
-		flex-direction: column;
 		align-items: flex-end;
 		right: 1em;
 		font-size: 0.7em;
 		bottom: 1px;
+		position: absolute;
+		bottom: -1rem;
 	}
 
 	h2 {
 		color: var(--primary);
+	}
+
+	section {
+		padding: 0em 1em 1em 1em;
 	}
 </style>

@@ -23,7 +23,7 @@
 </script>
 
 <header>
-	<a class="logo" href="/">
+	<a class="logo" href="/" data-sveltekit-preload-data={false}>
 		<img src="favicon.png" alt="" />
 		<span>Física UNP</span>
 	</a>

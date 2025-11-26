@@ -24,6 +24,7 @@
 		background: none;
 		color: #ff2323;
 		font-weight: 500;
+		user-select: none;
 	}
 
 	button:hover {

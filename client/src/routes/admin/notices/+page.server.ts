@@ -1,31 +1,29 @@
-import { fail, error } from '@sveltejs/kit';
 import { host } from "$lib/config";
+import { error } from '@sveltejs/kit';
+import { fail } from '@sveltejs/kit';
 
-export async function load({ cookies }) {
 
-  const options = {
-    method: 'GET',
-    headers: {
-      Authorization: cookies.get('token')
-    }
-  };
+export async function load() {
 
-  const url = host + '/calendar';
+  const url = host + "/notices"
+  const options = { method: 'GET' };
+
+
   const response = await fetch(url, options);
 
-  if (response.ok) {
-    const calendar = await response.json();
+
+  if (response.status === 404) {
+    throw error(404, 'Not found')
+  }
+
+  if (response.status === 200) {
+    const data = await response.json()
     return {
-      calendar
+      notices: data
     }
   }
 
-  if (response.status === 401) {
-    throw error(401, 'Unauthorized');
-  }
-
-  throw error(500, 'Internal error server');
-
+  throw error(500, 'Internal error server')
 }
 
 
@@ -35,7 +33,7 @@ export const actions = {
     const id = data.get('id');
 
 
-    const url = host + '/calendar/' + id;
+    const url = host + '/notices/admin/' + id;
     const options = {
       method: 'delete',
       headers: {
@@ -44,7 +42,6 @@ export const actions = {
       },
     };
 
-
     const response = await fetch(url, options);
 
 
@@ -54,12 +51,7 @@ export const actions = {
       }
     }
 
-    if (response.status === 400) {
-      const data = await response.text();
-      return fail(400, {
-        error: data
-      })
-    }
+    console.log(response)
 
     throw error(500, 'Internal error server');
   },
@@ -67,35 +59,29 @@ export const actions = {
   add: async ({ request, cookies }) => {
     const form = await request.formData();
 
-    const todo = form.get('todo');
-    let hour = form.get('hour');
-    let minute = form.get('minute');
-    let end = form.get('end');
+    const note = form.get('note');
 
+    console.log(note)
 
-    if (String(minute).length === 1) {
-      minute = "0" + minute
+    if (!note || note.length === 0) {
+      return fail(400, {
+        error: 'Note is required'
+      })
     }
 
-
-    hour = String((5 + Number(hour)) % 24);
-    hour = hour.length === 1 ? "0" + hour : hour;
-    end = end + "T" + hour + ":" + minute + ":00Z";
-
-
-    // console.log(todo, end);
-    const url = host + '/calendar';
     const options = {
       method: 'POST',
       headers: {
         'content-type': 'application/x-www-form-urlencoded',
         Authorization: cookies.get('token')
       },
-      body: new URLSearchParams({ todo: todo, end: end })
+      body: new URLSearchParams({ note })
     };
 
 
+    const url = host + '/notices/admin';
     const response = await fetch(url, options);
+
 
     if (response.ok) {
       return {
@@ -110,5 +96,10 @@ export const actions = {
       })
     }
 
+
+    console.log(response)
+    throw error(500, 'Internal error server');
+
   }
+
 }

@@ -18,6 +18,9 @@
 			<li>
 				<a href="/admin/calendar">Horarios</a>
 			</li>
+			<li>
+				<a href="/admin/notices">Avisos</a>
+			</li>
 		</ul>
 	</nav>
 

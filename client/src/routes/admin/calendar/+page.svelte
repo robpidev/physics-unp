@@ -1,5 +1,5 @@
 <script>
-	import Delete from './Delete.svelte';
+	import Delete from '$lib/components/Delete.svelte';
 	import Add from './Add.svelte';
 
 	let { data, form } = $props();
