@@ -57,7 +57,7 @@ impl NoticeRepository {
     }
 
     pub async fn delete(id: String) -> Result<(), (u16, String)> {
-        let query = "DELETE type::thing(notice, $id)";
+        let query = "DELETE type::thing('notice', $id)";
 
         let _notices: Vec<NoticeDB> =
             Self::process_response(DB.query(query).bind(("id", id)).await)?;
