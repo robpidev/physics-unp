@@ -3,7 +3,7 @@ use serde::Deserialize;
 use surrealdb::sql::Thing;
 
 #[derive(Deserialize)]
-pub struct Enroll {
+pub struct _Enroll {
     #[allow(dead_code)]
     id: Thing,
 }

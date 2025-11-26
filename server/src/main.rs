@@ -24,7 +24,7 @@ async fn main() -> std::io::Result<()> {
 
     //  DB Instance
     if let Err(e) = DBInstance::db_connect().await {
-        panic!("Error connecting to DB: {}", e);
+        panic!("\x1b[31mError connecting to DB: {}", e);
     }
 
     HttpServer::new(move || {

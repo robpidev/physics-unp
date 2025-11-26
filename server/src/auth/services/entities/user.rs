@@ -1,6 +1,8 @@
 use crate::shared::entities::user::User;
+use serde::Serialize;
 
+#[derive(Serialize)]
 pub struct UserToken {
-    user: User,
-    token: String,
+    pub user: User,
+    pub token: String,
 }
