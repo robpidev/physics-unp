@@ -56,6 +56,10 @@
 </div>
 
 <style>
+	button {
+		all: unset;
+		background: rbga(0, 0, 0, 0.1);
+	}
 	.details {
 		display: grid;
 		justify-items: center;
@@ -100,7 +104,7 @@
 		justify-content: right;
 		padding: 0 0.5em;
 		width: 100%;
-		/*background: var(--bg);*/
+		background: var(--bg);
 		border-radius: 3px;
 		user-select: none;
 	}
