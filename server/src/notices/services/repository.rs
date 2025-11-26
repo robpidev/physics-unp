@@ -66,7 +66,7 @@ impl NoticeRepository {
     }
 
     pub async fn get_all() -> Result<Vec<Notice>, (u16, String)> {
-        let query = "SELECT * FROM notice";
+        let query = "SELECT * FROM notice ORDER BY datetime DESC";
         let notices: Vec<NoticeDB> = Self::process_response(DB.query(query).await)?;
 
         Ok(notices
