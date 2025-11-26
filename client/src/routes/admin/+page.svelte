@@ -3,9 +3,9 @@
 	import { breadcrum } from '$lib/stores.js';
 	import { onMount } from 'svelte';
 
-	export let data;
-	let facultyName = '';
-	let error = '';
+	let { data } = $props();
+	let facultyName = $state('');
+	let error = $state('');
 
 	onMount(() => {
 		breadcrum.update(() => []);
@@ -17,7 +17,7 @@
 	<form method="POST" action="?/add" use:enhance>
 		<label>
 			<span>Nombre de la facultad: </span>
-			<input on:keydown={() => (error = '')} type="text" name="name" bind:value={facultyName} />
+			<input onkeydown={() => (error = '')} type="text" name="name" bind:value={facultyName} />
 			<button
 				disabled={facultyName === '' ||
 					error !== '' ||
@@ -32,7 +32,7 @@
 		{#each data?.faculties as f}
 			<li class="faculty">
 				<a
-					on:click={() => breadcrum.update(() => [{ name: f.name, url: f.id }])}
+					onclick={() => breadcrum.update(() => [{ name: f.name, url: f.id }])}
 					href={`/admin/${f.id}`}>{f.name}</a
 				>
 			</li>

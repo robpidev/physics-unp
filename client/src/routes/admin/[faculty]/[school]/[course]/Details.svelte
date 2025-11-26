@@ -1,12 +1,11 @@
 <script>
 	import { enhance } from '$app/forms';
-	export let student;
-	export let form;
-	let newScore = '';
-	let id;
-	let ev_type = '';
-	let number = '';
-	let updating = false;
+	let { student = $bindable(), form } = $props();
+	let newScore = $state('');
+	let id = $state();
+	let ev_type = $state('');
+	let number = $state('');
+	let updating = $state(false);
 </script>
 
 <h3>Detalles de evaluaciones</h3>
@@ -32,7 +31,7 @@
 
 	{#each student.scores as score}
 		<button
-			on:click={() => {
+			onclick={() => {
 				newScore = score.score;
 				id = score.id;
 				ev_type = score.ev_type;
@@ -84,7 +83,7 @@
 				/>
 				<button
 					class="cancel"
-					on:click={() => {
+					onclick={() => {
 						newScore = '';
 						id = null;
 						number = null;

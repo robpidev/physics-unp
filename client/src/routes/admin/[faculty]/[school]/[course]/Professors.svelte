@@ -1,9 +1,9 @@
 <script>
 	import AssignButton from './AssignButton.svelte';
 	import DeleteButton from './DeleteButton.svelte';
-	export let professorsAssigneds;
+	let { professorsAssigneds } = $props();
 
-	let professors = [];
+	let professors = $state([]);
 	async function getProfessors() {
 		const url = '/api/professors';
 		const resp = await fetch(url);
@@ -51,7 +51,7 @@
 		</ul>
 	{/each}
 {:else}
-	<button on:click={getProfessors}>Asignar profesor</button>
+	<button onclick={getProfessors}>Asignar profesor</button>
 {/if}
 
 <style>

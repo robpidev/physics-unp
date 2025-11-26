@@ -1,8 +1,8 @@
 <script>
 	import { enhance } from '$app/forms';
-	let loading = false;
-	export let form;
-	$: student = form?.student;
+	let loading = $state(false);
+	let { form } = $props();
+	let student = $derived(form?.student);
 </script>
 
 <div>

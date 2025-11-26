@@ -1,5 +1,5 @@
 <script>
-	export let score;
+	let { score } = $props();
 </script>
 
 <span>score</span>

@@ -1,12 +1,12 @@
 <script>
-	export let data;
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import { breadcrum } from '$lib/stores.js';
-	let course = '';
-	let deleting = false;
-	let course_delete = '';
-	let delete_id = -1;
+	let { data } = $props();
+	let course = $state('');
+	let deleting = $state(false);
+	let course_delete = $state('');
+	let delete_id = $state(-1);
 </script>
 
 <section class="courses">
@@ -35,7 +35,7 @@
 				<a
 					class={delete_id == id ? 'course-delete' : ''}
 					data-sveltekit-preload-data="false"
-					on:click={() => {
+					onclick={() => {
 						breadcrum.update((path) => [...path, { name: course.name, url: course.id }]);
 					}}
 					href="/admin/{$page.params.faculty}/{$page.params.school}/{course.id}">{course.name}</a
@@ -46,7 +46,7 @@
 					/
 					<span class="places">{course.places}</span>
 
-					<button on:click={() => (delete_id >= 0 ? (delete_id = -1) : (delete_id = id))}>
+					<button onclick={() => (delete_id >= 0 ? (delete_id = -1) : (delete_id = id))}>
 						{delete_id == id ? 'Cancelar' : 'Eliminar'}
 					</button>
 				</div>
@@ -77,7 +77,7 @@
 					placeholder="Para completar la eliminación ingrese el nombre del curso"
 				/>
 				<input type="text" name="course_id" value={data.courses[delete_id].id} hidden />
-				<button on:click={() => (delete_id = -1)}>Cancelar</button>
+				<button onclick={() => (delete_id = -1)}>Cancelar</button>
 				<button
 					class="btn-delete"
 					type="submit"

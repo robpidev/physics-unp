@@ -1,7 +1,7 @@
 <script>
-	export let id;
 	import { enhance } from '$app/forms';
-	let disabled = false;
+	let { id } = $props();
+	let disabled = $state(false);
 </script>
 
 <form

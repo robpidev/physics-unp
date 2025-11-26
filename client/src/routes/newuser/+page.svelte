@@ -2,7 +2,7 @@
 	import { user } from '$lib/stores.js';
 	import { onDestroy, onMount } from 'svelte';
 	import { goto } from '$app/navigation';
-	let usr;
+	let usr = $state();
 	let user_sus = user.subscribe((u) => {
 		usr = u;
 	});

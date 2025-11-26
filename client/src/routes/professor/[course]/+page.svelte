@@ -3,10 +3,9 @@
 	import Ponderate from './Ponderate.svelte';
 	import Details from './Details.svelte';
 	import Download from './Download.svelte';
-	export let form;
-	export let data;
-	let search;
-	let student;
+	let { form, data } = $props();
+	let search = $state();
+	let student = $state();
 
 	onMount(() => {
 		console.log(data);
@@ -84,7 +83,7 @@
 					<span class="cell left">{ev.name}</span>
 					<span class="cell right">{average(ev.scores)}</span>
 					<span class="cell">
-						<button on:click={() => (student = id)} class="details">Ver</button>
+						<button onclick={() => (student = id)} class="details">Ver</button>
 					</span>
 					<!-- content here -->
 				{/if}

@@ -1,6 +1,6 @@
 <script>
 	import * as XLSX from 'xlsx';
-	export let data = [];
+	let { data = [] } = $props();
 
 	function toScv() {
 		const students = data.map((ev) => {
@@ -15,4 +15,4 @@
 	}
 </script>
 
-<button on:click={toScv}> Descargar </button>
+<button onclick={toScv}> Descargar </button>

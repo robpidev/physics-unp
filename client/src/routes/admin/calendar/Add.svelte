@@ -1,7 +1,7 @@
 <script>
 	import { enhance } from '$app/forms';
-	let date = '';
-	export let form;
+	let date = $state('');
+	let { form } = $props();
 	let disabled = false;
 </script>
 

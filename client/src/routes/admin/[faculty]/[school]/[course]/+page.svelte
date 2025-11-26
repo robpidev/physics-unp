@@ -5,11 +5,10 @@
 	import Professors from './Professors.svelte';
 	import AddStudent from './AddStudent.svelte';
 
-	let search;
-	let student = null;
+	let search = $state();
+	let student = $state(null);
 
-	export let data;
-	export let form;
+	let { data, form } = $props();
 
 	function average(scores) {
 		const tw = data.course.tests[0].weight / 100;
@@ -71,7 +70,7 @@
 					<span class="cell left">{ev.name}</span>
 					<span class="cell right">{average(ev.scores)}</span>
 					<span class="cell">
-						<button on:click={() => (student = id)} class="details">Ver</button>
+						<button onclick={() => (student = id)} class="details">Ver</button>
 					</span>
 					<!-- content here -->
 				{/if}

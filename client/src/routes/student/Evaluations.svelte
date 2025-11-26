@@ -1,7 +1,7 @@
 <script>
 	import { onMount } from 'svelte';
-	let average = 0;
-	export let evaluations;
+	let average = $state(0);
+	let { evaluations } = $props();
 
 	onMount(() => {
 		const tw = evaluations.tests[0].weight / 100;

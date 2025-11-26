@@ -1,6 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
-	export let user_id;
+	let { user_id } = $props();
 </script>
 
 <form method="post" action="?/unassign" use:enhance>

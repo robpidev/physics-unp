@@ -2,8 +2,8 @@
 	import { enhance } from '$app/forms';
 	import { page } from '$app/stores';
 	import { breadcrum } from '$lib/stores';
-	export let data;
-	let name = '';
+	let { data } = $props();
+	let name = $state('');
 	let error = '';
 </script>
 
@@ -29,7 +29,7 @@
 		{#each data.data as school}
 			<li class="school">
 				<a
-					on:click={() =>
+					onclick={() =>
 						breadcrum.update((path) => [...path, { name: school.name, url: school.id }])}
 					href="{$page.params.faculty}/{school.id}">{school.name}</a
 				>

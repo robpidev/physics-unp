@@ -1,5 +1,12 @@
 <script>
 	import { breadcrum } from '$lib/stores';
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { children } = $props();
 </script>
 
 <div class="page">
@@ -24,7 +31,7 @@
 								.slice(0, i + 1)
 								.map((s) => s.url)
 								.join('/')}"
-							on:click={() => breadcrum.update((path) => path.slice(0, i + 1))}
+							onclick={() => breadcrum.update((path) => path.slice(0, i + 1))}
 						>
 							{path.name}
 						</a>
@@ -34,7 +41,7 @@
 		</nav>
 	{/if}
 
-	<slot></slot>
+	{@render children?.()}
 </div>
 
 <style>

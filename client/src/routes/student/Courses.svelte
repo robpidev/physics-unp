@@ -1,6 +1,6 @@
 <script>
 	import { enhance } from '$app/forms';
-	let courses;
+	let courses = $state();
 
 	async function coursesAvilables() {
 		const resp = await fetch('/student/avilables');
@@ -39,7 +39,7 @@
 {:else}
 	<!-- else content here -->
 	<p>No hay cursos matriculados</p>
-	<button on:click={coursesAvilables}>Inscribirme en un curso</button>
+	<button onclick={coursesAvilables}>Inscribirme en un curso</button>
 {/if}
 
 <style>

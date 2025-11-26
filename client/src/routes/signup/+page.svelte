@@ -4,17 +4,17 @@
 	import { goto } from '$app/navigation';
 	import { user } from '$lib/stores.js';
 
-	export let data;
+	let { data } = $props();
 
-	let code = '';
-	$: code_name = code.length === 10 ? 'code' : 'dni';
-	let id = -1;
-	let pass = '';
-	let pass1 = '';
-	let pass_msg = '';
-	let pas_con = '';
-	let cod_msg = '';
-	let server_msg = '';
+	let code = $state('');
+	let code_name = $derived(code.length === 10 ? 'code' : 'dni');
+	let id = $state(-1);
+	let pass = $state('');
+	let pass1 = $state('');
+	let pass_msg = $state('');
+	let pas_con = $state('');
+	let cod_msg = $state('');
+	let server_msg = $state('');
 
 	function check_code() {
 		if (/^\d+$/.test(code) && (code.length === 10 || code.length === 8)) {
@@ -24,7 +24,7 @@
 		}
 	}
 
-	let loading = false;
+	let loading = $state(false);
 </script>
 
 <div class="content">
@@ -47,7 +47,7 @@
 	>
 		<label>
 			<span>Código:</span>
-			<input on:keyup={check_code} name={code_name} type="text" required bind:value={code} />
+			<input onkeyup={check_code} name={code_name} type="text" required bind:value={code} />
 			{#if cod_msg != ''}
 				<span class="error" in:fade>{cod_msg}</span>
 			{/if}
@@ -67,7 +67,7 @@
 		<label>
 			<span>Contraseña:</span>
 			<input
-				on:keyup={() => (pass.length < 8 ? (pass_msg = 'Minimo 8 caracteres') : (pass_msg = ''))}
+				onkeyup={() => (pass.length < 8 ? (pass_msg = 'Minimo 8 caracteres') : (pass_msg = ''))}
 				name="password"
 				type="password"
 				bind:value={pass}
@@ -80,7 +80,7 @@
 		<label>
 			<span>Confirmar contraseña: </span>
 			<input
-				on:keyup={() =>
+				onkeyup={() =>
 					pass === pass1 ? (pas_con = '') : (pas_con = 'Las contraseñas no coinciden')}
 				bind:value={pass1}
 				type="password"

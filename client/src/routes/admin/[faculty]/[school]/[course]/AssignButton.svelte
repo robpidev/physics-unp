@@ -1,9 +1,16 @@
 <script>
 	import { enhance } from '$app/forms';
 
-	export let user_id = '';
-	export let role = '';
-	let creating = false;
+	/**
+	 * @typedef {Object} Props
+	 * @property {string} [user_id]
+	 * @property {string} [role]
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { user_id = '', role = '', children } = $props();
+	let creating = $state(false);
 </script>
 
 <form
@@ -15,7 +22,7 @@
 >
 	<input type="text" name="user_id" hidden value={user_id} />
 	<input type="text" name="role" hidden value={role} />
-	<button disabled={creating} type="send"><slot /></button>
+	<button disabled={creating} type="send">{@render children?.()}</button>
 </form>
 
 <style>

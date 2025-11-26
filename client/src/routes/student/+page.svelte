@@ -1,21 +1,30 @@
 <script>
+	import { createBubbler, preventDefault } from 'svelte/legacy';
+
+	const bubble = createBubbler();
 	import { onMount } from 'svelte';
 	import Courses from './Courses.svelte';
 	import Evaluations from './Evaluations.svelte';
 	import { enhance } from '$app/forms';
 
-	let disabled = false;
-	let selected = null;
+	let disabled = $state(false);
+	let selected = $state(null);
 
-	let usr;
+	let usr = $state();
 
-	export let data;
 	onMount(() => {
 		usr = JSON.parse(localStorage.getItem('user'));
 	});
 	//const user_suscribe = user.subscribe((u) => (usr = u));
-	//onDestroy(user_suscribe);
-	export let form;
+	
+	/**
+	 * @typedef {Object} Props
+	 * @property {any} data
+	 * @property {any} form - onDestroy(user_suscribe);
+	 */
+
+	/** @type {Props} */
+	let { data, form } = $props();
 </script>
 
 <div class="page">
@@ -53,7 +62,7 @@
 							>
 								<input
 									hidden
-									on:submit|preventDefault
+									onsubmit={preventDefault(bubble('submit'))}
 									type="text"
 									name="course_id"
 									value={course?.id}

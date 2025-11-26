@@ -4,13 +4,13 @@
 	import { user } from '$lib/stores.js';
 	import { onMount } from 'svelte';
 
-	export let form;
+	let { form = $bindable() } = $props();
 	onMount(() => {
 		user.set(null);
 		localStorage.removeItem('user');
 	});
 
-	let loading = false;
+	let loading = $state(false);
 </script>
 
 <div class="content">

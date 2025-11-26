@@ -1,9 +1,8 @@
 <script>
-	export let data;
 	import Delete from './Delete.svelte';
 	import Add from './Add.svelte';
 
-	export let form;
+	let { data, form } = $props();
 
 	const dateHandle = (dateTime) => {
 		const date = new Date(dateTime);

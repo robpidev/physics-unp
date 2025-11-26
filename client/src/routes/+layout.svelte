@@ -1,7 +1,14 @@
 <script>
 	import { onMount } from 'svelte';
-	import { page } from '$app/stores';
+	import { page } from '$app/state';
 	import { user } from '$lib/stores';
+	/**
+	 * @typedef {Object} Props
+	 * @property {import('svelte').Snippet} [children]
+	 */
+
+	/** @type {Props} */
+	let { children } = $props();
 
 	onMount(async () => {
 		const usr = JSON.parse(localStorage.getItem('user'));
@@ -28,18 +35,18 @@
 					<a href="/{$user.role}" class="link">{$user.names.split(' ')[0]}</a>
 				</li>
 				<li>
-					<a on:click={signout} data-sveltekit-preload-data={false} class="link" href="/signin"
+					<a onclick={signout} data-sveltekit-preload-data={false} class="link" href="/signin"
 						>Salir</a
 					>
 				</li>
-			{:else if !$page.url.pathname.includes('/signin') && !$page.url.pathname.includes('/signup')}
+			{:else if !page.url.pathname.includes('/signin') && !page.url.pathname.includes('/signup')}
 				<li><a class="signin" href="/signin">Iniciar sesión</a></li>
 			{/if}
 		</ul>
 	</nav>
 </header>
 <main>
-	<slot></slot>
+	{@render children?.()}
 </main>
 
 <style>
