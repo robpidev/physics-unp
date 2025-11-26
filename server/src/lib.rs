@@ -9,3 +9,6 @@ pub mod professor;
 pub mod school;
 pub mod shared;
 pub mod student;
+
+// Here work with new arquitecture
+pub mod notices;

@@ -1,5 +1,7 @@
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-use server::{auth, calendar, config, course, evaluation, faculty, professor, school, student};
+use server::{
+    auth, calendar, config, course, evaluation, faculty, notices, professor, school, student,
+};
 
 use server::config::Server;
 use server::shared::repository::DBInstance;
@@ -38,6 +40,7 @@ async fn main() -> std::io::Result<()> {
             .configure(evaluation::routes)
             .configure(student::routes)
             .configure(calendar::routes)
+            .configure(notices::routes)
     })
     .bind((server_config.host, server_config.port))
     .inspect(|_| println!("\x1b[32mServer is running"))?

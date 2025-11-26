@@ -6,13 +6,13 @@ use actix_web::{
     error, Error,
 };
 
-use serde::{Deserialize, Serialize};
-
 use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
 use crate::{config::SeedJwtVar, shared::entities::user::User};
+
+use crate::shared::entities::Claims;
 
 // 1. Middleware initialization, middleware factory gets called with
 //    next service in chain as parameter.
@@ -98,12 +98,6 @@ where
     }
 }
 
-#[derive(Serialize, Deserialize)]
-struct Claims {
-    user: User,
-    exp: usize,
-}
-
 fn check_token(token: &str) -> Result<User, (u16, String)> {
     let secret = match SeedJwtVar::from_env() {
         Ok(v) => v,
@@ -113,11 +107,14 @@ fn check_token(token: &str) -> Result<User, (u16, String)> {
     let mut validate = Validation::default();
     validate.validate_exp = false;
 
-    let professor =
-        match decode::<Claims>(token, &DecodingKey::from_secret(secret.as_ref()), &validate) {
-            Ok(t) => t.claims.user,
-            Err(e) => return Err((500, format!("Error Professor Token: {}", e.to_string()))),
-        };
+    let professor = match decode::<Claims<User>>(
+        token,
+        &DecodingKey::from_secret(secret.as_ref()),
+        &validate,
+    ) {
+        Ok(t) => t.claims.data,
+        Err(e) => return Err((500, format!("Error Professor Token: {}", e.to_string()))),
+    };
 
     Ok(professor)
 }
