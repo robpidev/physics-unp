@@ -1,6 +1,4 @@
 use actix_web::HttpMessage;
-use dotenv::dotenv;
-use std::env;
 use std::future::{ready, Ready};
 
 use actix_web::{
@@ -14,6 +12,7 @@ use futures_util::future::LocalBoxFuture;
 
 use jsonwebtoken::{decode, DecodingKey, Validation};
 
+use crate::config::SeedJwtVar;
 use crate::shared::entities::user::User;
 
 // 1. Middleware initialization, middleware factory gets called with
@@ -97,8 +96,7 @@ struct Claims {
 }
 
 fn get_id(token: &str) -> Result<String, (u16, String)> {
-    dotenv().ok();
-    let secret = match env::var("SEED_JWT") {
+    let secret = match SeedJwtVar::from_env() {
         Ok(v) => v,
         Err(e) => return Err((500, e.to_string())),
     };

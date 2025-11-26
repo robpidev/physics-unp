@@ -1,7 +1,7 @@
-use std::env;
-
-use crate::shared::{entities::user::User, repository::db::DB};
-use dotenv::dotenv;
+use crate::{
+    config::SeedJwtVar,
+    shared::{entities::user::User, repository::db::DB},
+};
 use jsonwebtoken::{encode, EncodingKey, Header};
 use serde::{Deserialize, Serialize};
 use surrealdb::sql::Thing;
@@ -29,8 +29,14 @@ struct UserToken {
     token: String,
 }
 
+//=== Signin Repository ===
+
+struct SignInRepository {
+    // query: '_ str
+}
+
 //use crate::shared::entities::{professor::ProfessorDB, student::StudentDB};
-pub async fn sign_in<'a>(
+pub async fn sign_in(
     id: String,
     password: String,
     user_type: &'static str,
@@ -79,8 +85,8 @@ WHERE crypto::bcrypt::compare(password, $password))[0];
         exp: 30,
     };
 
-    dotenv().ok();
-    let secret = match env::var("SEED_JWT") {
+    // TODO: This function should be in service layer
+    let secret = match SeedJwtVar::from_env() {
         Ok(s) => s,
         Err(e) => return Err((500, format!("Error getting secret: {}", e.to_string()))),
     };

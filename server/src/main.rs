@@ -1,5 +1,8 @@
 use actix_web::{get, App, HttpResponse, HttpServer, Responder};
-use server::{auth, calendar, course, evaluation, faculty, professor, school, student};
+use server::{auth, calendar, config, course, evaluation, faculty, professor, school, student};
+
+use server::config::Server;
+use server::shared::repository::DBInstance;
 
 #[get("/")]
 async fn hello() -> impl Responder {
@@ -8,18 +11,21 @@ async fn hello() -> impl Responder {
 
 #[actix_web::main]
 async fn main() -> std::io::Result<()> {
-    // Load db
-    let config = server::app_config();
+    println!("Server is starting...");
 
-    server::shared::repository::db::db_connect(
-        config.db_host,
-        config.db_user,
-        config.db_pass,
-        config.db_use_ns,
-        config.db_use_db,
-    )
-    .await
-    .unwrap();
+    // Load .env file
+    config::load_env();
+
+    // Config server
+    let server_config = Server::from_env();
+
+    println!("Host: {}", server_config.host);
+    println!("Port: {}", server_config.port);
+
+    //  DB Instance
+    if let Err(e) = DBInstance::db_connect().await {
+        panic!("Error connecting to DB: {}", e);
+    }
 
     HttpServer::new(move || {
         App::new()
@@ -33,7 +39,8 @@ async fn main() -> std::io::Result<()> {
             .configure(student::routes)
             .configure(calendar::routes)
     })
-    .bind(config.host)?
+    .bind((server_config.host, server_config.port))
+    .inspect(|_| println!("\x1b[32mServer is running"))?
     .run()
     .await
 }
